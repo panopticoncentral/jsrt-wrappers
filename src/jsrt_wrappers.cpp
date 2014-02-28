@@ -17,6 +17,122 @@
 
 namespace jsrt
 {
+    void runtime::dispose()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+        runtime::translate_error_code(JsDisposeRuntime(_handle));
+        _handle = JS_INVALID_RUNTIME_HANDLE;
+    }
+
+    size_t runtime::memory_usage()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        size_t memoryUsage;
+        runtime::translate_error_code(JsGetRuntimeMemoryUsage(_handle, &memoryUsage));
+        return memoryUsage;
+    }
+
+    size_t runtime::memory_limit()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        size_t memoryLimit;
+        runtime::translate_error_code(JsGetRuntimeMemoryLimit(_handle, &memoryLimit));
+        return memoryLimit;
+    }
+
+    void runtime::set_memory_limit(size_t memory_limit)
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        runtime::translate_error_code(JsSetRuntimeMemoryLimit(_handle, memory_limit));
+    }
+
+    void runtime::collect_garbage()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        runtime::translate_error_code(JsCollectGarbage(_handle));
+    }
+
+    void runtime::set_memory_allocation_callback(void *callbackState, JsMemoryAllocationCallback allocationCallback)
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        runtime::translate_error_code(JsSetRuntimeMemoryAllocationCallback(_handle, callbackState, allocationCallback));
+    }
+
+    void runtime::set_before_collect_callback(void *callbackState, JsBeforeCollectCallback beforeCollectCallback)
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        runtime::translate_error_code(JsSetRuntimeBeforeCollectCallback(_handle, callbackState, beforeCollectCallback));
+    }
+
+    void runtime::disable_execution()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        runtime::translate_error_code(JsDisableRuntimeExecution(_handle));
+    }
+
+    void runtime::enable_execution()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        runtime::translate_error_code(JsEnableRuntimeExecution(_handle));
+    }
+
+    bool runtime::is_execution_disabled()
+    {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
+        bool value;
+        runtime::translate_error_code(JsIsRuntimeExecutionDisabled(_handle, &value));
+        return value;
+    }
+
     void runtime::translate_error_code(JsErrorCode errorCode)
     {
         switch (errorCode)
@@ -96,11 +212,17 @@ namespace jsrt
         }
     }
 
-    context runtime::create_context(IDebugApplication *site)
+    context runtime::create_context(IDebugApplication *debug_application)
     {
+        // TODO: Throws an access violation in this case, which shouldn't happen
+        if (!is_valid())
+        {
+            throw invalid_argument_exception();
+        }
+
         JsContextRef newContext;
 
-        runtime::translate_error_code(JsCreateContext(_handle, site, &newContext));
+        runtime::translate_error_code(JsCreateContext(_handle, debug_application, &newContext));
 
         return context(newContext);
     }

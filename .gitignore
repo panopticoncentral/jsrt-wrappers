@@ -4,5 +4,8 @@
 *.suo
 /ipch/
 /Debug/
+/x64/
 /src/Debug/
+/src/x64/
 /test/Debug/
+/test/x64/

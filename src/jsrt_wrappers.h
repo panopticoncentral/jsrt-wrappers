@@ -12,6 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/// \mainpage Chakra Hosting API C++ Wrappers
+
+/// \file
+/// \brief Wrappers to make working with Chakra's hosting API simpler in C++.
+
 #include <string>
 #include <vector>
 
@@ -28,6 +33,9 @@ namespace jsrt
     class number;
     class string;
 
+    /// <summary>
+    ///     A class that wraps a handle to a Chakra runtime.
+    /// </summary>
     class runtime
     {
         friend class context;
@@ -41,82 +49,199 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Constructs an invalid runtime handle.
+        /// </summary>
         runtime() :
             _handle(JS_INVALID_RUNTIME_HANDLE)
         {
         }
 
+        /// <summary>
+        ///     The underlying runtime handle this class wraps.
+        /// </summary>
         JsRuntimeHandle handle()
         {
             return _handle;
         }
 
+        /// <summary>
+        ///     Whether the handle is valid.
+        /// </summary>
         bool is_valid()
         {
             return _handle != JS_INVALID_RUNTIME_HANDLE;
         }
 
-        void dispose()
-        {
-            runtime::translate_error_code(JsDisposeRuntime(_handle));
-            _handle = JS_INVALID_RUNTIME_HANDLE;
-        }
+        /// <summary>
+        ///     Disposes the runtime.
+        /// </summary>
+        /// <remarks>
+        ///     Once a runtime has been disposed, all resources owned by it are invalid and cannot be used.
+        ///     If the runtime is active (i.e. it is set to be current on a particular thread), it cannot 
+        ///     be disposed.
+        /// </remarks>
+        void dispose();
 
-        size_t memory_usage()
-        {
-            size_t memoryUsage;
-            runtime::translate_error_code(JsGetRuntimeMemoryUsage(_handle, &memoryUsage));
-            return memoryUsage;
-        }
+        /// <summary>
+        ///     Gets the current memory usage for a runtime.
+        /// </summary>
+        /// <remarks>
+        ///     Memory usage can be always be retrieved, regardless of whether or not the runtime is active
+        ///     on another thread.
+        /// </remarks>
+        /// <returns>The runtime's current memory usage, in bytes.</returns>
+        size_t memory_usage();
 
-        size_t memory_limit()
-        {
-            size_t memoryLimit;
-            runtime::translate_error_code(JsGetRuntimeMemoryLimit(_handle, &memoryLimit));
-            return memoryLimit;
-        }
+        /// <summary>
+        ///     Gets the current memory limit for a runtime.
+        /// </summary>
+        /// <remarks>
+        ///     The memory limit of a runtime can be always be retrieved, regardless of whether or not the 
+        ///     runtime is active on another thread.
+        /// </remarks>
+        /// <returns>
+        ///     The runtime's current memory limit, in bytes, or -1 if no limit has been set.
+        /// </returns>
+        size_t memory_limit();
 
-        void set_memory_limit(size_t memoryLimit)
-        {
-            runtime::translate_error_code(JsSetRuntimeMemoryLimit(_handle, memoryLimit));
-        }
+        /// <summary>
+        ///     Sets the current memory limit for a runtime.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     A memory limit will cause any operation which exceeds the limit to fail with an "out of 
+        ///     memory" error. Setting a runtime's memory limit to -1 means that the runtime has no memory 
+        ///     limit. New runtimes  default to having no memory limit. If the new memory limit exceeds
+        ///     current usage, the call will succeed and any future allocations in this runtime will fail
+        ///     until the runtime's memory usage drops below the limit.
+        ///     </para>
+        ///     <para>
+        ///     A runtime's memory limit can be always be set, regardless of whether or not the runtime is 
+        ///     active on another thread.
+        ///     </para>
+        /// </remarks>
+        /// <param name="memory_limit">
+        ///     The new runtime memory limit, in bytes, or -1 for no memory limit.
+        /// </param>
+        void set_memory_limit(size_t memory_limit);
 
-        void collect_garbage()
-        {
-            runtime::translate_error_code(JsCollectGarbage(_handle));
-        }
+        /// <summary>
+        ///     Performs a full garbage collection.
+        /// </summary>
+        void collect_garbage();
 
-        void set_memory_allocation_callback(void *callbackState, JsMemoryAllocationCallback allocationCallback)
-        {
-            runtime::translate_error_code(JsSetRuntimeMemoryAllocationCallback(_handle, callbackState, allocationCallback));
-        }
+        /// <summary>
+        ///     Sets a memory allocation callback for specified runtime
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Registering a memory allocation callback will cause the runtime to call back to the host 
+        ///     whenever it acquires memory from, or releases memory to, the OS. The callback routine is
+        ///     called before the runtime memory manager allocates a block of memory. The allocation will
+        ///     be rejected if the callback returns false. The runtime memory manager will also invoke the
+        ///     callback routine after freeing a block of memory, as well as after allocation failures. 
+        ///     </para>
+        ///     <para>
+        ///     The callback is invoked on the current runtime execution thread, therefore execution is 
+        ///     blocked until the callback completes.
+        ///     </para>
+        ///     <para>
+        ///     The return value of the callback is not stored; previously rejected allocations will not
+        ///     prevent the runtime from invoking the callback again later for new memory allocations.
+        ///     </para>
+        /// </remarks>
+        /// <param name="callbackState">
+        ///     User provided state that will be passed back to the callback.
+        /// </param>
+        /// <param name="allocationCallback">
+        ///     Memory allocation callback to be called for memory allocation events.
+        /// </param>
+        void set_memory_allocation_callback(void *callbackState, JsMemoryAllocationCallback allocationCallback);
 
-        void set_before_collect_callback(void *callbackState, JsBeforeCollectCallback beforeCollectCallback)
-        {
-            runtime::translate_error_code(JsSetRuntimeBeforeCollectCallback(_handle, callbackState, beforeCollectCallback));
-        }
+        /// <summary>
+        ///     Sets a callback function that is called by the runtime before garbage collection.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     The callback is invoked on the current runtime execution thread, therefore execution is 
+        ///     blocked until the callback completes.
+        ///     </para>
+        ///     <para>
+        ///     The callback can be used by hosts to prepare for garbage collection. For example, by 
+        ///     releasing unnecessary references on Chakra objects.
+        ///     </para>
+        /// </remarks>
+        /// <param name="callbackState">
+        ///     User provided state that will be passed back to the callback.
+        /// </param>
+        /// <param name="beforeCollectCallback">The callback function being set.</param>
+        void set_before_collect_callback(void *callbackState, JsBeforeCollectCallback beforeCollectCallback);
 
-        void disable_execution()
-        {
-            runtime::translate_error_code(JsDisableRuntimeExecution(_handle));
-        }
+        /// <summary>
+        ///     Suspends script execution and terminates any running scripts in a runtime.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Calls to a suspended runtime will fail until <c>enable_execution</c> is called.
+        ///     </para>
+        ///     <para>
+        ///     This API does not have to be called on the thread the runtime is active on. Although the
+        ///     runtime will be set into a suspended state, an executing script may not be suspended 
+        ///     immediately; a running script will be terminated with an uncatchable exception as soon as 
+        ///     possible.
+        ///     </para>
+        ///     <para>
+        ///     Suspending execution in a runtime that is already suspended is a no-op.
+        ///     </para>
+        /// </remarks>
+        void disable_execution();
 
-        void enable_execution()
-        {
-            runtime::translate_error_code(JsEnableRuntimeExecution(_handle));
-        }
+        /// <summary>
+        ///     Enables script execution in a runtime.
+        /// </summary>
+        /// <remarks>
+        ///     Enabling script execution in a runtime that already has script execution enabled is a 
+        ///     no-op. 
+        /// </remarks>
+        void enable_execution();
 
-        bool is_execution_disabled()
-        {
-            bool value;
-            runtime::translate_error_code(JsIsRuntimeExecutionDisabled(_handle, &value));
-            return value;
-        }
+        /// <summary>
+        ///     Returns a value that indicates whether script execution is disabled in the runtime.
+        /// </summary>
+        /// <returns>If execution is disabled, <c>true</c>, <c>false</c> otherwise.</returns>
+        bool is_execution_disabled();
 
-        context create_context(IDebugApplication *site = nullptr);
+        /// <summary>
+        ///     Creates a script context for running scripts.
+        /// </summary>
+        /// <remarks>
+        ///     Each script context has its own global object that is isolated from all other script 
+        ///     contexts.
+        /// </remarks>
+        /// <param name="debug_application">
+        ///     The debug application to use for debugging. This parameter can be null, in which case 
+        ///     debugging is not enabled for the context.
+        /// </param>
+        /// <returns>The created script context.</returns>
+        context create_context(IDebugApplication *debug_application = nullptr);
 
+        /// <summary>
+        ///     Translates a Chakra error code into a wrapper exception.
+        /// </summary>
+        /// <remarks>
+        ///     If the error code is not <c>JsNoError</c>, this will thrown the corresponding
+        ///     exception.
+        /// </remarks>
         static void translate_error_code(JsErrorCode errorCode);
 
+        /// <summary>
+        ///     Creates a new runtime.
+        /// </summary>
+        /// <param name="attributes">The attributes of the runtime to be created.</param>
+        /// <param name="version">The version of the runtime to be created.</param>
+        /// <param name="callback">The thread service for the runtime. Can be null.</param>
+        /// <returns>The runtime created.</returns>
         static runtime create(JsRuntimeAttributes attributes = JsRuntimeAttributeNone, JsRuntimeVersion version = JsRuntimeVersion11, JsThreadServiceCallback callback = nullptr)
         {
             JsRuntimeHandle newRuntime;
