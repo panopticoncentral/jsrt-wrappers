@@ -1,0 +1,5 @@
+﻿# Ignore built files
+*.opensdf
+*.sdf
+*.suo
+/ipch/
