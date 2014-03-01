@@ -250,6 +250,9 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     A class that wraps a Chakra handle.
+    /// </summary>
     class reference
     {
     protected:
@@ -261,21 +264,39 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Constructs an invalid handle.
+        /// </summary>
         reference() :
             _ref(JS_INVALID_REFERENCE)
         {
         }
 
+        /// <summary>
+        ///     The handle being wrapped.
+        /// </summary>
         JsRef handle() const
         {
             return _ref;
         }
 
+        /// <summary>
+        ///     Whether the handle is valid.
+        /// </summary>
         bool is_valid()
         {
             return _ref != JS_INVALID_REFERENCE;
         }
 
+        /// <summary>
+        ///     Adds a reference to the handle.
+        /// </summary>
+        /// <remarks>
+        ///     This only needs to be called on handles that are not going to be stored somewhere
+        ///     on the stack. Calling <c>add_reference</c> ensures that the object the handle
+        ///     refers to will not be freed until <c>release</c> is called.
+        /// </remarks>
+        /// <returns>The object's new reference count.</returns>
         unsigned int add_reference()
         {
             unsigned int count;
@@ -283,6 +304,13 @@ namespace jsrt
             return count;
         }
 
+        /// <summary>
+        ///     Releases a reference to the handle.
+        /// </summary>
+        /// <remarks>
+        ///     Removes a reference to a handle that was created by <c>add_reference</c>.
+        /// </remarks>
+        /// <returns>The object's new reference count (can pass in null).</returns>
         unsigned int release()
         {
             unsigned int count;
@@ -292,18 +320,18 @@ namespace jsrt
     };
 
     template<class T>
-    class shared_reference
+    class pinned_reference
     {
     private:
         T _reference;
 
     public:
-        shared_reference() :
+        pinned_reference() :
             _reference()
         {
         }
 
-        shared_reference(T collectedReference) :
+        pinned_reference(T collectedReference) :
             _reference(collectedReference)
         {
             if (_reference.is_valid())
@@ -312,7 +340,7 @@ namespace jsrt
             }
         }
 
-        shared_reference(const shared_reference<T>& right) :
+        pinned_reference(const pinned_reference<T>& right) :
             _reference(right._reference)
         {
             if (_reference.is_valid())
@@ -321,7 +349,7 @@ namespace jsrt
             }
         }
 
-        ~shared_reference()
+        ~pinned_reference()
         {
             if (_reference.is_valid())
             {
@@ -340,7 +368,7 @@ namespace jsrt
             return _reference;
         }
 
-        shared_reference<T>& operator=(const shared_reference<T>& right)
+        pinned_reference<T>& operator=(const pinned_reference<T>& right)
         {
             _reference = right._reference;
             if (_reference.is_valid())
