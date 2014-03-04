@@ -32,5 +32,8 @@
     <ClCompile Include="reference.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="pinned.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
