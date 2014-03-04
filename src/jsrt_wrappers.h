@@ -775,43 +775,65 @@ namespace jsrt
         static value evaluate_serialized(std::wstring script, unsigned char *buffer, JsSourceContext source_context = JS_SOURCE_CONTEXT_NONE, std::wstring source_url = std::wstring());
     };
 
-    class property_id
+    /// <summary>
+    ///     A property identifier.
+    /// </summary>
+    /// <remarks>
+    ///     Property identifiers are used to refer to properties of JavaScript objects instead of using
+    ///     strings.
+    /// </remarks>
+    class property_id : public reference
     {
     private:
-        JsPropertyIdRef _propertyId;
-
         property_id(JsPropertyIdRef propertyId) :
-            _propertyId(propertyId)
+            reference(propertyId)
         {
         }
 
     public:
+        /// <summary>
+        ///     Constructs an invalid property ID.
+        /// </summary>
         property_id() :
-            _propertyId(JS_INVALID_REFERENCE)
+            reference()
         {
         }
 
-        JsPropertyIdRef handle()
-        {
-            return _propertyId;
-        }
-
+        /// <summary>
+        ///     Gets the name associated with the property ID.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <returns>The name associated with the property ID.</returns>
         const std::wstring name()
         {
             const wchar_t *result;
-            runtime::translate_error_code(JsGetPropertyNameFromId(_propertyId, &result));
+            runtime::translate_error_code(JsGetPropertyNameFromId(_ref, &result));
             return result;
         }
 
-        bool is_valid() const
-        {
-            return _propertyId == JS_INVALID_REFERENCE;
-        }
-
-        static property_id create(const std::wstring propertyName)
+        /// <summary>
+        ///     Gets the property ID associated with the name. 
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Property IDs are specific to a context and cannot be used across contexts.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="name">
+        ///     The name of the property ID to get or create. The name may consist of only digits.
+        /// </param>
+        /// <returns>The property ID in this runtime for the given name.</returns>
+        static property_id create(const std::wstring name)
         {
             JsPropertyIdRef propertyId;
-            runtime::translate_error_code(JsGetPropertyIdFromName(propertyName.c_str(), &propertyId));
+            runtime::translate_error_code(JsGetPropertyIdFromName(name.c_str(), &propertyId));
             return property_id(propertyId);
         }
     };
