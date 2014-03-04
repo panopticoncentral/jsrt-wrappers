@@ -29,3 +29,5 @@
         goto error; \
         } \
     }
+
+extern IDebugApplication *get_debug_application();

@@ -3,6 +3,32 @@
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
+IDebugApplication *get_debug_application()
+{
+    HRESULT hr = S_OK;
+    IClassFactory *classFactory = nullptr;
+    IProcessDebugManager *pdm = nullptr;
+    IDebugApplication *debugApplication = nullptr;
+
+    IfComFailError(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
+    IfComFailError(CoGetClassObject(__uuidof(ProcessDebugManager), CLSCTX_INPROC_SERVER, NULL, __uuidof(IClassFactory), (LPVOID *) &classFactory));
+    IfComFailError(classFactory->CreateInstance(0, _uuidof(IProcessDebugManager), (LPVOID *) &pdm));
+    Assert::IsTrue(SUCCEEDED(pdm->GetDefaultApplication(&debugApplication)));
+
+error:
+    if (pdm)
+    {
+        pdm->Release();
+    }
+
+    if (classFactory)
+    {
+        classFactory->Release();
+    }
+
+    return debugApplication;
+}
+
 namespace jsrtwrapperstest
 {
     TEST_CLASS(runtime)
@@ -157,32 +183,6 @@ namespace jsrtwrapperstest
                 Assert::IsFalse(context.has_exception());
             }
             runtime.dispose();
-        }
-
-        IDebugApplication *get_debug_application()
-        {
-            HRESULT hr = S_OK;
-            IClassFactory *classFactory = nullptr;
-            IProcessDebugManager *pdm = nullptr;
-            IDebugApplication *debugApplication = nullptr;
-
-            IfComFailError(CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED));
-            IfComFailError(CoGetClassObject(__uuidof(ProcessDebugManager), CLSCTX_INPROC_SERVER, NULL, __uuidof(IClassFactory), (LPVOID *) &classFactory));
-            IfComFailError(classFactory->CreateInstance(0, _uuidof(IProcessDebugManager), (LPVOID *) &pdm));
-            Assert::IsTrue(SUCCEEDED(pdm->GetDefaultApplication(&debugApplication)));
-
-        error:
-            if (pdm)
-            {
-                pdm->Release();
-            }
-
-            if (classFactory)
-            {
-                classFactory->Release();
-            }
-
-            return debugApplication;
         }
 
         MY_TEST_METHOD(create_debug_context, "Test creating a context with debugging.")

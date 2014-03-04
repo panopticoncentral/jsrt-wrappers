@@ -752,7 +752,7 @@ namespace jsrt
         ///     A cookie identifying the script that can be used by debuggable script contexts.
         /// </param>
         /// <param name="source_url">The location the script came from.</param>
-        static void run_serialized(std::wstring script, unsigned char *buffer, JsSourceContext source_context, std::wstring source_url)
+        static void run_serialized(std::wstring script, unsigned char *buffer, JsSourceContext source_context = JS_SOURCE_CONTEXT_NONE, std::wstring source_url = std::wstring())
         {
             runtime::translate_error_code(JsRunSerializedScript(script.c_str(), buffer, source_context, source_url.c_str(), nullptr));
         }
@@ -3552,7 +3552,7 @@ namespace jsrt
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
 
             R result;
-            runtime::translate_error_code(to_native(resultValue, result));
+            runtime::translate_error_code(to_native(resultValue, &result));
             return result;
         }
 
