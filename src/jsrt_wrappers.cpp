@@ -227,6 +227,17 @@ namespace jsrt
         return context(newContext);
     }
 
+    void context::start_debugging(IDebugApplication *debug_application)
+    {
+        // TODO: JsStartDebugging doesn't return an error in this case, which it should
+        if (!debug_application)
+        {
+            throw null_argument_exception();
+        }
+
+        runtime::translate_error_code(JsStartDebugging(debug_application));
+    }
+
     void context::set_exception(value object)
     {
         runtime::translate_error_code(JsSetException(object.handle()));

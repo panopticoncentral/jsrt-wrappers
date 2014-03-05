@@ -49,16 +49,6 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
-#define TEST_INVALID_CALL(call) \
-    try \
-    { \
-        call; \
-        Assert::Fail(); \
-    } \
-    catch (const jsrt::invalid_argument_exception &) \
-    { \
-    }
-
         MY_TEST_METHOD(invalid_handle, "Test APIs on an invalid handle.")
         {
             jsrt::runtime runtime;
@@ -234,6 +224,24 @@ namespace jsrtwrapperstest
 
             runtime = jsrt::runtime::create(JsRuntimeAttributeNone, JsRuntimeVersionEdge);
             runtime.dispose();
+
+            try
+            {
+                jsrt::runtime::create((JsRuntimeAttributes)0xFFFFFFFF);
+                Assert::Fail();
+            }
+            catch (jsrt::invalid_argument_exception)
+            {
+            }
+
+            try
+            {
+                jsrt::runtime::create(JsRuntimeAttributeNone, (JsRuntimeVersion) 0xFFFF);
+                Assert::Fail();
+            }
+            catch (jsrt::invalid_argument_exception)
+            {
+            }
         }
 
         static bool CALLBACK service_callback(JsBackgroundWorkItemCallback callback, void *callbackState)

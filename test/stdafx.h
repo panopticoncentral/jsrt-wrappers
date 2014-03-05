@@ -21,6 +21,26 @@
     \
     TEST_METHOD(name)
 
+#define TEST_INVALID_CALL(call) \
+    try \
+    { \
+        call; \
+        Assert::Fail(); \
+    } \
+    catch (const jsrt::invalid_argument_exception &) \
+    { \
+    }
+
+#define TEST_NO_CONTEXT_CALL(call) \
+    try \
+    { \
+        call; \
+        Assert::Fail(); \
+    } \
+    catch (const jsrt::no_current_context_exception &) \
+    { \
+    }
+
 #define IfComFailError(v) \
     { \
     hr = (v); \

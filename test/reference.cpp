@@ -31,5 +31,28 @@ namespace jsrtwrapperstest
             Assert::AreEqual(context.release(), (unsigned int) 0);
             runtime.dispose();
         }
+
+        MY_TEST_METHOD(invalid_handle, "Test refcounting on an invalid handle.")
+        {
+            jsrt::context context;
+
+            try
+            {
+                context.add_reference();
+                Assert::Fail();
+            }
+            catch (jsrt::null_argument_exception)
+            {
+            }
+
+            try
+            {
+                context.release();
+                Assert::Fail();
+            }
+            catch (jsrt::null_argument_exception)
+            {
+            }
+        }
     };
 }

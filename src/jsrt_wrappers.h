@@ -544,10 +544,7 @@ namespace jsrt
         ///     Starts debugging in the current context.
         /// </summary>
         /// <param name="debug_application">The debug application to use for debugging.</param>
-        static void start_debugging(IDebugApplication *debug_application)
-        {
-            runtime::translate_error_code(JsStartDebugging(debug_application));
-        }
+        static void start_debugging(IDebugApplication *debug_application);
 
         /// <summary>
         ///     Gets the current script context on the thread.
@@ -838,6 +835,9 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     An optional value.
+    /// </summary>
     template<class T>
     class optional
     {
@@ -846,44 +846,68 @@ namespace jsrt
         T _value;
 
     public:
+        /// <summary>
+        ///     Constructs an empty optional value.
+        /// </summary>
         optional() :
             _hasValue(false),
             _value()
         {
         }
 
+        /// <summary>
+        ///     Constructs an optional value with a value in it.
+        /// </summary>
         optional(T value) :
             _hasValue(true),
             _value(value)
         {
         }
 
+        /// <summary>
+        ///     Returns whether the optional value has a value in it.
+        /// </summary>
         bool has_value()
         {
             return _hasValue;
         }
 
+        /// <summary>
+        ///     Clears the optional value.
+        /// </summary>
         bool clear()
         {
             _hasValue = false;
             _value = T();
         }
 
+        /// <summary>
+        ///     Gets the optional value.
+        /// </summary>
         T value()
         {
             return _value;
         }
     };
 
+    /// <summary>
+    ///     Represents a variable number of values.
+    /// </summary>
     template<class T>
     class rest : public optional<T>
     {
     public:
+        /// <summary>
+        ///     Constructs a variable number of values with no values.
+        /// </summary>
         rest() :
             optional()
         {
         }
 
+        /// <summary>
+        ///     Constructs a variable number of values.
+        /// </summary>
         rest(T value) :
             optional(value)
         {
