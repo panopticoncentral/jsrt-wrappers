@@ -41,5 +41,8 @@
     <ClCompile Include="property_id.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="optional_rest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

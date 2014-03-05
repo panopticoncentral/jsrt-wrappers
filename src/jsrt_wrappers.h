@@ -875,7 +875,7 @@ namespace jsrt
         /// <summary>
         ///     Clears the optional value.
         /// </summary>
-        bool clear()
+        void clear()
         {
             _hasValue = false;
             _value = T();
