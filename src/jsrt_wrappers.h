@@ -770,6 +770,15 @@ namespace jsrt
         ///     The result of running the script, if any.
         /// </returns>
         static value evaluate_serialized(std::wstring script, unsigned char *buffer, JsSourceContext source_context = JS_SOURCE_CONTEXT_NONE, std::wstring source_url = std::wstring());
+
+        /// <summary>
+        ///     Gets the value of <c>undefined</c> in the current script context.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The <c>undefined</c> value.</returns>
+        static value undefined();
     };
 
     /// <summary>
@@ -914,20 +923,15 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript value.
+    /// </summary>
     class value : public reference
     {
         friend class function_base;
         friend class runtime;
         friend class context;
         friend class object;
-
-    private:
-        JsValueType type() const
-        {
-            JsValueType type;
-            runtime::translate_error_code(JsGetValueType(_ref, &type));
-            return type;
-        }
 
     protected:
         value(JsValueRef ref) :
@@ -1025,74 +1029,61 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid value handle.
+        /// </summary>
         value() :
             reference()
         {
         }
 
-        static value undefined()
+        /// <summary>
+        ///     Gets the JavaScript type of a value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The type of the value.</returns>
+        JsValueType type() const
         {
-            JsValueRef undefinedValue;
-            runtime::translate_error_code(JsGetUndefinedValue(&undefinedValue));
-            return value(undefinedValue);
+            JsValueType type;
+            runtime::translate_error_code(JsGetValueType(_ref, &type));
+            return type;
         }
 
-        bool is_undefined() const
+        /// <summary>
+        ///     Converts the value to a <c>VARIANT</c> as a projection of a JavaScript value.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     The projection <c>VARIANT</c> can be used by COM automation clients to call into the
+        ///     projected JavaScript object.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="variant">
+        ///     A pointer to a <c>VARIANT</c> struct that will be initialized as a projection.
+        /// </param>
+        void to_variant(VARIANT *variant)
         {
-            return type() == JsUndefined;
+            runtime::translate_error_code(JsValueToVariant(_ref, variant));
         }
 
-        bool is_null() const
-        {
-            return type() == JsNull;
-        }
-
-        bool is_boolean() const
-        {
-            return type() == JsBoolean;
-        }
-
-        bool is_number() const
-        {
-            return type() == JsNumber;
-        }
-
-        bool is_string() const
-        {
-            return type() == JsString;
-        }
-
-        bool is_object() const
-        {
-            return type() == JsObject;
-        }
-
-        bool is_function() const
-        {
-            return type() == JsFunction;
-        }
-
-        bool is_error() const
-        {
-            return type() == JsError;
-        }
-
-        bool is_array() const
-        {
-            return type() == JsArray;
-        }
-
-        boolean to_boolean();
-        number to_number();
-        string to_string();
-
-        VARIANT to_variant()
-        {
-            VARIANT result;
-            runtime::translate_error_code(JsValueToVariant(_ref, &result));
-            return result;
-        }
-
+        /// <summary>
+        ///     Compare two JavaScript values for equality.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     This function is equivalent to the <c>==</c> operator in Javascript.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="other>The object to compare.</param>
+        /// <returns>Whether the values are equal.</returns>
         bool equals(value other)
         {
             bool isEqual;
@@ -1100,6 +1091,19 @@ namespace jsrt
             return isEqual;
         }
 
+        /// <summary>
+        ///     Compare two JavaScript values for strict equality.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     This function is equivalent to the <c>===</c> operator in Javascript.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="other>The object to compare.</param>
+        /// <returns>Whether the values are equal.</returns>
         bool strict_equals(value other)
         {
             bool isEqual;
@@ -1107,10 +1111,24 @@ namespace jsrt
             return isEqual;
         }
 
-        static value create(VARIANT *variantValue)
+        /// <summary>
+        ///     Creates a JavaScript value that is a projection of the passed in <c>VARIANT</c>.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     The projected value can be used by script to call a COM automation object from script. 
+        ///     Hosts are responsible for enforcing COM threading rules.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="variant_value">A <c>VARIANT</c> to be projected.</param>
+        /// <returns>A JavaScript value that is a projection of the <c>VARIANT</c>.</returns>
+        static value from_variant(VARIANT *variant_value)
         {
             JsValueRef result;
-            runtime::translate_error_code(JsVariantToValue(variantValue, &result));
+            runtime::translate_error_code(JsVariantToValue(variant_value, &result));
             return value(result);
         }
     };
@@ -1163,6 +1181,15 @@ namespace jsrt
             runtime::translate_error_code(from_native(value, &result));
             return boolean(result);
         }
+
+        /// <summary>
+        ///     Converts the value to Boolean using standard JavaScript semantics.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The converted value.</returns>
+        static boolean convert(value value);
     };
 
     class number : public value
@@ -1206,6 +1233,15 @@ namespace jsrt
             runtime::translate_error_code(from_native(value, &result));
             return number(result);
         }
+
+        /// <summary>
+        ///     Converts the value to number using standard JavaScript semantics.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The converted value.</returns>
+        number convert(value value);
     };
 
     class string : public value
@@ -1249,6 +1285,15 @@ namespace jsrt
             runtime::translate_error_code(from_native(value, &result));
             return string(result);
         }
+
+        /// <summary>
+        ///     Converts the value to string using standard JavaScript semantics.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The converted value.</returns>
+        string convert(value value);
     };
 
     class object : public value
@@ -1609,7 +1654,7 @@ namespace jsrt
         {
             optional<value> name = get_property<value>(property_id::create(L"name"));
 
-            if (name.has_value() && name.value().is_string())
+            if (name.has_value() && name.value().type() == JsString)
             {
                 return ((string) name.value()).data();
             }
@@ -1621,7 +1666,7 @@ namespace jsrt
         {
             optional<value> message = get_property<value>(property_id::create(L"message"));
 
-            if (message.has_value() && message.value().is_string())
+            if (message.has_value() && message.value().type() == JsString)
             {
                 return ((string) message.value()).data();
             }
@@ -3956,7 +4001,7 @@ namespace jsrt
         }
     };
 
-    class script_compile_exception
+    class script_compile_exception : public exception
     {
     private:
         compile_error _error;

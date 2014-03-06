@@ -126,6 +126,7 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(jsrt::context::run_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::parse_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::evaluate_serialized(L"1 + 2", nullptr));
+            TEST_NO_CONTEXT_CALL(jsrt::context::undefined());
             runtime.dispose();
         }
 
@@ -217,7 +218,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse(L"1 + 2");
-                Assert::AreEqual(func1.call(jsrt::value::undefined()), 3.0);
+                Assert::AreEqual(func1.call(jsrt::context::undefined()), 3.0);
                 jsrt::context::run(L"function foo() { return 1 + 2; }");
                 Assert::AreEqual(((jsrt::number)jsrt::context::evaluate(L"foo()")).data(), 3.0);
             }
@@ -244,7 +245,7 @@ namespace jsrtwrapperstest
                 {
                 }
                 jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse_serialized(script1, buffer1);
-                Assert::AreEqual(func1.call(jsrt::value::undefined()), 3.0);
+                Assert::AreEqual(func1.call(jsrt::context::undefined()), 3.0);
 
                 const std::wstring script2 = L"function foo() { return 1 + 2; }";
                 unsigned int func2_size = jsrt::context::serialize(script2, nullptr, 0) + 16;
@@ -277,6 +278,18 @@ namespace jsrtwrapperstest
                 delete[] buffer1;
                 delete[] buffer2;
                 delete[] buffer3;
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(undefined, "Test ::undefined.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::value value = jsrt::context::undefined();
+                Assert::AreEqual(value.type(), JsUndefined);
             }
             runtime.dispose();
         }

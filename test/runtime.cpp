@@ -52,17 +52,17 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(invalid_handle, "Test APIs on an invalid handle.")
         {
             jsrt::runtime runtime;
-            TEST_INVALID_CALL(runtime.dispose())
-            TEST_INVALID_CALL(runtime.memory_usage())
-            TEST_INVALID_CALL(runtime.memory_limit())
-            TEST_INVALID_CALL(runtime.set_memory_limit(-1))
-            TEST_INVALID_CALL(runtime.set_memory_allocation_callback(nullptr, nullptr))
-            TEST_INVALID_CALL(runtime.set_before_collect_callback(nullptr, nullptr))
-            TEST_INVALID_CALL(runtime.collect_garbage())
-            TEST_INVALID_CALL(runtime.disable_execution())
-            TEST_INVALID_CALL(runtime.enable_execution())
-            TEST_INVALID_CALL(runtime.is_execution_disabled())
-            TEST_INVALID_CALL(runtime.create_context())
+            TEST_INVALID_ARG_CALL(runtime.dispose())
+            TEST_INVALID_ARG_CALL(runtime.memory_usage())
+            TEST_INVALID_ARG_CALL(runtime.memory_limit())
+            TEST_INVALID_ARG_CALL(runtime.set_memory_limit(-1))
+            TEST_INVALID_ARG_CALL(runtime.set_memory_allocation_callback(nullptr, nullptr))
+            TEST_INVALID_ARG_CALL(runtime.set_before_collect_callback(nullptr, nullptr))
+            TEST_INVALID_ARG_CALL(runtime.collect_garbage())
+            TEST_INVALID_ARG_CALL(runtime.disable_execution())
+            TEST_INVALID_ARG_CALL(runtime.enable_execution())
+            TEST_INVALID_ARG_CALL(runtime.is_execution_disabled())
+            TEST_INVALID_ARG_CALL(runtime.create_context())
         }
 
         MY_TEST_METHOD(memory_usage, "Test ::memory_usage method.")

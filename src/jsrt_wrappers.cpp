@@ -286,24 +286,31 @@ namespace jsrt
         return value(result);
     }
 
-    boolean value::to_boolean()
+    value context::undefined()
+    {
+        JsValueRef undefinedValue;
+        runtime::translate_error_code(JsGetUndefinedValue(&undefinedValue));
+        return value(undefinedValue);
+    }
+
+    boolean boolean::convert(value value)
     {
         JsValueRef booleanValue;
-        runtime::translate_error_code(JsConvertValueToBoolean(handle(), &booleanValue));
+        runtime::translate_error_code(JsConvertValueToBoolean(value.handle(), &booleanValue));
         return boolean(booleanValue);
     }
 
-    number value::to_number()
+    number number::convert(value value)
     {
         JsValueRef numberValue;
-        runtime::translate_error_code(JsConvertValueToNumber(handle(), &numberValue));
+        runtime::translate_error_code(JsConvertValueToNumber(value.handle(), &numberValue));
         return number(numberValue);
     }
 
-    string value::to_string()
+    string string::convert(value value)
     {
         JsValueRef stringValue;
-        runtime::translate_error_code(JsConvertValueToString(handle(), &stringValue));
+        runtime::translate_error_code(JsConvertValueToString(value.handle(), &stringValue));
         return string(stringValue);
     }
 

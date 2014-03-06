@@ -21,25 +21,24 @@
     \
     TEST_METHOD(name)
 
-#define TEST_INVALID_CALL(call) \
+#define TEST_FAILED_CALL(call, exception) \
     try \
     { \
         call; \
         Assert::Fail(); \
     } \
-    catch (const jsrt::invalid_argument_exception &) \
+    catch (const jsrt:: exception &) \
     { \
     }
 
+#define TEST_INVALID_ARG_CALL(call) \
+    TEST_FAILED_CALL(call, invalid_argument_exception)
+
 #define TEST_NO_CONTEXT_CALL(call) \
-    try \
-    { \
-        call; \
-        Assert::Fail(); \
-    } \
-    catch (const jsrt::no_current_context_exception &) \
-    { \
-    }
+    TEST_FAILED_CALL(call, no_current_context_exception)
+
+#define TEST_NULL_ARG_CALL(call) \
+    TEST_FAILED_CALL(call, null_argument_exception)
 
 #define IfComFailError(v) \
     { \
@@ -51,3 +50,31 @@
     }
 
 extern IDebugApplication *get_debug_application();
+
+template <>
+static std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString(const JsValueType& q) 
+{
+    switch (q)
+    {
+    case JsUndefined:
+        return L"JsUndefined";
+    case JsNull:
+        return L"JsNull";
+    case JsNumber:
+        return L"JsNumber";
+    case JsString:
+        return L"JsString";
+    case JsBoolean:
+        return L"JsBoolean";
+    case JsObject:
+        return L"JsObject";
+    case JsFunction:
+        return L"JsFunction";
+    case JsError:
+        return L"JsError";
+    case JsArray:
+        return L"JsArray";
+    default:
+        return std::wstring();
+    }
+}
