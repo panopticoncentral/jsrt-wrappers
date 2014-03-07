@@ -13,6 +13,18 @@ namespace jsrtwrapperstest
             jsrt::value handle;
             Assert::AreEqual(handle.handle(), JS_INVALID_REFERENCE);
             Assert::IsFalse(handle.is_valid());
+
+            jsrt::boolean boolean_handle;
+            Assert::AreEqual(boolean_handle.handle(), JS_INVALID_REFERENCE);
+            Assert::IsFalse(boolean_handle.is_valid());
+
+            jsrt::number number_handle;
+            Assert::AreEqual(number_handle.handle(), JS_INVALID_REFERENCE);
+            Assert::IsFalse(number_handle.is_valid());
+
+            jsrt::string string_handle;
+            Assert::AreEqual(string_handle.handle(), JS_INVALID_REFERENCE);
+            Assert::IsFalse(string_handle.is_valid());
         }
 
         MY_TEST_METHOD(no_context, "Test calls with no context.")
@@ -24,6 +36,15 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(value.type());
             TEST_NO_CONTEXT_CALL(value.to_variant(&v));
             TEST_NO_CONTEXT_CALL(jsrt::value::from_variant(&v));
+            TEST_NO_CONTEXT_CALL(jsrt::boolean::create(true));
+            TEST_NO_CONTEXT_CALL(jsrt::boolean::true_value());
+            TEST_NO_CONTEXT_CALL(jsrt::boolean::false_value());
+            TEST_NO_CONTEXT_CALL(((jsrt::boolean)value).data());
+            TEST_NO_CONTEXT_CALL(jsrt::number::create(1.0));
+            TEST_NO_CONTEXT_CALL(((jsrt::number)value).data());
+            TEST_NO_CONTEXT_CALL(jsrt::string::create(L"foo"));
+            TEST_NO_CONTEXT_CALL(((jsrt::string)value).data());
+            TEST_NO_CONTEXT_CALL(((jsrt::string)value).length());
             runtime.dispose();
         }
 
@@ -37,6 +58,13 @@ namespace jsrtwrapperstest
                 VARIANT v;
                 TEST_NULL_ARG_CALL(value.type());
                 TEST_NULL_ARG_CALL(value.to_variant(&v));
+                jsrt::boolean boolean;
+                TEST_NULL_ARG_CALL(boolean.data());
+                jsrt::number number;
+                TEST_NULL_ARG_CALL(number.data());
+                jsrt::string string;
+                TEST_NULL_ARG_CALL(string.data());
+                TEST_NULL_ARG_CALL(string.length());
             }
             runtime.dispose();
         }
@@ -64,7 +92,7 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(value.type(), JsFunction);
                 value = jsrt::error::create_uri_error(L"foo");
                 Assert::AreEqual(value.type(), JsError);
-                value = jsrt::array<boolean>::create(10);
+                value = jsrt::array<jsrt::boolean>::create(10);
                 Assert::AreEqual(value.type(), JsArray);
             }
             runtime.dispose();
@@ -103,6 +131,53 @@ namespace jsrtwrapperstest
                 Assert::IsTrue(v1.equals(v3));
                 Assert::IsFalse(v1.strict_equals(v2));
                 Assert::IsTrue(v1.strict_equals(v3));
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(boolean, "Test boolean methods.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::value value = jsrt::boolean::create(true);
+                jsrt::boolean boolean = jsrt::boolean::convert(value);
+                Assert::AreEqual(value.type(), JsBoolean);
+                Assert::IsTrue(boolean.data());
+                Assert::IsTrue(jsrt::boolean::true_value().data());
+                Assert::IsFalse(jsrt::boolean::false_value().data());
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(number, "Test number methods.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::value value = jsrt::number::create(1.0);
+                jsrt::number number = jsrt::number::convert(value);
+                Assert::AreEqual(value.type(), JsNumber);
+                Assert::AreEqual(number.data(), 1.0);
+                number = jsrt::number::create(42);
+                Assert::AreEqual(number.data(), 42.0);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(string, "Test string methods.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::value value = jsrt::string::create(L"foo");
+                jsrt::string string = jsrt::string::convert(value);
+                Assert::AreEqual(value.type(), JsString);
+                Assert::AreEqual(string.data(), (std::wstring) L"foo");
+                Assert::AreEqual(string.length(), 3);
             }
             runtime.dispose();
         }

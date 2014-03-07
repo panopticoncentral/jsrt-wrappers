@@ -1133,6 +1133,9 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript Boolean value.
+    /// </summary>
     class boolean : public value
     {
         friend class value;
@@ -1144,16 +1147,32 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid value handle.
+        /// <summary>
         boolean() :
             value()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to a <c>boolean</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit boolean(value object) :
             value(object.handle())
         {
         }
 
+        /// <summary>
+        ///     Retrieves the <c>bool</c> value of a Boolean value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The converted value.</returns>
         bool data()
         {
             bool result;
@@ -1161,6 +1180,13 @@ namespace jsrt
             return result;
         }
 
+        /// <summary>
+        ///     Gets the value of <c>true</c> in the current script context.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The <c>true</c> value.</returns>
         static boolean true_value()
         {
             JsValueRef trueValue;
@@ -1168,6 +1194,13 @@ namespace jsrt
             return boolean(trueValue);
         }
 
+        /// <summary>
+        ///     Gets the value of <c>false</c> in the current script context.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The <c>false</c> value.</returns>
         static boolean false_value()
         {
             JsValueRef falseValue;
@@ -1175,6 +1208,14 @@ namespace jsrt
             return boolean(falseValue);
         }
 
+        /// <summary>
+        ///     Creates a Boolean value from a <c>bool</c> value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="value">The value to be converted.</param>
+        /// <returns>The converted value.</returns>
         static boolean create(bool value)
         {
             JsValueRef result;
@@ -1188,10 +1229,14 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
+        /// <param name="value">The value to be converted.</param>
         /// <returns>The converted value.</returns>
         static boolean convert(value value);
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript number value.
+    /// </summary>
     class number : public value
     {
         friend class value;
@@ -1203,16 +1248,32 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid value handle.
+        /// <summary>
         number() :
             value()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to a <c>number</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit number(value object) :
             value(object.handle())
         {
         }
 
+        /// <summary>
+        ///     Retrieves the <c>double</c> value of a number value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The <c>double</c> value.</returns>
         double data()
         {
             double result;
@@ -1220,6 +1281,14 @@ namespace jsrt
             return result;
         }
 
+        /// <summary>
+        ///     Creates a number value from a <c>double</c> value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="value">The <c>double</c> to convert to a number value.</param>
+        /// <returns>The new number value.</returns>
         static number create(double value)
         {
             JsValueRef result;
@@ -1227,6 +1296,14 @@ namespace jsrt
             return number(result);
         }
 
+        /// <summary>
+        ///     Creates a number value from an <c>int</c> value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="value">The <c>int</c> to convert to a number value.</param>
+        /// <returns>The new number value.</returns>
         static number create(int value)
         {
             JsValueRef result;
@@ -1240,10 +1317,14 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
+        /// <param name="value">The value to be converted.</param>
         /// <returns>The converted value.</returns>
-        number convert(value value);
+        static number convert(value value);
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript string value.
+    /// </summary>
     class string : public value
     {
         friend class value;
@@ -1255,16 +1336,32 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid value handle.
+        /// <summary>
         string() :
             value()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to a <c>string</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit string(value object) :
             value(object.handle())
         {
         }
 
+        /// <summary>
+        ///     Gets the length of a string value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The length of the string.</returns>
         int length()
         {
             int length;
@@ -1272,6 +1369,9 @@ namespace jsrt
             return length;
         }
 
+        /// <summary>
+        ///     Returns the underlying string value.
+        /// </summary>
         std::wstring data()
         {
             std::wstring result;
@@ -1279,6 +1379,14 @@ namespace jsrt
             return result;
         }
 
+        /// <summary>
+        ///     Creates a string value from a <c>std::wstring</c>.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="value">The string to convert to a string value.</param>
+        /// <returns>The new string value.</returns>
         static string create(std::wstring value)
         {
             JsValueRef result;
@@ -1292,8 +1400,9 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
+        /// <param name="value">The value to be converted.</param>
         /// <returns>The converted value.</returns>
-        string convert(value value);
+        static string convert(value value);
     };
 
     class object : public value
