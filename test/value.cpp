@@ -8,7 +8,7 @@ namespace jsrtwrapperstest
     TEST_CLASS(value)
     {
     public:
-        MY_TEST_METHOD(empty_handle, "Test an empty context handle.")
+        MY_TEST_METHOD(empty_handle, "Test an empty value handle.")
         {
             jsrt::value handle;
             Assert::AreEqual(handle.handle(), JS_INVALID_REFERENCE);

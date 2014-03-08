@@ -1424,6 +1424,9 @@ namespace jsrt
         static string convert(value value);
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript object.
+    /// </summary>
     class object : public value
     {
         friend class function_base;
@@ -1437,16 +1440,32 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid object handle.
+        /// </summary>
         object() :
             value()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an <c>object</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit object(value object) :
             value(object.handle())
         {
         }
 
+        /// <summary>
+        ///     Determines whether an object is an external object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>Whether the object is an external object.</returns>
         bool is_external() const
         {
             bool hasExternalData;
@@ -1455,6 +1474,13 @@ namespace jsrt
             return hasExternalData;
         }
 
+        /// <summary>
+        ///     Returns a value that indicates whether an object is extensible or not.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>Whether the object is extensible or not.</returns>
         bool is_extension_allowed() const
         {
             bool isExtensionaAllowed;
@@ -1464,6 +1490,13 @@ namespace jsrt
 
         typedef object prototype_proxy;
 
+        /// <summary>
+        ///     Returns the prototype of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The object's prototype.</returns>
         object prototype()
         {
             JsValueRef prototype;
@@ -1471,16 +1504,37 @@ namespace jsrt
             return object(prototype);
         }
 
+        /// <summary>
+        ///     Sets the prototype of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The object's new prototype.</returns>
         void set_prototype(object prototype)
         {
             runtime::translate_error_code(JsSetPrototype(handle(), prototype.handle()));
         }
 
+        /// <summary>
+        ///     Makes an object non-extensible.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
         void prevent_extension()
         {
             runtime::translate_error_code(JsPreventExtension(handle()));
         }
 
+        /// <summary>
+        ///     Gets an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The ID of the property.</param>
+        /// <returns>The value of the property.</returns>
         template<class T = value>
         T get_property(property_id name)
         {
@@ -1493,20 +1547,52 @@ namespace jsrt
             return returnValue;
         }
 
+        /// <summary>
+        ///     Gets a property descriptor for an object's own property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The ID of the property.</param>
+        /// <returns>The property descriptor.</returns>
         template<class T = value>
         property_descriptor<T> get_own_property_descriptor(property_id name);
 
+        /// <summary>
+        ///     Gets the list of all properties on the object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>An array of property names.</returns>
         std::vector<std::wstring> get_own_property_names();
 
+        /// <summary>
+        ///     Puts an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The ID of the property.</param>
+        /// <param name="value">The new value of the property.</param>
+        /// <param name="use_strict_rules">The property set should follow strict mode rules.</param>
         template<class T = value>
-        void set_property(property_id name, T value, bool useStrictRules = true)
+        void set_property(property_id name, T value, bool use_strict_rules = true)
         {
             JsValueRef valueReference;
             runtime::translate_error_code(from_native(value, &valueReference));
 
-            runtime::translate_error_code(JsSetProperty(handle(), name.handle(), valueReference, useStrictRules));
+            runtime::translate_error_code(JsSetProperty(handle(), name.handle(), valueReference, use_strict_rules));
         }
 
+        /// <summary>
+        ///     Determines whether an object has a property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The ID of the property.</param>
+        /// <returns>Whether the object (or a prototype) has the property.</returns>
         bool has_property(property_id name)
         {
             bool hasProperty;
@@ -1514,11 +1600,20 @@ namespace jsrt
             return hasProperty;
         }
 
+        /// <summary>
+        ///     Deletes an object's property.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The ID of the property.</param>
+        /// <param name="use_strict_rules">The property set should follow strict mode rules.</param>
+        /// <results>Whether the property was deleted.</results>
         template<class T = value>
-        T delete_property(property_id name, bool useStrictRules = true)
+        T delete_property(property_id name, bool use_strict_rules = true)
         {
             JsValueRef value;
-            runtime::translate_error_code(JsDeleteProperty(handle(), name.handle(), useStrictRules, &value));
+            runtime::translate_error_code(JsDeleteProperty(handle(), name.handle(), use_strict_rules, &value));
 
             T returnValue;
             runtime::translate_error_code(to_native(value, &returnValue));
@@ -1526,11 +1621,28 @@ namespace jsrt
             return returnValue;
         }
 
+        /// <summary>
+        ///     Defines a new object's own property from a property descriptor.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The ID of the property.</param>
+        /// <param name="descriptor">The property descriptor.</param>
+        /// <result>Whether the property was defined.</result>
         template<class T>
         bool define_property(property_id name, property_descriptor<T> descriptor);
 
+        /// <summary>
+        ///     Retrieve the value at the specified index of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to retrieve.</param>
+        /// <returns>The retrieved value.</returns>
         template<class T = value>
-        T get_index(property_id index)
+        T get_index(value index)
         {
             JsValueRef value;
             runtime::translate_error_code(JsGetIndexedProperty(handle(), index.handle(), &value));
@@ -1541,6 +1653,14 @@ namespace jsrt
             return returnValue;
         }
 
+        /// <summary>
+        ///     Retrieve the value at the specified index of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to retrieve.</param>
+        /// <returns>The retrieved value.</returns>
         template<class T = value>
         T get_index(int index)
         {
@@ -1556,15 +1676,31 @@ namespace jsrt
             return returnValue;
         }
 
+        /// <summary>
+        ///     Set the value at the specified index of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to set.</param>
+        /// <param name="value">The value to set.</param>
         template<class T = value>
-        void set_index(property_id index, T value)
+        void set_index(value index, T value)
         {
             JsValueRef valueReference;
             runtime::translate_error_code(from_native(value, &valueReference));
 
-            runtime::translate_error_code(JsSetIndexedProperty(handle(), index.handle(), valueReference, useStrictRules));
+            runtime::translate_error_code(JsSetIndexedProperty(handle(), index.handle(), valueReference));
         }
 
+        /// <summary>
+        ///     Set the value at the specified index of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to set.</param>
+        /// <param name="value">The value to set.</param>
         template<class T = value>
         void set_index(int index, T value)
         {
@@ -1574,16 +1710,32 @@ namespace jsrt
             JsValueRef valueReference;
             runtime::translate_error_code(from_native(value, &valueReference));
 
-            runtime::translate_error_code(JsSetIndexedProperty(handle(), indexValue, valueReference, useStrictRules));
+            runtime::translate_error_code(JsSetIndexedProperty(handle(), indexValue, valueReference));
         }
 
-        bool has_index(property_id index)
+        /// <summary>
+        ///     Tests whether an object has a value at the specified index.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to test.</param>
+        /// <returns>Whether the object has an value at the specified index.</returns>
+        bool has_index(value index)
         {
             bool hasProperty;
             runtime::translate_error_code(JsHasProperty(handle(), index.handle(), &hasProperty));
             return hasProperty;
         }
 
+        /// <summary>
+        ///     Tests whether an object has a value at the specified index.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to test.</param>
+        /// <returns>Whether the object has an value at the specified index.</returns>
         bool has_index(int index)
         {
             JsValueRef indexValue;
@@ -1594,11 +1746,25 @@ namespace jsrt
             return hasProperty;
         }
 
-        void delete_index(property_id index)
+        /// <summary>
+        ///     Delete the value at the specified index of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to delete.</param>
+        void delete_index(value index)
         {
             runtime::translate_error_code(JsDeleteIndexedProperty(handle(), index.handle()));
         }
 
+        /// <summary>
+        ///     Delete the value at the specified index of an object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="index">The index to delete.</param>
         void delete_index(int index)
         {
             JsValueRef indexValue;
@@ -1606,6 +1772,13 @@ namespace jsrt
             runtime::translate_error_code(JsDeleteIndexedProperty(handle(), indexValue));
         }
 
+        /// <summary>
+        ///     Creates a new object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The new object.</returns>
         static object create()
         {
             JsValueRef objectValue;

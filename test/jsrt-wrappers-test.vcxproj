@@ -162,6 +162,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="context.cpp" />
+    <ClCompile Include="object.cpp" />
     <ClCompile Include="optional_rest.cpp" />
     <ClCompile Include="pinned.cpp" />
     <ClCompile Include="property_id.cpp" />
