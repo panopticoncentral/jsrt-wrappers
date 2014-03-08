@@ -127,6 +127,8 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(jsrt::context::parse_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::evaluate_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::undefined());
+            TEST_NO_CONTEXT_CALL(jsrt::context::null());
+            TEST_NO_CONTEXT_CALL(jsrt::context::global());
             runtime.dispose();
         }
 
@@ -282,7 +284,7 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
-        MY_TEST_METHOD(undefined, "Test ::undefined.")
+        MY_TEST_METHOD(values, "Test ::undefined, ::null, and ::global.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
@@ -290,6 +292,10 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::context::undefined();
                 Assert::AreEqual(value.type(), JsUndefined);
+                value = jsrt::context::null();
+                Assert::AreEqual(value.type(), JsNull);
+                value = jsrt::context::global();
+                Assert::AreEqual(value.type(), JsObject);
             }
             runtime.dispose();
         }

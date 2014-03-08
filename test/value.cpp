@@ -78,7 +78,7 @@ namespace jsrtwrapperstest
                 jsrt::value value;
                 value = jsrt::context::undefined();
                 Assert::AreEqual(value.type(), JsUndefined);
-                value = jsrt::object::null_value();
+                value = jsrt::context::null();
                 Assert::AreEqual(value.type(), JsNull);
                 value = jsrt::boolean::true_value();
                 Assert::AreEqual(value.type(), JsBoolean);

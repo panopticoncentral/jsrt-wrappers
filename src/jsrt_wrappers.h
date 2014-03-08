@@ -32,6 +32,7 @@ namespace jsrt
     class boolean;
     class number;
     class string;
+    class object;
 
     /// <summary>
     ///     A class that wraps a handle to a Chakra runtime.
@@ -779,6 +780,24 @@ namespace jsrt
         /// </remarks>
         /// <returns>The <c>undefined</c> value.</returns>
         static value undefined();
+
+        /// <summary>
+        ///     Gets the value of <c>null</c> in the current script context.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The <c>null</c> value.</returns>
+        static value null();
+
+        /// <summary>
+        ///     Gets the global object in the current script context.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The global object.</returns>
+        static object global();
     };
 
     /// <summary>
@@ -1409,6 +1428,7 @@ namespace jsrt
     {
         friend class function_base;
         friend class value;
+        friend class context;
 
     protected:
         object(JsValueRef ref) :
@@ -1584,20 +1604,6 @@ namespace jsrt
             JsValueRef indexValue;
             runtime::translate_error_code(JsIntToNumber(index, &indexValue));
             runtime::translate_error_code(JsDeleteIndexedProperty(handle(), indexValue));
-        }
-
-        static object null_value()
-        {
-            JsValueRef nullValue;
-            runtime::translate_error_code(JsGetNullValue(&nullValue));
-            return object(nullValue);
-        }
-
-        static object global_object()
-        {
-            JsValueRef globalObject;
-            runtime::translate_error_code(JsGetGlobalObject(&globalObject));
-            return object(globalObject);
         }
 
         static object create()

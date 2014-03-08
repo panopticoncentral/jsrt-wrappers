@@ -293,6 +293,20 @@ namespace jsrt
         return value(undefinedValue);
     }
 
+    value context::null()
+    {
+        JsValueRef nullValue;
+        runtime::translate_error_code(JsGetNullValue(&nullValue));
+        return object(nullValue);
+    }
+
+    object context::global()
+    {
+        JsValueRef globalObject;
+        runtime::translate_error_code(JsGetGlobalObject(&globalObject));
+        return object(globalObject);
+    }
+
     boolean boolean::convert(value value)
     {
         JsValueRef booleanValue;
