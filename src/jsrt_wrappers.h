@@ -974,6 +974,14 @@ namespace jsrt
         }
 
         template<>
+        static JsErrorCode to_native<int>(JsValueRef value, int *result)
+        {
+            // This may work in the future, so we want to prevent it from
+            // falling back to the general case above.
+            return JsErrorInvalidArgument;
+        }
+
+        template<>
         static JsErrorCode to_native<double>(JsValueRef value, double *result)
         {
             return JsNumberToDouble(value, result);
@@ -1045,6 +1053,16 @@ namespace jsrt
                 return JsGetNullValue(result);
             }
             return JsPointerToString(value.c_str(), value.length(), result);
+        }
+
+        template<>
+        static JsErrorCode from_native(const wchar_t *value, JsValueRef *result)
+        {
+            if (value == nullptr)
+            {
+                return JsGetNullValue(result);
+            }
+            return JsPointerToString(value, wcslen(value), result);
         }
 
     public:
@@ -1556,7 +1574,13 @@ namespace jsrt
         /// <param name="name">The ID of the property.</param>
         /// <returns>The property descriptor.</returns>
         template<class T = value>
-        property_descriptor<T> get_own_property_descriptor(property_id name);
+        property_descriptor<T> get_own_property_descriptor(property_id name)
+        {
+            JsValueRef valueHandle;
+            runtime::translate_error_code(JsGetOwnPropertyDescriptor(handle(), name.handle(), &valueHandle));
+
+            return property_descriptor<T>(value(valueHandle));
+        }
 
         /// <summary>
         ///     Gets the list of all properties on the object.
@@ -1631,7 +1655,13 @@ namespace jsrt
         /// <param name="descriptor">The property descriptor.</param>
         /// <result>Whether the property was defined.</result>
         template<class T>
-        bool define_property(property_id name, property_descriptor<T> descriptor);
+        bool define_property(property_id name, property_descriptor<T> descriptor)
+        {
+            bool value;
+            runtime::translate_error_code(JsDefineProperty(handle(), name.handle(), descriptor.handle(), &value));
+
+            return value;
+        }
 
         /// <summary>
         ///     Retrieve the value at the specified index of an object.
@@ -4093,11 +4123,16 @@ namespace jsrt
             set_property(property_id::create(L"set"), value);
         }
 
+        static property_descriptor<T> create()
+        {
+            return (property_descriptor<T>)object::create();
+        }
+
         static property_descriptor<T> create(function<T> getter, function<void, T> setter)
         {
-            property_descriptor<T> desc = (property_descriptor<T>)value::create();
-            desc.get = getter;
-            desc.set = setter;
+            property_descriptor<T> desc = (property_descriptor<T>)object::create();
+            desc.set_getter(getter);
+            desc.set_setter(setter);
             return desc;
         }
     };

@@ -328,24 +328,6 @@ namespace jsrt
         return string(stringValue);
     }
 
-    template<class T>
-    property_descriptor<T> object::get_own_property_descriptor(property_id name)
-    {
-        JsValueRef valueHandle;
-        runtime::translate_error_code(JsGetOwnPropertyDescriptor(handle(), name.handle(), &valueHandle));
-
-        return property_descriptor<T>(value(valueHandle));
-    }
-
-    template<class T>
-    bool object::define_property(property_id name, property_descriptor<T> descriptor)
-    {
-        bool value;
-        runtime::translate_error_code(JsDefineProperty(handle(), name.handle(), descriptor.handle(), &value));
-
-        return value;
-    }
-
     std::vector<std::wstring> object::get_own_property_names()
     {
         std::vector<std::wstring> namesVector;

@@ -40,6 +40,9 @@
 #define TEST_NULL_ARG_CALL(call) \
     TEST_FAILED_CALL(call, null_argument_exception)
 
+#define TEST_SCRIPT_EXCEPTION_CALL(call) \
+    TEST_FAILED_CALL(call, script_exception)
+
 #define IfComFailError(v) \
     { \
     hr = (v); \
