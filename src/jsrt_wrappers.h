@@ -1698,7 +1698,7 @@ namespace jsrt
             runtime::translate_error_code(JsIntToNumber(index, &indexValue));
 
             JsValueRef value;
-            runtime::translate_error_code(JsGetProperty(handle(), indexValue, &value));
+            runtime::translate_error_code(JsGetIndexedProperty(handle(), indexValue, &value));
 
             T returnValue;
             runtime::translate_error_code(to_native(value, &returnValue));
@@ -1754,7 +1754,7 @@ namespace jsrt
         bool has_index(value index)
         {
             bool hasProperty;
-            runtime::translate_error_code(JsHasProperty(handle(), index.handle(), &hasProperty));
+            runtime::translate_error_code(JsHasIndexedProperty(handle(), index.handle(), &hasProperty));
             return hasProperty;
         }
 
@@ -1772,7 +1772,7 @@ namespace jsrt
             runtime::translate_error_code(JsIntToNumber(index, &indexValue));
 
             bool hasProperty;
-            runtime::translate_error_code(JsHasProperty(handle(), indexValue, &hasProperty));
+            runtime::translate_error_code(JsHasIndexedProperty(handle(), indexValue, &hasProperty));
             return hasProperty;
         }
 

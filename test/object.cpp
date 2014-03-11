@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <vector>
 #include "CppUnitTest.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -30,6 +31,7 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(object.get_property(jsrt::property_id()));
             TEST_NO_CONTEXT_CALL(object.delete_property(jsrt::property_id()));
             TEST_NO_CONTEXT_CALL(object.get_own_property_descriptor(jsrt::property_id()));
+            TEST_NO_CONTEXT_CALL(object.get_own_property_names());
             TEST_NO_CONTEXT_CALL(object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
             runtime.dispose();
         }
@@ -51,6 +53,7 @@ namespace jsrtwrapperstest
                 TEST_NULL_ARG_CALL(object.get_property(jsrt::property_id()));
                 TEST_NULL_ARG_CALL(object.delete_property(jsrt::property_id()));
                 TEST_NULL_ARG_CALL(object.get_own_property_descriptor(jsrt::property_id()));
+                TEST_NULL_ARG_CALL(object.get_own_property_names());
                 TEST_NULL_ARG_CALL(object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
 
                 jsrt::object valid_object = jsrt::object::create();
@@ -167,14 +170,61 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
-        MY_TEST_METHOD(enumerable, "")
+        MY_TEST_METHOD(enumerable, "Test ::get_own_property_names.")
         {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object object = jsrt::object::create();
 
+                Assert::AreEqual(object.get_own_property_names().size(), (size_t)0);
+                object.set_property<double>(jsrt::property_id::create(L"a"), 10);
+                jsrt::property_descriptor<double> desc = jsrt::property_descriptor<double>::create();
+                desc.set_enumerable(false);
+                desc.set_value(10);
+                object.define_property(jsrt::property_id::create(L"b"), desc);
+
+                std::vector<std::wstring> properties = object.get_own_property_names();
+                Assert::AreEqual(properties.size(), (size_t)2);
+                Assert::AreEqual(properties[0], (std::wstring)L"a");
+                Assert::AreEqual(properties[1], (std::wstring)L"b");
+            }
+            runtime.dispose();
         }
 
-        MY_TEST_METHOD(indexes, "")
+        MY_TEST_METHOD(indexes, "Test indexed properties.")
         {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object object = jsrt::object::create();
 
+                object.set_index(0, 10);
+                object.set_index(jsrt::string::create(L"1"), 20.0);
+                object.set_index(3, true);
+                object.set_index(jsrt::string::create(L"4"), L"foo");
+                object.set_index(5, object);
+                object.set_index(jsrt::string::create(L"x"), 30);
+
+                TEST_INVALID_ARG_CALL(object.get_index<int>(jsrt::string::create(L"foo")));
+                Assert::AreEqual(object.get_index<double>(jsrt::string::create(L"0")), 10.0);
+                Assert::AreEqual(object.get_index<double>(1), 20.0);
+                Assert::AreEqual(object.get_index<bool>(jsrt::string::create(L"3")), true);
+                Assert::AreEqual(object.get_index<std::wstring>(4), (std::wstring)L"foo");
+                Assert::AreEqual(object.get_index(jsrt::string::create(L"5")).handle(), object.handle());
+
+                Assert::AreEqual(object.get_index(6).handle(), jsrt::context::undefined().handle());
+                Assert::IsFalse(object.has_index(jsrt::string::create(L"6")));
+                object.set_index(6, 10);
+                Assert::IsTrue(object.has_index(6));
+                Assert::AreEqual(object.get_index<double>(6), 10.0);
+                object.delete_index(jsrt::string::create(L"6"));
+                Assert::IsFalse(object.has_index(6));
+                Assert::AreEqual(object.get_index(6).handle(), jsrt::context::undefined().handle());
+            }
+            runtime.dispose();
         }
     };
 }
