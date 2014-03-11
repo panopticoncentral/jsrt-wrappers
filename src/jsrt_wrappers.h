@@ -1817,6 +1817,9 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     A reference to an external Javascript object (i.e. one that wraps a void pointer).
+    /// </summary>
     class external_object : public object
     {
     private:
@@ -1826,16 +1829,35 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid object handle.
+        /// </summary>
         external_object() :
             object()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an external <c>object</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit external_object(value object) :
             object(object.handle())
         {
         }
 
+        /// <summary>
+        ///     Retrieves the data from an external object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The external data stored in the object. Can be null if no external data is stored
+        ///     in the object.
+        /// </returns>
         void *data()
         {
             void *data;
@@ -1843,13 +1865,40 @@ namespace jsrt
             return data;
         }
 
+        /// <summary>
+        ///     Sets the external data on an external object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="data">
+        ///     The external data to be stored in the object. Can be null if no external data is 
+        ///     to be stored in the object.
+        /// </param>
         void set_data(void *data)
         {
             runtime::translate_error_code(JsSetExternalData(handle(), data));
         }
 
+        /// <summary>
+        ///     A finalizer callback.
+        /// </summary>
+        /// <param name="data">
+        ///     The external data that was passed in when creating the object being finalized.
+        /// </param>
         typedef void (CALLBACK *Finalize)(void *data);
 
+        /// <summary>
+        ///     Creates a new object that stores some external data.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="data">External data that the object will represent. May be null.</param>
+        /// <param name="finalizeCallback">
+        ///     A callback for when the object is finalized. May be null.
+        /// </param>
+        /// <returns>The new object.</returns>
         static external_object create(void *data = nullptr, Finalize finalizeCallback = nullptr)
         {
             JsValueRef object;

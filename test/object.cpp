@@ -21,6 +21,7 @@ namespace jsrtwrapperstest
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
             jsrt::object object;
+            TEST_NO_CONTEXT_CALL(jsrt::object::create());
             TEST_NO_CONTEXT_CALL(object.is_external());
             TEST_NO_CONTEXT_CALL(object.is_extension_allowed());
             TEST_NO_CONTEXT_CALL(object.prevent_extension());
@@ -33,6 +34,19 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(object.get_own_property_descriptor(jsrt::property_id()));
             TEST_NO_CONTEXT_CALL(object.get_own_property_names());
             TEST_NO_CONTEXT_CALL(object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
+            TEST_NO_CONTEXT_CALL(object.has_index(0));
+            TEST_NO_CONTEXT_CALL(object.has_index(jsrt::string()));
+            TEST_NO_CONTEXT_CALL(object.set_index(0, jsrt::value()));
+            TEST_NO_CONTEXT_CALL(object.set_index(jsrt::string(), jsrt::value()));
+            TEST_NO_CONTEXT_CALL(object.get_index(0));
+            TEST_NO_CONTEXT_CALL(object.get_index(jsrt::string()));
+            TEST_NO_CONTEXT_CALL(object.delete_index(0));
+            TEST_NO_CONTEXT_CALL(object.delete_index(jsrt::string()));
+
+            jsrt::external_object external_object;
+            TEST_NO_CONTEXT_CALL(jsrt::external_object::create());
+            TEST_NO_CONTEXT_CALL(external_object.data());
+            TEST_NO_CONTEXT_CALL(external_object.set_data(nullptr));
             runtime.dispose();
         }
 
@@ -55,6 +69,18 @@ namespace jsrtwrapperstest
                 TEST_NULL_ARG_CALL(object.get_own_property_descriptor(jsrt::property_id()));
                 TEST_NULL_ARG_CALL(object.get_own_property_names());
                 TEST_NULL_ARG_CALL(object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
+                TEST_NULL_ARG_CALL(object.has_index(0));
+                TEST_NULL_ARG_CALL(object.has_index(jsrt::string()));
+                TEST_NULL_ARG_CALL(object.set_index(0, jsrt::value()));
+                TEST_NULL_ARG_CALL(object.set_index(jsrt::string(), jsrt::value()));
+                TEST_NULL_ARG_CALL(object.get_index(0));
+                TEST_NULL_ARG_CALL(object.get_index(jsrt::string()));
+                TEST_NULL_ARG_CALL(object.delete_index(0));
+                TEST_NULL_ARG_CALL(object.delete_index(jsrt::string()));
+
+                jsrt::external_object external_object;
+                TEST_NULL_ARG_CALL(external_object.data());
+                TEST_NULL_ARG_CALL(external_object.set_data(nullptr));
 
                 jsrt::object valid_object = jsrt::object::create();
                 TEST_NULL_ARG_CALL(valid_object.set_prototype(jsrt::object()));
@@ -66,6 +92,12 @@ namespace jsrtwrapperstest
                 TEST_INVALID_ARG_CALL(valid_object.get_own_property_descriptor(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
                 TEST_NULL_ARG_CALL(valid_object.define_property(jsrt::property_id::create(L"foo"), jsrt::property_descriptor<double>()));
+                TEST_NULL_ARG_CALL(valid_object.has_index(jsrt::string()));
+                TEST_NULL_ARG_CALL(valid_object.set_index(0, jsrt::value()));
+                TEST_NULL_ARG_CALL(valid_object.set_index(jsrt::string(), jsrt::value()));
+                TEST_NULL_ARG_CALL(valid_object.set_index(jsrt::string::create(L"0"), jsrt::value()));
+                TEST_NULL_ARG_CALL(valid_object.get_index(jsrt::string()));
+                TEST_NULL_ARG_CALL(valid_object.delete_index(jsrt::string()));
             }
             runtime.dispose();
         }
@@ -223,6 +255,31 @@ namespace jsrtwrapperstest
                 object.delete_index(jsrt::string::create(L"6"));
                 Assert::IsFalse(object.has_index(6));
                 Assert::AreEqual(object.get_index(6).handle(), jsrt::context::undefined().handle());
+            }
+            runtime.dispose();
+        }
+
+        static void CALLBACK finalize(void *data)
+        {
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+        }
+
+        MY_TEST_METHOD(external, "Test external objects.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::value value = jsrt::external_object::create();
+                jsrt::external_object object = (jsrt::external_object)value;
+                Assert::IsTrue(object.is_external());
+                Assert::AreEqual(object.data(), (void *)nullptr);
+                object = jsrt::external_object::create((void *) 0xdeadc0de, finalize);
+                Assert::AreEqual(object.data(), (void *) 0xdeadc0de);
+                object.set_data((void *) 0xdeadbeef);
+                Assert::AreEqual(object.data(), (void *) 0xdeadbeef);
+                object = jsrt::external_object();
+                runtime.collect_garbage();
             }
             runtime.dispose();
         }
