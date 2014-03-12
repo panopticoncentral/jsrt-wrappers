@@ -1113,7 +1113,7 @@ namespace jsrt
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///     This function is equivalent to the <c>==</c> operator in Javascript.
+        ///     This function is equivalent to the <c>==</c> operator in JavaScript.
         ///     </para>
         ///     <para>
         ///     Requires an active script context.
@@ -1133,7 +1133,7 @@ namespace jsrt
         /// </summary>
         /// <remarks>
         ///     <para>
-        ///     This function is equivalent to the <c>===</c> operator in Javascript.
+        ///     This function is equivalent to the <c>===</c> operator in JavaScript.
         ///     </para>
         ///     <para>
         ///     Requires an active script context.
@@ -1818,7 +1818,7 @@ namespace jsrt
     };
 
     /// <summary>
-    ///     A reference to an external Javascript object (i.e. one that wraps a void pointer).
+    ///     A reference to an external JavaScript object (i.e. one that wraps a void pointer).
     /// </summary>
     class external_object : public object
     {
@@ -1907,7 +1907,10 @@ namespace jsrt
         }
     };
 
-    template<class T>
+    /// <summary>
+    ///     A reference to a JavaScript array.
+    /// </summary>
+    template<class T = value>
     class array : public object
     {
         friend class value;
@@ -1920,6 +1923,9 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Represents an element of a JavaScript array.
+        /// </summary>
         template<class T>
         class array_element
         {
@@ -1928,16 +1934,27 @@ namespace jsrt
             value _index;
 
         public:
+            /// <summary>
+            ///     Creates a new JavaScript array element handle.
+            /// </summary>
+            /// <param name="array">The array the element is from.</param>
+            /// <param name="index">The index of the element.</param>
             array_element(array<T> array, value index) :
                 _array(array), _index(index)
             {
             }
 
+            /// <summary>
+            ///     The array the element is from.
+            /// </summary>
             array<T> array()
             {
                 return _array;
             }
 
+            /// <summary>
+            ///     The index of the element.
+            /// </summary>
             value index()
             {
                 return _index;
@@ -1963,11 +1980,20 @@ namespace jsrt
             }
         };
 
+        /// <summary>
+        ///     Creates an invalid handle to an array.
+        /// </summary>
         array() :
-            object(JS_INVALID_REFERENCE)
+            object()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an <c>array</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit array(value object) :
             object(object.handle())
         {
@@ -1978,18 +2004,34 @@ namespace jsrt
             return array_element<T>(*this, number::create(index));
         }
 
+        /// <summary>
+        ///     Gets the length of an array value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The length of the array.</returns>
         int length()
         {
             JsPropertyIdRef lengthName;
             JsValueRef lengthValue;
             double lengthDouble;
 
+            // CONSIDER: Caching this somewhere?
             runtime::translate_error_code(JsGetPropertyIdFromName(L"length", &lengthName));
             runtime::translate_error_code(JsGetProperty(handle(), lengthName, &lengthValue));
             runtime::translate_error_code(JsNumberToDouble(lengthValue, &lengthDouble));
             return (int) lengthDouble;
         }
 
+        /// <summary>
+        ///     Creates a JavaScript array object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="length">The initial length of the array.</param>
+        /// <returns>The new array object.</returns>
         static array<T> create(unsigned int length)
         {
             JsValueRef array;
@@ -1998,8 +2040,24 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript error.
+    /// <summary>
     class error : public object
     {
+    private:
+        static JsValueRef format_message(std::wstring message, va_list argptr)
+        {
+            wchar_t buffer[2048];
+            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
+
+            JsValueRef errorString;
+            // We're ignoring errors because there's nothing we can do here if things fail.
+            JsPointerToString(buffer, wcslen(buffer), &errorString);
+
+            return errorString;
+        }
+
     protected:
         error(JsValueRef ref) :
             object(ref)
@@ -2007,16 +2065,28 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid handle to an error.
+        /// </summary>
         error() :
             object()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an <c>error</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit error(value object) :
             object(object.handle())
         {
         }
 
+        /// <summary>
+        ///     The <c>name</c> property of the error.
+        /// </summary>
         std::wstring name()
         {
             optional<value> name = get_property<value>(property_id::create(L"name"));
@@ -2029,6 +2099,9 @@ namespace jsrt
             return L"";
         }
 
+        /// <summary>
+        ///     The <c>message</c> property of the error.
+        /// </summary>
         std::wstring message()
         {
             optional<value> message = get_property<value>(property_id::create(L"message"));
@@ -2041,105 +2114,123 @@ namespace jsrt
             return L"";
         }
 
+        /// <summary>
+        ///     Creates a new JavaScript error object
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="message">Message for the error object.</param>
+        /// <returns>The new error object.</returns>
         static error create(std::wstring message, ...)
         {
             va_list argptr;
             va_start(argptr, message);
-            wchar_t buffer[2048];
 
-            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
-
-            JsValueRef errorString;
             JsValueRef errorObject;
 
             // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
-            JsCreateError(errorString, &errorObject);
+            JsCreateError(format_message(message, argptr), &errorObject);
             return error(errorObject);
         }
 
+        /// <summary>
+        ///     Creates a new JavaScript TypeError error object
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="message">Message for the error object.</param>
+        /// <returns>The new error object.</returns>
         static error create_type_error(std::wstring message, ...)
         {
             va_list argptr;
             va_start(argptr, message);
-            wchar_t buffer[2048];
 
-            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
-
-            JsValueRef errorString;
             JsValueRef errorObject;
 
             // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
-            JsCreateTypeError(errorString, &errorObject);
+            JsCreateTypeError(format_message(message, argptr), &errorObject);
             return error(errorObject);
         }
 
+        /// <summary>
+        ///     Creates a new JavaScript ReferenceError error object
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="message">Message for the error object.</param>
+        /// <returns>The new error object.</returns>
         static error create_reference_error(std::wstring message, ...)
         {
             va_list argptr;
             va_start(argptr, message);
-            wchar_t buffer[2048];
 
-            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
-
-            JsValueRef errorString;
             JsValueRef errorObject;
 
             // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
-            JsCreateReferenceError(errorString, &errorObject);
+            JsCreateReferenceError(format_message(message, argptr), &errorObject);
             return error(errorObject);
         }
 
+        /// <summary>
+        ///     Creates a new JavaScript RangeError error object
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="message">Message for the error object.</param>
+        /// <returns>The new error object.</returns>
         static error create_range_error(std::wstring message, ...)
         {
             va_list argptr;
             va_start(argptr, message);
-            wchar_t buffer[2048];
 
-            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
-
-            JsValueRef errorString;
             JsValueRef errorObject;
 
             // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
-            JsCreateRangeError(errorString, &errorObject);
+            JsCreateRangeError(format_message(message, argptr), &errorObject);
             return error(errorObject);
         }
 
+        /// <summary>
+        ///     Creates a new JavaScript SyntaxError error object
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="message">Message for the error object.</param>
+        /// <returns>The new error object.</returns>
         static error create_syntax_error(std::wstring message, ...)
         {
             va_list argptr;
             va_start(argptr, message);
-            wchar_t buffer[2048];
 
-            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
-
-            JsValueRef errorString;
             JsValueRef errorObject;
 
             // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
-            JsCreateSyntaxError(errorString, &errorObject);
+            JsCreateSyntaxError(format_message(message, argptr), &errorObject);
             return error(errorObject);
         }
 
+        /// <summary>
+        ///     Creates a new JavaScript URIError error object
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="message">Message for the error object.</param>
+        /// <returns>The new error object.</returns>
         static error create_uri_error(std::wstring message, ...)
         {
             va_list argptr;
             va_start(argptr, message);
-            wchar_t buffer[2048];
 
-            _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
-
-            JsValueRef errorString;
             JsValueRef errorObject;
 
             // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
-            JsCreateURIError(errorString, &errorObject);
+            JsCreateURIError(format_message(message, argptr), &errorObject);
             return error(errorObject);
         }
     };

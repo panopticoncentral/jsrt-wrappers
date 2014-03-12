@@ -161,6 +161,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="array.cpp" />
     <ClCompile Include="context.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="optional_rest.cpp" />
