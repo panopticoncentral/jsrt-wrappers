@@ -2052,8 +2052,7 @@ namespace jsrt
             _vsnwprintf_s(buffer, _countof(buffer), _TRUNCATE, message.c_str(), argptr);
 
             JsValueRef errorString;
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsPointerToString(buffer, wcslen(buffer), &errorString);
+            runtime::translate_error_code(JsPointerToString(buffer, wcslen(buffer), &errorString));
 
             return errorString;
         }
@@ -2129,8 +2128,7 @@ namespace jsrt
 
             JsValueRef errorObject;
 
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsCreateError(format_message(message, argptr), &errorObject);
+            runtime::translate_error_code(JsCreateError(format_message(message, argptr), &errorObject));
             return error(errorObject);
         }
 
@@ -2149,8 +2147,7 @@ namespace jsrt
 
             JsValueRef errorObject;
 
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsCreateTypeError(format_message(message, argptr), &errorObject);
+            runtime::translate_error_code(JsCreateTypeError(format_message(message, argptr), &errorObject));
             return error(errorObject);
         }
 
@@ -2169,8 +2166,7 @@ namespace jsrt
 
             JsValueRef errorObject;
 
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsCreateReferenceError(format_message(message, argptr), &errorObject);
+            runtime::translate_error_code(JsCreateReferenceError(format_message(message, argptr), &errorObject));
             return error(errorObject);
         }
 
@@ -2189,8 +2185,7 @@ namespace jsrt
 
             JsValueRef errorObject;
 
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsCreateRangeError(format_message(message, argptr), &errorObject);
+            runtime::translate_error_code(JsCreateRangeError(format_message(message, argptr), &errorObject));
             return error(errorObject);
         }
 
@@ -2209,8 +2204,7 @@ namespace jsrt
 
             JsValueRef errorObject;
 
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsCreateSyntaxError(format_message(message, argptr), &errorObject);
+            runtime::translate_error_code(JsCreateSyntaxError(format_message(message, argptr), &errorObject));
             return error(errorObject);
         }
 
@@ -2229,8 +2223,7 @@ namespace jsrt
 
             JsValueRef errorObject;
 
-            // We're ignoring errors because there's nothing we can do here if things fail.
-            JsCreateURIError(format_message(message, argptr), &errorObject);
+            runtime::translate_error_code(JsCreateURIError(format_message(message, argptr), &errorObject));
             return error(errorObject);
         }
     };
