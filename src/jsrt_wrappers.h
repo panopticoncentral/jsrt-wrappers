@@ -919,30 +919,6 @@ namespace jsrt
     };
 
     /// <summary>
-    ///     Represents a variable number of values.
-    /// </summary>
-    template<class T>
-    class rest : public optional<T>
-    {
-    public:
-        /// <summary>
-        ///     Constructs a variable number of values with no values.
-        /// </summary>
-        rest() :
-            optional()
-        {
-        }
-
-        /// <summary>
-        ///     Constructs a variable number of values.
-        /// </summary>
-        rest(T value) :
-            optional(value)
-        {
-        }
-    };
-
-    /// <summary>
     ///     A reference to a JavaScript value.
     /// </summary>
     class value : public reference
@@ -2230,9 +2206,36 @@ namespace jsrt
 
     struct notdefined {};
 
+    /// <summary>
+    ///     Represents a variable number of values.
+    /// </summary>
+    template<class T>
+    class rest : public optional<array<T>>
+    {
+    public:
+        /// <summary>
+        ///     Constructs a variable number of values with no values.
+        /// </summary>
+        rest() :
+            optional()
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a variable number of values.
+        /// </summary>
+        rest(array<T> value) :
+            optional(value)
+        {
+        }
+    };
+
+    /// <summary>
+    ///     A reference to a JavaScript function.
+    /// </summary>
     class function_base : public object
     {
-    protected:
+    private:
         template<class T>
         static bool is_rest(T value)
         {
@@ -2255,7 +2258,7 @@ namespace jsrt
             }
             else if (to_native(arguments[position], &result) != JsNoError)
             {
-                // TODO: Include typename.
+                // CONSIDER: Include typename/parameter name?
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return false;
             }
@@ -2275,7 +2278,7 @@ namespace jsrt
                 T nativeValue;
                 if (to_native(arguments[position], &nativeValue) != JsNoError)
                 {
-                    // TODO: Include typename.
+                    // CONSIDER: Include typename/parameter name?
                     context::set_exception(error::create_type_error(L"Could not convert value."));
                     result = optional<T>();
                 }
@@ -2289,11 +2292,21 @@ namespace jsrt
         }
 
         template<class T>
-        static bool argument_from_value(int position, JsValueRef *arguments, int argumentCount, rest < array < T >> &result)
+        static bool argument_from_value(int position, JsValueRef *arguments, int argumentCount, rest<T> &result)
         {
             if (position < argumentCount)
             {
-                array<T> rest = array<T>::create(argumentCount - position);
+                array<T> rest;
+                
+                try
+                {
+                    rest = array<T>::create(argumentCount - position);
+                }
+                catch (const exception &)
+                {
+                    context::set_exception(error::create("Unknown error."));
+                    return false;
+                }
 
                 for (int index = 0; index < argumentCount - position; index++)
                 {
@@ -2301,7 +2314,7 @@ namespace jsrt
 
                     if (to_native(arguments[position + index], &value) != JsNoError)
                     {
-                        // TODO: Include typename.
+                        // CONSIDER: Include typename/parameter name?
                         context::set_exception(error::create_type_error(L"Could not convert value."));
                         return false;
                     }
@@ -2315,11 +2328,40 @@ namespace jsrt
             return true;
         }
 
-        template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7, P8 &p8)
+        template<class T>
+        static unsigned rest_argument_count(T value)
         {
-            calleeObject = object(callee);
+            return 1;
+        };
 
+        template<class T>
+        static unsigned rest_argument_count(rest<T> value)
+        {
+            return value.has_value() ? (int) value.value.length : 0;
+        };
+
+        template<class T>
+        static void fill_rest(T argument, unsigned start, std::vector<JsValueRef> &arguments)
+        {
+            runtime::translate_error_code(from_native(argument, &arguments[start]));
+        }
+
+        template<class T>
+        static void fill_rest(rest<T> rest, unsigned start, std::vector<JsValueRef> &arguments)
+        {
+            if (rest.has_value())
+            {
+                for (unsigned index = 0; index < rest.value.length; index++)
+                {
+                    runtime::translate_error_code(from_native((T) rest.value[index], &arguments[start + index]));
+                }
+            }
+        }
+
+    protected:
+        template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7, P8 &p8)
+        {
             if (!is_rest(p8) && argumentCount > 9)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2339,10 +2381,8 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p7) && argumentCount > 8)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2361,10 +2401,8 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p6) && argumentCount > 7)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2382,10 +2420,8 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p5) && argumentCount > 6)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2402,10 +2438,8 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p4) && argumentCount > 5)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2421,10 +2455,8 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2, P3 &p3)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p3) && argumentCount > 4)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2439,10 +2471,8 @@ namespace jsrt
         }
 
         template <class P1, class P2>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1, P2 &p2)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p2) && argumentCount > 3)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2456,10 +2486,8 @@ namespace jsrt
         }
 
         template <class P1>
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue, P1 &p1)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1)
         {
-            calleeObject = object(callee);
-
             if (!is_rest(p1) && argumentCount > 2)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2471,10 +2499,8 @@ namespace jsrt
             return argument_from_value(1, arguments, argumentCount, p1);
         }
 
-        static bool unpack_arguments(JsValueRef callee, JsValueRef *arguments, unsigned short argumentCount, object &calleeObject, value &thisValue)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue)
         {
-            calleeObject = object(callee);
-
             if (argumentCount > 1)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
@@ -2484,55 +2510,6 @@ namespace jsrt
             thisValue = value(arguments[0]);
 
             return true;
-        }
-
-        template<class T>
-        static unsigned rest_argument_count(T value)
-        {
-            return 1;
-        };
-
-        template<class T>
-        static unsigned rest_argument_count(rest < array < T >> value)
-        {
-            return value.has_value() ? (int) value.value.length : 0;
-        };
-
-        template<class T>
-        static void fill_rest(T argument, unsigned start, std::vector<JsValueRef> &arguments)
-        {
-            runtime::translate_error_code(from_native(argument, &arguments[start]));
-        }
-
-        template<class T>
-        static void fill_rest(rest < array < T >> rest, unsigned start, std::vector<JsValueRef> &arguments)
-        {
-            if (rest.has_value())
-            {
-                for (unsigned index = 0; index < rest.value.length; index++)
-                {
-                    // TODO: Why this cast? Can we get rid of it?
-                    runtime::translate_error_code(from_native((T) rest.value[index], &arguments[start + index]));
-                }
-            }
-        }
-
-        template<class P1, class P2, class P3, class P4>
-        static unsigned argument_count(P1 p1, P2 p2, P3 p3, P4 p4)
-        {
-            return 4 + rest_argument_count(p4);
-        }
-
-        template<class P1, class P2, class P3>
-        static unsigned argument_count(P1 p1, P2 p2, P3 p3)
-        {
-            return 3 + rest_argument_count(p3);
-        }
-
-        template<class P1>
-        static unsigned argument_count(P1 p1)
-        {
-            return 1 + rest_argument_count(p1);
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
@@ -2749,11 +2726,20 @@ namespace jsrt
         }
 
     public:
+        /// <summary>
+        ///     Creates an invalid handle to a function.
+        /// </summary>
         function_base() :
             object()
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to a <c>function</c> handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit function_base(value object) :
             object(object.handle())
         {
@@ -2866,7 +2852,6 @@ namespace jsrt
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -2877,7 +2862,7 @@ namespace jsrt
             P7 p7;
             P8 p8;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5, p6, p7, p8))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7, p8))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -2958,7 +2943,6 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -2969,7 +2953,7 @@ namespace jsrt
             P7 p7;
             P8 p8;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5, p6, p7, p8))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7, p8))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3023,7 +3007,6 @@ namespace jsrt
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -3033,7 +3016,7 @@ namespace jsrt
             P6 p6;
             P7 p7;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5, p6, p7))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3114,7 +3097,6 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -3124,7 +3106,7 @@ namespace jsrt
             P6 p6;
             P7 p7;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5, p6, p7))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3178,7 +3160,6 @@ namespace jsrt
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -3187,7 +3168,7 @@ namespace jsrt
             P5 p5;
             P6 p6;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5, p6))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3268,7 +3249,6 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -3277,7 +3257,7 @@ namespace jsrt
             P5 p5;
             P6 p6;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5, p6))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3331,7 +3311,6 @@ namespace jsrt
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -3339,7 +3318,7 @@ namespace jsrt
             P4 p4;
             P5 p5;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3420,7 +3399,6 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
@@ -3428,7 +3406,7 @@ namespace jsrt
             P4 p4;
             P5 p5;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4, p5))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3482,14 +3460,13 @@ namespace jsrt
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3570,14 +3547,13 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3, p4))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3606,23 +3582,23 @@ namespace jsrt
     // Arity = 3
 
     template<class R, class P1, class P2, class P3>
-    class function<R, P1, P2, P3, notdefined> : public constructor_function<R>
+    class function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
         typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3);
 
-        function<R, P1, P2, P3, notdefined>() :
+        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
         }
 
-        function<R, P1, P2, P3, notdefined>(Signature function) :
+        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             constructor_function<R>()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<R, P1, P2, P3, notdefined>(value object) :
+        explicit function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
         }
@@ -3630,13 +3606,12 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
             P3 p3;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3687,23 +3662,23 @@ namespace jsrt
     };
 
     template<class P1, class P2, class P3>
-    class function<void, P1, P2, P3, notdefined> : public function_base
+    class function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
         typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3);
 
-        function<void, P1, P2, P3, notdefined>() :
+        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
         }
 
-        function<void, P1, P2, P3, notdefined>(Signature function) :
+        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             function_base()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<void, P1, P2, P3, notdefined>(value object) :
+        explicit function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             function_base(object)
         {
         }
@@ -3717,13 +3692,12 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
             P3 p3;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2, p3))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3752,23 +3726,23 @@ namespace jsrt
     // Arity = 2
 
     template<class R, class P1, class P2>
-    class function<R, P1, P2, notdefined, notdefined> : public constructor_function<R>
+    class function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
         typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2);
 
-        function<R, P1, P2, notdefined, notdefined>() :
+        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
         }
 
-        function<R, P1, P2, notdefined, notdefined>(Signature function) :
+        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             constructor_function<R>()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<R, P1, P2, notdefined, notdefined>(value object) :
+        explicit function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
         }
@@ -3776,12 +3750,11 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3833,23 +3806,23 @@ namespace jsrt
     };
 
     template<class P1, class P2>
-    class function<void, P1, P2, notdefined, notdefined> : public function_base
+    class function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
         typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2);
 
-        function<void, P1, P2, notdefined, notdefined>() :
+        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
         }
 
-        function<void, P1, P2, notdefined, notdefined>(Signature function) :
+        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             function_base()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<void, P1, P2, notdefined, notdefined>(value object) :
+        explicit function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             function_base(object)
         {
         }
@@ -3863,12 +3836,11 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
             P2 p2;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1, p2))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3897,23 +3869,23 @@ namespace jsrt
     // Arity = 1
 
     template<class R, class P1>
-    class function<R, P1, notdefined, notdefined, notdefined> : public constructor_function<R>
+    class function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
         typedef R(CALLBACK *Signature)(value thisValue, P1 p1);
 
-        function<R, P1, notdefined, notdefined, notdefined>() :
+        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
         }
 
-        function<R, P1, notdefined, notdefined, notdefined>(Signature function) :
+        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             constructor_function<R>()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<R, P1, notdefined, notdefined, notdefined>(value object) :
+        explicit function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
         }
@@ -3921,11 +3893,10 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
             P1 p1;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -3976,23 +3947,23 @@ namespace jsrt
     };
 
     template<class P1>
-    class function<void, P1, notdefined, notdefined, notdefined> : public function_base
+    class function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
         typedef void (CALLBACK *Signature)(value thisValue, P1 p1);
 
-        function<void, P1, notdefined, notdefined, notdefined>() :
+        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
         }
 
-        function<void, P1, notdefined, notdefined, notdefined>(Signature function) :
+        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             function_base()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<void, P1, notdefined, notdefined, notdefined>(value object) :
+        explicit function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             function_base(object)
         {
         }
@@ -4006,11 +3977,10 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
             P1 p1;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue, p1))
+            if (!unpack_arguments(arguments, argumentCount, thisValue, p1))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -4039,23 +4009,23 @@ namespace jsrt
     // Arity = 0
 
     template<class R>
-    class function<R, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
+    class function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
         typedef R(CALLBACK *Signature)(value thisValue);
 
-        function<R, notdefined, notdefined, notdefined, notdefined>() :
+        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
         }
 
-        function<R, notdefined, notdefined, notdefined, notdefined>(Signature function) :
+        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             constructor_function<R>()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<R, notdefined, notdefined, notdefined, notdefined>(value object) :
+        explicit function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
         }
@@ -4063,10 +4033,9 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
         {
-            object calleeObject;
             value thisValue;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue))
+            if (!unpack_arguments(arguments, argumentCount, thisValue))
             {
                 return JS_INVALID_REFERENCE;
             }
@@ -4117,23 +4086,23 @@ namespace jsrt
     };
 
     template<>
-    class function<void, notdefined, notdefined, notdefined, notdefined> : public function_base
+    class function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
         typedef void (CALLBACK *Signature)(value thisValue);
 
-        function<void, notdefined, notdefined, notdefined, notdefined>() :
+        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
         }
 
-        function<void, notdefined, notdefined, notdefined, notdefined>(Signature function) :
+        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
             function_base()
         {
             runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
-        explicit function<void, notdefined, notdefined, notdefined, notdefined>(value object) :
+        explicit function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
             function_base(object)
         {
         }
@@ -4147,10 +4116,9 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            object calleeObject;
             value thisValue;
 
-            if (!unpack_arguments(callee, arguments, argumentCount, calleeObject, thisValue))
+            if (!unpack_arguments(arguments, argumentCount, thisValue))
             {
                 return JS_INVALID_REFERENCE;
             }

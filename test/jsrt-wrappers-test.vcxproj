@@ -164,8 +164,9 @@
     <ClCompile Include="array.cpp" />
     <ClCompile Include="context.cpp" />
     <ClCompile Include="error.cpp" />
+    <ClCompile Include="function.cpp" />
     <ClCompile Include="object.cpp" />
-    <ClCompile Include="optional_rest.cpp" />
+    <ClCompile Include="optional.cpp" />
     <ClCompile Include="pinned.cpp" />
     <ClCompile Include="property_id.cpp" />
     <ClCompile Include="reference.cpp" />

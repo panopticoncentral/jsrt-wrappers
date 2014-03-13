@@ -41,9 +41,6 @@
     <ClCompile Include="property_id.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="optional_rest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="value.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -54,6 +51,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="error.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="function.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="optional.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
