@@ -19,6 +19,7 @@
 
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 #pragma once
 
@@ -152,13 +153,13 @@ namespace jsrt
         ///     prevent the runtime from invoking the callback again later for new memory allocations.
         ///     </para>
         /// </remarks>
-        /// <param name="callbackState">
+        /// <param name="callback_state">
         ///     User provided state that will be passed back to the callback.
         /// </param>
         /// <param name="allocationCallback">
         ///     Memory allocation callback to be called for memory allocation events.
         /// </param>
-        void set_memory_allocation_callback(void *callbackState, JsMemoryAllocationCallback allocationCallback);
+        void set_memory_allocation_callback(void *callback_state, JsMemoryAllocationCallback allocationCallback);
 
         /// <summary>
         ///     Sets a callback function that is called by the runtime before garbage collection.
@@ -173,11 +174,11 @@ namespace jsrt
         ///     releasing unnecessary references on Chakra objects.
         ///     </para>
         /// </remarks>
-        /// <param name="callbackState">
+        /// <param name="callback_state">
         ///     User provided state that will be passed back to the callback.
         /// </param>
         /// <param name="beforeCollectCallback">The callback function being set.</param>
-        void set_before_collect_callback(void *callbackState, JsBeforeCollectCallback beforeCollectCallback);
+        void set_before_collect_callback(void *callback_state, JsBeforeCollectCallback beforeCollectCallback);
 
         /// <summary>
         ///     Suspends script execution and terminates any running scripts in a runtime.
@@ -2014,6 +2015,26 @@ namespace jsrt
             runtime::translate_error_code(JsCreateArray(length, &array));
             return jsrt::array<T>(array);
         }
+
+        /// <summary>
+        ///     Creates a JavaScript array object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="values">The initial values of the array.</param>
+        /// <returns>The new array object.</returns>
+        static array<T> create(std::initializer_list<T> values)
+        {
+            array<T> array = create(values.size());
+            int index = 0;
+            for (auto iter = values.begin(); iter != values.end(); iter++)
+            {
+                array[index++] = *iter;
+            }
+
+            return array;
+        }
     };
 
     /// <summary>
@@ -2231,6 +2252,62 @@ namespace jsrt
     };
 
     /// <summary>
+    ///     Information about a function call.
+    /// </summary>
+    class call_info
+    {
+    private:
+        value _callee;
+        value _this_value;
+        bool _is_construct_call;
+
+    public:
+        /// <summary>
+        ///     Constructs an empty call information instance.
+        /// </summary>
+        call_info() :
+            _callee(value()),
+            _this_value(value()),
+            _is_construct_call(false)
+        {
+        }
+
+        /// <summary>
+        ///     Constructs a call information instance.
+        /// </summary>
+        call_info(value callee, value this_value, bool is_construct_call) :
+            _callee(callee),
+            _this_value(this_value),
+            _is_construct_call(is_construct_call)
+        {
+        }
+
+        /// <summary>
+        ///     The JavaScript function being called.
+        /// </summary>
+        value callee() const
+        {
+            return this->_callee;
+        }
+
+        /// <summary>
+        ///     The <c>this</c> value for the function call.
+        /// </summary>
+        value this_value() const
+        {
+            return this->_this_value;
+        }
+
+        /// <summary>
+        ///     Whether the call was a function call or a <c>new</c> call.
+        /// </summary>
+        bool is_construct_call() const
+        {
+            return this->_is_construct_call;
+        }
+    };
+
+    /// <summary>
     ///     A reference to a JavaScript function.
     /// </summary>
     class function_base : public object
@@ -2249,9 +2326,9 @@ namespace jsrt
         };
 
         template<class T>
-        static bool argument_from_value(int position, JsValueRef *arguments, int argumentCount, T &result)
+        static bool argument_from_value(int position, JsValueRef *arguments, int argument_count, T &result)
         {
-            if (position > argumentCount - 1)
+            if (position > argument_count - 1)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
@@ -2267,9 +2344,9 @@ namespace jsrt
         }
 
         template<class T>
-        static bool argument_from_value(int position, JsValueRef *arguments, int argumentCount, optional<T> &result)
+        static bool argument_from_value(int position, JsValueRef *arguments, int argument_count, optional<T> &result)
         {
-            if (position > argumentCount - 1)
+            if (position > argument_count - 1)
             {
                 result = T();
             }
@@ -2292,15 +2369,15 @@ namespace jsrt
         }
 
         template<class T>
-        static bool argument_from_value(int position, JsValueRef *arguments, int argumentCount, rest<T> &result)
+        static bool argument_from_value(int position, JsValueRef *arguments, int argument_count, rest<T> &result)
         {
-            if (position < argumentCount)
+            if (position < argument_count)
             {
                 array<T> rest;
                 
                 try
                 {
-                    rest = array<T>::create(argumentCount - position);
+                    rest = array<T>::create(argument_count - position);
                 }
                 catch (const exception &)
                 {
@@ -2308,7 +2385,7 @@ namespace jsrt
                     return false;
                 }
 
-                for (int index = 0; index < argumentCount - position; index++)
+                for (int index = 0; index < argument_count - position; index++)
                 {
                     T value;
 
@@ -2360,167 +2437,182 @@ namespace jsrt
 
     protected:
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7, P8 &p8)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7, P8 &p8)
         {
-            if (!is_rest(p8) && argumentCount > 9)
+            if (!is_rest(p8) && argument_count > 9)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2) &&
-                argument_from_value(3, arguments, argumentCount, p3) &&
-                argument_from_value(4, arguments, argumentCount, p4) &&
-                argument_from_value(5, arguments, argumentCount, p5) &&
-                argument_from_value(6, arguments, argumentCount, p6) &&
-                argument_from_value(7, arguments, argumentCount, p7) &&
-                argument_from_value(8, arguments, argumentCount, p8);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2) &&
+                argument_from_value(3, arguments, argument_count, p3) &&
+                argument_from_value(4, arguments, argument_count, p4) &&
+                argument_from_value(5, arguments, argument_count, p5) &&
+                argument_from_value(6, arguments, argument_count, p6) &&
+                argument_from_value(7, arguments, argument_count, p7) &&
+                argument_from_value(8, arguments, argument_count, p8);
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7)
         {
-            if (!is_rest(p7) && argumentCount > 8)
+            if (!is_rest(p7) && argument_count > 8)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2) &&
-                argument_from_value(3, arguments, argumentCount, p3) &&
-                argument_from_value(4, arguments, argumentCount, p4) &&
-                argument_from_value(5, arguments, argumentCount, p5) &&
-                argument_from_value(6, arguments, argumentCount, p6) &&
-                argument_from_value(7, arguments, argumentCount, p7);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2) &&
+                argument_from_value(3, arguments, argument_count, p3) &&
+                argument_from_value(4, arguments, argument_count, p4) &&
+                argument_from_value(5, arguments, argument_count, p5) &&
+                argument_from_value(6, arguments, argument_count, p6) &&
+                argument_from_value(7, arguments, argument_count, p7);
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6)
         {
-            if (!is_rest(p6) && argumentCount > 7)
+            if (!is_rest(p6) && argument_count > 7)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2) &&
-                argument_from_value(3, arguments, argumentCount, p3) &&
-                argument_from_value(4, arguments, argumentCount, p4) &&
-                argument_from_value(5, arguments, argumentCount, p5) &&
-                argument_from_value(6, arguments, argumentCount, p6);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2) &&
+                argument_from_value(3, arguments, argument_count, p3) &&
+                argument_from_value(4, arguments, argument_count, p4) &&
+                argument_from_value(5, arguments, argument_count, p5) &&
+                argument_from_value(6, arguments, argument_count, p6);
         }
 
         template <class P1, class P2, class P3, class P4, class P5>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5)
         {
-            if (!is_rest(p5) && argumentCount > 6)
+            if (!is_rest(p5) && argument_count > 6)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2) &&
-                argument_from_value(3, arguments, argumentCount, p3) &&
-                argument_from_value(4, arguments, argumentCount, p4) &&
-                argument_from_value(5, arguments, argumentCount, p5);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2) &&
+                argument_from_value(3, arguments, argument_count, p3) &&
+                argument_from_value(4, arguments, argument_count, p4) &&
+                argument_from_value(5, arguments, argument_count, p5);
         }
 
         template <class P1, class P2, class P3, class P4>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3, P4 &p4)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4)
         {
-            if (!is_rest(p4) && argumentCount > 5)
+            if (!is_rest(p4) && argument_count > 5)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2) &&
-                argument_from_value(3, arguments, argumentCount, p3) &&
-                argument_from_value(4, arguments, argumentCount, p4);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2) &&
+                argument_from_value(3, arguments, argument_count, p3) &&
+                argument_from_value(4, arguments, argument_count, p4);
         }
 
         template <class P1, class P2, class P3>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2, P3 &p3)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3)
         {
-            if (!is_rest(p3) && argumentCount > 4)
+            if (!is_rest(p3) && argument_count > 4)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2) &&
-                argument_from_value(3, arguments, argumentCount, p3);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2) &&
+                argument_from_value(3, arguments, argument_count, p3);
         }
 
         template <class P1, class P2>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1, P2 &p2)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2)
         {
-            if (!is_rest(p2) && argumentCount > 3)
+            if (!is_rest(p2) && argument_count > 3)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1) &&
-                argument_from_value(2, arguments, argumentCount, p2);
+            return argument_from_value(1, arguments, argument_count, p1) &&
+                argument_from_value(2, arguments, argument_count, p2);
         }
 
         template <class P1>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue, P1 &p1)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1)
         {
-            if (!is_rest(p1) && argumentCount > 2)
+            if (!is_rest(p1) && argument_count > 2)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
 
-            return argument_from_value(1, arguments, argumentCount, p1);
+            return argument_from_value(1, arguments, argument_count, p1);
         }
 
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argumentCount, value &thisValue)
+        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value)
         {
-            if (argumentCount > 1)
+            if (argument_count > 1)
             {
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
 
-            thisValue = value(arguments[0]);
+            this_value = value(arguments[0]);
+
+            return true;
+        }
+
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, std::vector<value> &value_arguments)
+        {
+            value_arguments = std::vector<value>(argument_count - 1);
+
+            JsValueRef *current = arguments + 1;
+            for (int index = 1; index < argument_count; index++)
+            {
+                value_arguments[index] = value(current);
+            }
+
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return true;
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            unsigned argumentCount = 8 + rest_argument_count(p8);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 8 + rest_argument_count(p8);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2541,14 +2633,14 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            unsigned argumentCount = 7 + rest_argument_count(p7);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 7 + rest_argument_count(p7);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2568,14 +2660,14 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            unsigned argumentCount = 6 + rest_argument_count(p6);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 6 + rest_argument_count(p6);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2594,14 +2686,14 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            unsigned argumentCount = 5 + rest_argument_count(p5);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 5 + rest_argument_count(p5);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2619,14 +2711,14 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            unsigned argumentCount = 4 + rest_argument_count(p4);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 4 + rest_argument_count(p4);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2643,14 +2735,14 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2, P3 p3)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            unsigned argumentCount = 3 + rest_argument_count(p3);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 3 + rest_argument_count(p3);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2666,14 +2758,14 @@ namespace jsrt
         }
 
         template <class P1, class P2>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1, P2 p2)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2)
         {
-            unsigned argumentCount = 2 + rest_argument_count(p2);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 2 + rest_argument_count(p2);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2688,14 +2780,14 @@ namespace jsrt
         }
 
         template <class P1>
-        static std::vector<JsValueRef> pack_arguments(value thisValue, P1 p1)
+        static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1)
         {
-            unsigned argumentCount = 1 + rest_argument_count(p1);
-            std::vector<JsValueRef> arguments(argumentCount);
+            unsigned argument_count = 1 + rest_argument_count(p1);
+            std::vector<JsValueRef> arguments(argument_count);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2708,13 +2800,13 @@ namespace jsrt
             return arguments;
         }
 
-        static std::vector<JsValueRef> pack_arguments(value thisValue)
+        static std::vector<JsValueRef> pack_arguments(value this_value)
         {
             std::vector<JsValueRef> arguments(1);
 
-            if (thisValue.is_valid())
+            if (this_value.is_valid())
             {
-                arguments[0] = thisValue.handle();
+                arguments[0] = this_value.handle();
             }
             else
             {
@@ -2723,6 +2815,52 @@ namespace jsrt
             }
 
             return arguments;
+        }
+
+        static std::vector<JsValueRef> pack_arguments(value this_value, std::initializer_list<value> arguments)
+        {
+            std::vector<JsValueRef> call_args(arguments.size() + 1);
+            call_args[0] = this_value.handle();
+            unsigned int index = 1;
+            for (const value argument : arguments)
+            {
+                call_args[index++] = argument.handle();
+            }
+
+            return call_args;
+        }
+
+    public:
+        /// <summary>
+        ///     The signature of a function callback.
+        /// </summary>
+        /// <param name="call_info">Information about the call.</param>
+        /// <param name="arguments">Arguments to the call.</param>
+        /// <returns>The result of the call.</returns>
+        typedef value (*Signature)(const call_info &call_info, const std::vector<value> &arguments);
+
+    private:
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
+        {
+            std::vector<value> argument_vector;
+            call_info info;
+
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, argument_vector))
+            {
+                return JS_INVALID_REFERENCE;
+            }
+
+            Signature callback = (Signature) callback_state;
+            value result = callback(info, argument_vector);
+
+            JsValueRef resultValue;
+            if (from_native(result, &resultValue) != JsNoError)
+            {
+                context::set_exception(error::create_type_error(L"Could not convert value."));
+                return JS_INVALID_REFERENCE;
+            }
+
+            return resultValue;
         }
 
     public:
@@ -2745,11 +2883,55 @@ namespace jsrt
         {
         }
 
-        value call(value thisValue, std::vector<value> arguments)
+        /// <summary>
+        ///     Calls the JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="this_value">The value of <c>this</c> for the call.</param>
+        /// <param name="arguments">Arguments to the call.</param>
+        /// <returns>The result of the call.</returns>
+        value operator()(value this_value, std::initializer_list<value> arguments)
         {
+            std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
+
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) arguments.data(), arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) call_arguments.data(), arguments.size(), &resultValue));
             return value(resultValue);
+        }
+
+        /// <summary>
+        ///     Constructs a JavaScript object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="this_value">The value of <c>this</c> for the call.</param>
+        /// <param name="arguments">Arguments to the constructor call.</param>
+        /// <returns>The result of the constructor call.</returns>
+        value construct(value this_value, std::initializer_list<value> arguments)
+        {
+            std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
+
+            JsValueRef resultValue;
+            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *) call_arguments.data(), arguments.size(), &resultValue));
+            return value(resultValue);
+        }
+
+        /// <summary>
+        ///     Creates a new JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="function">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        static function_base create(Signature function)
+        {
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function_base(ref);
         }
     };
 
@@ -2830,7 +3012,7 @@ namespace jsrt
     class function : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, P8>() :
             constructor_function<R>()
@@ -2849,10 +3031,9 @@ namespace jsrt
         }
 
     private:
-
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -2862,13 +3043,13 @@ namespace jsrt
             P7 p7;
             P8 p8;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7, p8))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7, p8))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2, p3, p4, p5, p6, p7, p8);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -2882,9 +3063,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
+        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5, p6, p7, p8);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -2916,7 +3097,7 @@ namespace jsrt
     class function<void, P1, P2, P3, P4, P5, P6, P7, P8> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, P8>() :
             function_base()
@@ -2935,15 +3116,15 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -2953,21 +3134,21 @@ namespace jsrt
             P7 p7;
             P8 p8;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7, p8))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7, p8))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2, p3, p4, p5, p6, p7, p8);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
+        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5, p6, p7, p8);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -2985,7 +3166,7 @@ namespace jsrt
     class function<R, P1, P2, P3, P4, P5, P6, P7, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             constructor_function<R>()
@@ -3005,9 +3186,9 @@ namespace jsrt
 
     private:
 
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3016,13 +3197,13 @@ namespace jsrt
             P6 p6;
             P7 p7;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2, p3, p4, p5, p6, p7);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2, p3, p4, p5, p6, p7);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3036,9 +3217,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
+        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5, p6, p7);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3070,7 +3251,7 @@ namespace jsrt
     class function<void, P1, P2, P3, P4, P5, P6, P7, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             function_base()
@@ -3089,15 +3270,15 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3106,21 +3287,21 @@ namespace jsrt
             P6 p6;
             P7 p7;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6, p7))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2, p3, p4, p5, p6, p7);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2, p3, p4, p5, p6, p7);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
+        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5, p6, p7);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3138,7 +3319,7 @@ namespace jsrt
     class function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             constructor_function<R>()
@@ -3158,9 +3339,9 @@ namespace jsrt
 
     private:
 
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3168,13 +3349,13 @@ namespace jsrt
             P5 p5;
             P6 p6;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2, p3, p4, p5, p6);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2, p3, p4, p5, p6);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3188,9 +3369,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5, p6);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3222,7 +3403,7 @@ namespace jsrt
     class function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             function_base()
@@ -3241,15 +3422,15 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3257,21 +3438,21 @@ namespace jsrt
             P5 p5;
             P6 p6;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5, p6))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2, p3, p4, p5, p6);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2, p3, p4, p5, p6);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5, p6);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3289,7 +3470,7 @@ namespace jsrt
     class function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
@@ -3309,22 +3490,22 @@ namespace jsrt
 
     private:
 
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
             P5 p5;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2, p3, p4, p5);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2, p3, p4, p5);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3338,9 +3519,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3372,7 +3553,7 @@ namespace jsrt
     class function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             function_base()
@@ -3391,36 +3572,36 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
             P5 p5;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4, p5))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2, p3, p4, p5);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2, p3, p4, p5);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4, p5);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3438,7 +3619,7 @@ namespace jsrt
     class function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
@@ -3458,21 +3639,21 @@ namespace jsrt
 
     private:
 
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2, p3, p4);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2, p3, p4);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3486,9 +3667,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4)
+        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3520,7 +3701,7 @@ namespace jsrt
     class function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -3539,35 +3720,35 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3, p4))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2, p3, p4);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2, p3, p4);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2, P3 p3, P4 p4)
+        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3, p4);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3585,7 +3766,7 @@ namespace jsrt
     class function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3);
 
         function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
@@ -3604,20 +3785,20 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2, p3);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2, p3);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3631,9 +3812,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2, P3 p3)
+        R call(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3665,7 +3846,7 @@ namespace jsrt
     class function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2, P3 p3);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3);
 
         function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -3684,34 +3865,34 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
             P3 p3;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2, p3))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2, p3);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2, p3);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2, P3 p3)
+        void call(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2, p3);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3729,7 +3910,7 @@ namespace jsrt
     class function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1, P2 p2);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2);
 
         function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
@@ -3748,19 +3929,19 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1, p2);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1, p2);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3774,9 +3955,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1, P2 p2)
+        R call(value this_value, P1 p1, P2 p2)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3809,7 +3990,7 @@ namespace jsrt
     class function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1, P2 p2);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2);
 
         function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -3828,33 +4009,33 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
             P2 p2;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1, p2))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1, p2);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1, p2);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1, P2 p2)
+        void call(value this_value, P1 p1, P2 p2)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1, p2);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3872,7 +4053,7 @@ namespace jsrt
     class function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue, P1 p1);
+        typedef R(CALLBACK *Signature)(value this_value, P1 p1);
 
         function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
@@ -3891,18 +4072,18 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
             P1 p1;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue, p1);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value, p1);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3916,9 +4097,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue, P1 p1)
+        R call(value this_value, P1 p1)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -3950,7 +4131,7 @@ namespace jsrt
     class function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue, P1 p1);
+        typedef void (CALLBACK *Signature)(value this_value, P1 p1);
 
         function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -3969,32 +4150,32 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
             P1 p1;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue, p1))
+            if (!unpack_arguments(arguments, argument_count, this_value, p1))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue, p1);
+            Signature callback = (Signature) callback_state;
+            callback(this_value, p1);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue, P1 p1)
+        void call(value this_value, P1 p1)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue, p1);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -4012,7 +4193,7 @@ namespace jsrt
     class function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
     public:
-        typedef R(CALLBACK *Signature)(value thisValue);
+        typedef R(CALLBACK *Signature)(value this_value);
 
         function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
@@ -4031,17 +4212,17 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value thisValue;
+            value this_value;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue))
+            if (!unpack_arguments(arguments, argument_count, this_value))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            R result = callback(thisValue);
+            Signature callback = (Signature) callback_state;
+            R result = callback(this_value);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -4055,9 +4236,9 @@ namespace jsrt
         }
 
     public:
-        R call(value thisValue)
+        R call(value this_value)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
@@ -4089,7 +4270,7 @@ namespace jsrt
     class function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
     public:
-        typedef void (CALLBACK *Signature)(value thisValue);
+        typedef void (CALLBACK *Signature)(value this_value);
 
         function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -4108,31 +4289,31 @@ namespace jsrt
         }
 
     private:
-        static JsValueRef CALLBACK thunk(JsValueRef callee, bool isConstructCall, JsValueRef *arguments, unsigned short argumentCount, void *callbackState)
+        static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            if (isConstructCall)
+            if (is_construct_call)
             {
                 context::set_exception(error::create(L"Cannot call function as a constructor."));
                 return JS_INVALID_REFERENCE;
             }
 
-            value thisValue;
+            value this_value;
 
-            if (!unpack_arguments(arguments, argumentCount, thisValue))
+            if (!unpack_arguments(arguments, argument_count, this_value))
             {
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callbackState;
-            callback(thisValue);
+            Signature callback = (Signature) callback_state;
+            callback(this_value);
 
             return JS_INVALID_REFERENCE;
         }
 
     public:
-        void call(value thisValue)
+        void call(value this_value)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(thisValue);
+            std::vector<JsValueRef> arguments = pack_arguments(this_value);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));

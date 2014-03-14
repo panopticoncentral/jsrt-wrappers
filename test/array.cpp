@@ -49,6 +49,10 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::array<>::create(0);
                 jsrt::array<> array = (jsrt::array<>)value;
+
+                jsrt::array<double> array2 = jsrt::array<double>::create({ 1, 2, 3, 4 });
+                Assert::AreEqual((double)array2[0], 1.0);
+                Assert::AreEqual((double)array2[3], 4.0);
             }
             runtime.dispose();
         }
