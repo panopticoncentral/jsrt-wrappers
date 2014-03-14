@@ -95,5 +95,25 @@ namespace jsrtwrapperstest
             }
             runtime.dispose();
         }
+
+        MY_TEST_METHOD(strongly_typed, "Test strongly typed functions.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(strongly_typed_constructors, "Test strongly typed constructor functions.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+            }
+            runtime.dispose();
+        }
     };
 }

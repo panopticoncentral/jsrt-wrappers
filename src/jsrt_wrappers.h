@@ -1483,7 +1483,7 @@ namespace jsrt
             return isExtensionaAllowed;
         }
 
-        typedef object prototype_proxy;
+        typedef object prototype_type;
 
         /// <summary>
         ///     Returns the prototype of an object.
@@ -2935,10 +2935,13 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     A reference to a JavaScript function that creates an object.
+    /// </summary>
     template<class R>
     class constructor_function : public function_base
     {
-    public:
+    protected:
         constructor_function() :
             function_base()
         {
@@ -2949,16 +2952,47 @@ namespace jsrt
         {
         }
 
-        typename R::prototype_proxy constructor_prototype()
+        R construct_object(std::vector<JsValueRef> &arguments)
         {
-            return get_property<R::prototype_proxy>(property_id::create(L"prototype"));
+            JsValueRef resultValue;
+            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
+
+            R result;
+            runtime::translate_error_code(to_native(resultValue, &result));
+            return result;
+        }
+
+    public:
+        /// <summary>
+        ///     The object that will be the prototype of objects created by this function.
+        /// </summary>
+        typename R::prototype_type constructor_prototype()
+        {
+            return get_property<R::prototype_type>(property_id::create(L"prototype"));
         }
     };
 
+    // An instantiation of constructor_function that disallows constructing non-object values.
+    template<>
+    class constructor_function<value> : public function_base
+    {
+    protected:
+        constructor_function() :
+            function_base()
+        {
+        }
+
+        explicit constructor_function(value object) :
+            function_base(object)
+        {
+        }
+    };
+
+    // An instantiation of constructor_function that disallows constructing non-object values.
     template<>
     class constructor_function<std::wstring> : public function_base
     {
-    public:
+    protected:
         constructor_function() :
             function_base()
         {
@@ -2968,14 +3002,13 @@ namespace jsrt
             function_base(object)
         {
         }
-
-        // TODO: Prototype for primitive type
     };
 
+    // An instantiation of constructor_function that disallows constructing non-object values.
     template<>
     class constructor_function<double> : public function_base
     {
-    public:
+    protected:
         constructor_function() :
             function_base()
         {
@@ -2985,14 +3018,13 @@ namespace jsrt
             function_base(object)
         {
         }
-
-        // TODO: Prototype for primitive type
     };
 
+    // An instantiation of constructor_function that disallows constructing non-object values.
     template<>
     class constructor_function<bool> : public function_base
     {
-    public:
+    protected:
         constructor_function() :
             function_base()
         {
@@ -3002,8 +3034,6 @@ namespace jsrt
             function_base(object)
         {
         }
-
-        // TODO: Prototype for primitive type
     };
 
     // Arity = 8
@@ -3077,14 +3107,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2, p3, p4, p5, p6, p7, p8);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5, p6, p7, p8));
         }
 
         static function<R, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
@@ -3231,14 +3254,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2, p3, p4, p5, p6, p7);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5, p6, p7));
         }
 
         static function<R, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
@@ -3383,14 +3399,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2, p3, p4, p5, p6);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5, p6));
         }
 
         static function<R, P1, P2, P3, P4, P5, P6> create(Signature function)
@@ -3533,14 +3542,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2, p3, p4, p5);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5));
         }
 
         static function<R, P1, P2, P3, P4, P5> create(Signature function)
@@ -3681,14 +3683,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2, p3, p4);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2, p3, p4));
         }
 
         static function<R, P1, P2, P3, P4> create(Signature function)
@@ -3826,14 +3821,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2, p3);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2, p3));
         }
 
         static function<R, P1, P2, P3> create(Signature function)
@@ -3969,14 +3957,7 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1, p2);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1, p2));
         }
 
         static function<R, P1, P2> create(Signature function)
@@ -4111,14 +4092,7 @@ namespace jsrt
 
         R construct(P1 p1)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value(), p1);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value(), p1));
         }
 
         static function<R, P1> create(Signature function)
@@ -4250,14 +4224,7 @@ namespace jsrt
 
         R construct()
         {
-            std::vector<JsValueRef> arguments = pack_arguments(value());
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return construct_object(pack_arguments(value()));
         }
 
         static function<R> create(Signature function)
