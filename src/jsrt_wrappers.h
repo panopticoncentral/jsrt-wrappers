@@ -3138,7 +3138,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
+        R operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8));
         }
@@ -3209,7 +3209,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
+        void operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
             call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8));
         }
@@ -3278,7 +3278,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
+        R operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7));
         }
@@ -3348,7 +3348,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
+        void operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
             call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7));
         }
@@ -3416,7 +3416,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+        R operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6));
         }
@@ -3485,7 +3485,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+        void operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
             call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6));
         }
@@ -3552,7 +3552,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+        R operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5));
         }
@@ -3620,7 +3620,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
+        void operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
             call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5));
         }
@@ -3686,7 +3686,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
+        R operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4));
         }
@@ -3753,7 +3753,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
+        void operator ()(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
             call_function<void>(pack_arguments(this_value, p1, p2, p3, p4));
         }
@@ -3817,7 +3817,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2, P3 p3)
+        R operator ()(value this_value, P1 p1, P2 p2, P3 p3)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2, p3));
         }
@@ -3883,7 +3883,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2, P3 p3)
+        void operator ()(value this_value, P1 p1, P2 p2, P3 p3)
         {
             call_function<void>(pack_arguments(this_value, p1, p2, p3));
         }
@@ -3946,7 +3946,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1, P2 p2)
+        R operator ()(value this_value, P1 p1, P2 p2)
         {
             return call_function<R>(pack_arguments(this_value, p1, p2));
         }
@@ -4011,7 +4011,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1, P2 p2)
+        void operator ()(value this_value, P1 p1, P2 p2)
         {
             call_function<void>(pack_arguments(this_value, p1, p2));
         }
@@ -4073,7 +4073,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value, P1 p1)
+        R operator ()(value this_value, P1 p1)
         {
             return call_function<R>(pack_arguments(this_value, p1));
         }
@@ -4137,7 +4137,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value, P1 p1)
+        void operator ()(value this_value, P1 p1)
         {
             call_function<void>(pack_arguments(this_value, p1));
         }
@@ -4198,7 +4198,7 @@ namespace jsrt
         }
 
     public:
-        R call(value this_value)
+        R operator ()(value this_value)
         {
             return call_function<R>(pack_arguments(this_value));
         }
@@ -4261,7 +4261,7 @@ namespace jsrt
         }
 
     public:
-        void call(value this_value)
+        void operator ()(value this_value)
         {
             call_function<void>(pack_arguments(this_value));
         }

@@ -96,12 +96,37 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
+        static int callback8(const jsrt::call_info &info, std::wstring p1, int p2, bool p3, std::wstring p4, int p5, bool p6, std::wstring p7, int p8)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p2, 2);
+            Assert::AreEqual(p3, true);
+            Assert::AreEqual(p4, (std::wstring)L"bar");
+            Assert::AreEqual(p5, 5);
+            Assert::AreEqual(p6, false);
+            Assert::AreEqual(p7, (std::wstring)L"baz");
+            Assert::AreEqual(p8, 8);
+
+            return 8;
+        }
+
         MY_TEST_METHOD(strongly_typed, "Test strongly typed functions.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
+                //jsrt::object this_value = jsrt::external_object::create((void *) 0xdeadbeef);
+                //auto f8 = jsrt::function<int, std::wstring, int, bool, std::wstring, int, bool, std::wstring, int>::create(callback8);
+                //int result = f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
+                //Assert::AreEqual(result, 8);
             }
             runtime.dispose();
         }

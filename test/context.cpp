@@ -220,7 +220,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse(L"1 + 2");
-                Assert::AreEqual(func1.call(jsrt::context::undefined()), 3.0);
+                Assert::AreEqual(func1(jsrt::context::undefined()), 3.0);
                 jsrt::context::run(L"function foo() { return 1 + 2; }");
                 Assert::AreEqual(((jsrt::number)jsrt::context::evaluate(L"foo()")).data(), 3.0);
             }
@@ -247,7 +247,7 @@ namespace jsrtwrapperstest
                 {
                 }
                 jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse_serialized(script1, buffer1);
-                Assert::AreEqual(func1.call(jsrt::context::undefined()), 3.0);
+                Assert::AreEqual(func1(jsrt::context::undefined()), 3.0);
 
                 const std::wstring script2 = L"function foo() { return 1 + 2; }";
                 unsigned int func2_size = jsrt::context::serialize(script2, nullptr, 0) + 16;
