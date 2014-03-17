@@ -15,13 +15,19 @@ namespace jsrtwrapperstest
             Assert::IsFalse(o2.has_value());
             Assert::IsFalse(o2.value().is_valid());
             o2.clear();
-            jsrt::array<int> x = jsrt::array<int>::create(1);
-            o2 = x;
-            Assert::IsTrue(o2.has_value());
-            Assert::AreEqual(o2.value().handle(), x.handle());
-            o2.clear();
-            Assert::IsFalse(o2.has_value());
-            Assert::IsFalse(o2.value().is_valid());
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::array<int> x = jsrt::array<int>::create(1);
+                o2 = x;
+                Assert::IsTrue(o2.has_value());
+                Assert::AreEqual(o2.value().handle(), x.handle());
+                o2.clear();
+                Assert::IsFalse(o2.has_value());
+                Assert::IsFalse(o2.value().is_valid());
+            }
+            runtime.dispose();
         }
     };
 }

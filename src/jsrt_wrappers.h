@@ -2312,6 +2312,8 @@ namespace jsrt
     /// </summary>
     class function_base : public object
     {
+        friend class context;
+
     private:
         template<class T>
         static bool is_rest(T value)
@@ -2335,7 +2337,6 @@ namespace jsrt
             }
             else if (to_native(arguments[position], &result) != JsNoError)
             {
-                // CONSIDER: Include typename/parameter name?
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return false;
             }
@@ -2355,7 +2356,6 @@ namespace jsrt
                 T nativeValue;
                 if (to_native(arguments[position], &nativeValue) != JsNoError)
                 {
-                    // CONSIDER: Include typename/parameter name?
                     context::set_exception(error::create_type_error(L"Could not convert value."));
                     result = optional<T>();
                 }
@@ -2391,7 +2391,6 @@ namespace jsrt
 
                     if (to_native(arguments[position + index], &value) != JsNoError)
                     {
-                        // CONSIDER: Include typename/parameter name?
                         context::set_exception(error::create_type_error(L"Could not convert value."));
                         return false;
                     }
@@ -2437,7 +2436,7 @@ namespace jsrt
 
     protected:
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7, P8 &p8)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7, P8 &p8)
         {
             if (!is_rest(p8) && argument_count > 9)
             {
@@ -2445,7 +2444,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2) &&
@@ -2458,7 +2457,7 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6, P7 &p7)
         {
             if (!is_rest(p7) && argument_count > 8)
             {
@@ -2466,7 +2465,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2) &&
@@ -2478,7 +2477,7 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5, class P6>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5, P6 &p6)
         {
             if (!is_rest(p6) && argument_count > 7)
             {
@@ -2486,7 +2485,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2) &&
@@ -2497,7 +2496,7 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4, class P5>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2, P3 &p3, P4 &p4, P5 &p5)
         {
             if (!is_rest(p5) && argument_count > 6)
             {
@@ -2505,7 +2504,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2) &&
@@ -2515,7 +2514,7 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3, class P4>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3, P4 &p4)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2, P3 &p3, P4 &p4)
         {
             if (!is_rest(p4) && argument_count > 5)
             {
@@ -2523,7 +2522,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2) &&
@@ -2532,7 +2531,7 @@ namespace jsrt
         }
 
         template <class P1, class P2, class P3>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2, P3 &p3)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2, P3 &p3)
         {
             if (!is_rest(p3) && argument_count > 4)
             {
@@ -2540,7 +2539,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2) &&
@@ -2548,7 +2547,7 @@ namespace jsrt
         }
 
         template <class P1, class P2>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1, P2 &p2)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1, P2 &p2)
         {
             if (!is_rest(p2) && argument_count > 3)
             {
@@ -2556,14 +2555,14 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1) &&
                 argument_from_value(2, arguments, argument_count, p2);
         }
 
         template <class P1>
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value, P1 &p1)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info, P1 &p1)
         {
             if (!is_rest(p1) && argument_count > 2)
             {
@@ -2571,12 +2570,12 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return argument_from_value(1, arguments, argument_count, p1);
         }
 
-        static bool unpack_arguments(JsValueRef *arguments, unsigned short argument_count, value &this_value)
+        static bool unpack_arguments(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, call_info &info)
         {
             if (argument_count > 1)
             {
@@ -2584,7 +2583,7 @@ namespace jsrt
                 return false;
             }
 
-            this_value = value(arguments[0]);
+            info = call_info(value(callee), value(arguments[0]), is_construct_call);
 
             return true;
         }
@@ -2830,6 +2829,29 @@ namespace jsrt
             return call_args;
         }
 
+        template <class R>
+        R call_function(std::vector<JsValueRef> &arguments)
+        {
+            JsValueRef resultValue;
+            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+
+            R result;
+            runtime::translate_error_code(to_native(resultValue, &result));
+            return result;
+        }
+
+        template <>
+        void call_function(std::vector<JsValueRef> &arguments)
+        {
+            JsValueRef resultValue;
+            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+        }
+
+        function_base(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     The signature of a function callback.
@@ -2947,6 +2969,11 @@ namespace jsrt
         {
         }
 
+        constructor_function(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
         explicit constructor_function(value object) :
             function_base(object)
         {
@@ -2982,6 +3009,11 @@ namespace jsrt
         {
         }
 
+        constructor_function(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
         explicit constructor_function(value object) :
             function_base(object)
         {
@@ -2995,6 +3027,11 @@ namespace jsrt
     protected:
         constructor_function() :
             function_base()
+        {
+        }
+
+        constructor_function(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3014,6 +3051,11 @@ namespace jsrt
         {
         }
 
+        constructor_function(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
         explicit constructor_function(value object) :
             function_base(object)
         {
@@ -3030,29 +3072,33 @@ namespace jsrt
         {
         }
 
+        constructor_function(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
         explicit constructor_function(value object) :
             function_base(object)
         {
         }
     };
 
-    // Arity = 8
-
+#pragma region Arity 8
     template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
     class function : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, P8>() :
             constructor_function<R>()
         {
-        }
-
-        function<R, P1, P2, P3, P4, P5, P6, P7, P8>(Signature function) :
-            constructor_function<R>()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<R, P1, P2, P3, P4, P5, P6, P7, P8>(value object) :
@@ -3063,7 +3109,7 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3073,18 +3119,17 @@ namespace jsrt
             P7 p7;
             P8 p8;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7, p8))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5, p6, p7, p8))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
+            R result = callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3095,14 +3140,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8));
         }
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
@@ -3112,25 +3150,27 @@ namespace jsrt
 
         static function<R, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
         {
-            return function<R, P1, P2, P3, P4, P5, P6, P7, P8>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2, P3, P4, P5, P6, P7, P8>(ref);
         }
     };
 
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
     class function<void, P1, P2, P3, P4, P5, P6, P7, P8> : public function_base
     {
+    private:
+        function<void, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, P8>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, P3, P4, P5, P6, P7, P8>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, P3, P4, P5, P6, P7, P8>(value object) :
@@ -3147,7 +3187,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3157,13 +3197,13 @@ namespace jsrt
             P7 p7;
             P8 p8;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7, p8))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5, p6, p7, p8))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
+            callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
 
             return JS_INVALID_REFERENCE;
         }
@@ -3171,35 +3211,34 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7, p8));
         }
 
         static function<void, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
         {
-            return function<void, P1, P2, P3, P4, P5, P6, P7, P8>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2, P3, P4, P5, P6, P7, P8>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 7
-
+#pragma region Arity 7
     template<class R, class P1, class P2, class P3, class P4, class P5, class P6, class P7>
     class function<R, P1, P2, P3, P4, P5, P6, P7, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             constructor_function<R>()
         {
-        }
-
-        function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-                runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(value object) :
@@ -3211,7 +3250,7 @@ namespace jsrt
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3220,18 +3259,17 @@ namespace jsrt
             P6 p6;
             P7 p7;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5, p6, p7))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2, p3, p4, p5, p6, p7);
+            R result = callback(info, p1, p2, p3, p4, p5, p6, p7);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3242,14 +3280,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7));
         }
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
@@ -3259,25 +3290,27 @@ namespace jsrt
 
         static function<R, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
         {
-            return function<R, P1, P2, P3, P4, P5, P6, P7>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2, P3, P4, P5, P6, P7>(ref);
         }
     };
 
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7>
     class function<void, P1, P2, P3, P4, P5, P6, P7, notdefined> : public function_base
     {
+    private:
+        function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(value object) :
@@ -3294,7 +3327,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3303,13 +3336,13 @@ namespace jsrt
             P6 p6;
             P7 p7;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6, p7))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5, p6, p7))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2, p3, p4, p5, p6, p7);
+            callback(info, p1, p2, p3, p4, p5, p6, p7);
 
             return JS_INVALID_REFERENCE;
         }
@@ -3317,47 +3350,46 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6, p7));
         }
 
         static function<void, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
         {
-            return function<void, P1, P2, P3, P4, P5, P6, P7>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2, P3, P4, P5, P6, P7>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 6
-
+#pragma region Arity 6
     template<class R, class P1, class P2, class P3, class P4, class P5, class P6>
     class function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             constructor_function<R>()
         {
-            }
-
-        function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-                runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
-            }
+        }
 
         explicit function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
-            }
+        }
 
     private:
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3365,18 +3397,17 @@ namespace jsrt
             P5 p5;
             P6 p6;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5, p6))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2, p3, p4, p5, p6);
+            R result = callback(info, p1, p2, p3, p4, p5, p6);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3387,14 +3418,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6));
         }
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
@@ -3404,25 +3428,27 @@ namespace jsrt
 
         static function<R, P1, P2, P3, P4, P5, P6> create(Signature function)
         {
-            return function<R, P1, P2, P3, P4, P5, P6>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2, P3, P4, P5, P6>(ref);
         }
     };
 
     template<class P1, class P2, class P3, class P4, class P5, class P6>
     class function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(value object) :
@@ -3439,7 +3465,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
@@ -3447,13 +3473,13 @@ namespace jsrt
             P5 p5;
             P6 p6;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5, p6))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5, p6))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2, p3, p4, p5, p6);
+            callback(info, p1, p2, p3, p4, p5, p6);
 
             return JS_INVALID_REFERENCE;
         }
@@ -3461,65 +3487,63 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5, p6);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5, p6));
         }
 
         static function<void, P1, P2, P3, P4, P5, P6> create(Signature function)
         {
-            return function<void, P1, P2, P3, P4, P5, P6>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2, P3, P4, P5, P6>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 5
-
+#pragma region Arity 5
     template<class R, class P1, class P2, class P3, class P4, class P5>
     class function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
-            }
-
-        function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-                runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
-            }
+        }
 
         explicit function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
-            }
+        }
 
     private:
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
             P5 p5;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2, p3, p4, p5);
+            R result = callback(info, p1, p2, p3, p4, p5);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3530,14 +3554,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4, p5));
         }
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
@@ -3547,25 +3564,27 @@ namespace jsrt
 
         static function<R, P1, P2, P3, P4, P5> create(Signature function)
         {
-            return function<R, P1, P2, P3, P4, P5>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2, P3, P4, P5>(ref);
         }
     };
 
     template<class P1, class P2, class P3, class P4, class P5>
     class function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(value object) :
@@ -3582,20 +3601,20 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
             P5 p5;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4, p5))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4, p5))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2, p3, p4, p5);
+            callback(info, p1, p2, p3, p4, p5);
 
             return JS_INVALID_REFERENCE;
         }
@@ -3603,64 +3622,62 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4, p5);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2, p3, p4, p5));
         }
 
         static function<void, P1, P2, P3, P4, P5> create(Signature function)
         {
-            return function<void, P1, P2, P3, P4, P5>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2, P3, P4, P5>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 4
-
+#pragma region Arity 4
     template<class R, class P1, class P2, class P3, class P4>
     class function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
-            }
-
-        function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-                runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
-            }
+        }
 
         explicit function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(value object) :
             constructor_function<R>(object)
         {
-            }
+        }
 
     private:
 
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2, p3, p4);
+            R result = callback(info, p1, p2, p3, p4);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3671,14 +3688,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2, p3, p4));
         }
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4)
@@ -3688,25 +3698,27 @@ namespace jsrt
 
         static function<R, P1, P2, P3, P4> create(Signature function)
         {
-            return function<R, P1, P2, P3, P4>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2, P3, P4>(ref);
         }
     };
 
     template<class P1, class P2, class P3, class P4>
     class function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3, P4 p4);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -3723,19 +3735,19 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
             P4 p4;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3, p4))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3, p4))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2, p3, p4);
+            callback(info, p1, p2, p3, p4);
 
             return JS_INVALID_REFERENCE;
         }
@@ -3743,35 +3755,34 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3, p4);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2, p3, p4));
         }
 
         static function<void, P1, P2, P3, P4> create(Signature function)
         {
-            return function<void, P1, P2, P3, P4>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2, P3, P4>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 3
-
+#pragma region Arity 3
     template<class R, class P1, class P2, class P3>
     class function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
-        }
-
-        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -3782,23 +3793,22 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2, p3);
+            R result = callback(info, p1, p2, p3);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3809,14 +3819,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2, p3));
         }
 
         R construct(P1 p1, P2 p2, P3 p3)
@@ -3826,25 +3829,27 @@ namespace jsrt
 
         static function<R, P1, P2, P3> create(Signature function)
         {
-            return function<R, P1, P2, P3>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2, P3>(ref);
         }
     };
 
     template<class P1, class P2, class P3>
     class function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2, P3 p3);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -3861,18 +3866,18 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
             P3 p3;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2, p3))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2, p3))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2, p3);
+            callback(info, p1, p2, p3);
 
             return JS_INVALID_REFERENCE;
         }
@@ -3880,35 +3885,34 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2, p3);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2, p3));
         }
 
         static function<void, P1, P2, P3> create(Signature function)
         {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2, P3>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 2
-
+#pragma region Arity 2
     template<class R, class P1, class P2>
     class function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1, P2 p2);
+        typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
-        }
-
-        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -3919,22 +3923,21 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1, p2);
+            R result = callback(info, p1, p2);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -3945,14 +3948,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1, P2 p2)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1, p2));
         }
 
         R construct(P1 p1, P2 p2)
@@ -3962,26 +3958,27 @@ namespace jsrt
 
         static function<R, P1, P2> create(Signature function)
         {
-            return function<R, P1, P2>(function);
-
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1, P2>(ref);
         }
     };
 
     template<class P1, class P2>
     class function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1, P2 p2);
+        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -3998,17 +3995,17 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
             P2 p2;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1, p2))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1, p2))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1, p2);
+            callback(info, p1, p2);
 
             return JS_INVALID_REFERENCE;
         }
@@ -4016,35 +4013,34 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1, P2 p2)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1, p2);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1, p2));
         }
 
         static function<void, P1, P2> create(Signature function)
         {
-            return function<void, P1, P2>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1, P2>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 1
-
+#pragma region Arity 1
     template<class R, class P1>
     class function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value, P1 p1);
+        typedef R(*Signature)(const call_info &call_info, P1 p1);
 
         function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
-        }
-
-        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -4055,21 +4051,20 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
             P1 p1;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value, p1);
+            R result = callback(info, p1);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -4080,14 +4075,7 @@ namespace jsrt
     public:
         R call(value this_value, P1 p1)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value, p1));
         }
 
         R construct(P1 p1)
@@ -4097,25 +4085,27 @@ namespace jsrt
 
         static function<R, P1> create(Signature function)
         {
-            return function<R, P1>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R, P1>(ref);
         }
     };
 
     template<class P1>
     class function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value, P1 p1);
+        typedef void (*Signature)(const call_info &call_info, P1 p1);
 
         function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -4132,16 +4122,16 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
             P1 p1;
 
-            if (!unpack_arguments(arguments, argument_count, this_value, p1))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info, p1))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value, p1);
+            callback(info, p1);
 
             return JS_INVALID_REFERENCE;
         }
@@ -4149,35 +4139,34 @@ namespace jsrt
     public:
         void call(value this_value, P1 p1)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value, p1);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value, p1));
         }
 
         static function<void, P1> create(Signature function)
         {
-            return function<void, P1>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<void, P1>(ref);
         }
     };
+#pragma endregion
 
-    // Arity = 0
-
+#pragma region Arity 0
     template<class R>
     class function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+    private:
+        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
-        typedef R(CALLBACK *Signature)(value this_value);
+        typedef R(*Signature)(const call_info &call_info);
 
         function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
         {
-        }
-
-        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            constructor_function<R>()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -4188,20 +4177,19 @@ namespace jsrt
     private:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
-            value this_value;
+            call_info info;
 
-            if (!unpack_arguments(arguments, argument_count, this_value))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(this_value);
+            R result = callback(info);
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
             {
-                // TODO: Include typename.
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
             }
@@ -4212,14 +4200,7 @@ namespace jsrt
     public:
         R call(value this_value)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
-
-            R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
-            return result;
+            return call_function<R>(pack_arguments(this_value));
         }
 
         R construct()
@@ -4229,25 +4210,27 @@ namespace jsrt
 
         static function<R> create(Signature function)
         {
-            return function<R>(function);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return function<R>(ref);
         }
     };
 
     template<>
     class function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+    private:
+        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
-        typedef void (CALLBACK *Signature)(value this_value);
+        typedef void (*Signature)(const call_info &call_info);
 
         function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
         {
-        }
-
-        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(Signature function) :
-            function_base()
-        {
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &_ref));
         }
 
         explicit function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(value object) :
@@ -4264,15 +4247,15 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            value this_value;
+            call_info info;
 
-            if (!unpack_arguments(arguments, argument_count, this_value))
+            if (!unpack_arguments(callee, is_construct_call, arguments, argument_count, info))
             {
                 return JS_INVALID_REFERENCE;
             }
 
             Signature callback = (Signature) callback_state;
-            callback(this_value);
+            callback(info);
 
             return JS_INVALID_REFERENCE;
         }
@@ -4280,17 +4263,17 @@ namespace jsrt
     public:
         void call(value this_value)
         {
-            std::vector<JsValueRef> arguments = pack_arguments(this_value);
-
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            call_function<void>(pack_arguments(this_value));
         }
 
-        static function<void> create(Signature functionSignature)
+        static function<void> create(Signature function_signature)
         {
-            return function<void>(functionSignature);
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
+            return function<void>(ref);
         }
     };
+#pragma endregion
 
     template<class T>
     class property_descriptor : public object
