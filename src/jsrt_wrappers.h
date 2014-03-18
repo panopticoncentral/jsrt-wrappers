@@ -2997,6 +2997,15 @@ namespace jsrt
         {
             return get_property<R::prototype_type>(property_id::create(L"prototype"));
         }
+
+        /// <summary>
+        ///     Sets the object that will be the prototype of objects created by this function.
+        /// </summary>
+        /// <param name="prototype">The prototype object.</param>
+        void set_constructor_prototype(typename R::prototype_type prototype)
+        {
+            return set_property<R::prototype_type>(property_id::create(L"prototype"), prototype);
+        }
     };
 
     // An instantiation of constructor_function that disallows constructing non-object values.
@@ -3152,7 +3161,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2, P3, P4, P5, P6, P7, P8>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -3218,7 +3227,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2, P3, P4, P5, P6, P7, P8>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -3292,7 +3301,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2, P3, P4, P5, P6, P7>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -3357,7 +3366,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2, P3, P4, P5, P6, P7>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -3430,7 +3439,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2, P3, P4, P5, P6>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -3494,7 +3503,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2, P3, P4, P5, P6>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -3566,7 +3575,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2, P3, P4, P5>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -3629,7 +3638,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2, P3, P4, P5>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -3700,7 +3709,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2, P3, P4>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -3762,7 +3771,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2, P3, P4>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -3831,7 +3840,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2, P3>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -3892,7 +3901,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2, P3>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -3960,7 +3969,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1, P2>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -4020,7 +4029,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1, P2>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -4087,7 +4096,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R, P1>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -4146,7 +4155,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<void, P1>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
@@ -4212,7 +4221,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
-            return function<R>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 
@@ -4270,7 +4279,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
-            return function<void>(ref);
+            return decltype(create(nullptr))(ref);
         }
     };
 #pragma endregion
