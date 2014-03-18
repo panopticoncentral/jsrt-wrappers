@@ -930,11 +930,6 @@ namespace jsrt
         friend class object;
 
     protected:
-        value(JsValueRef ref) :
-            reference(ref)
-        {
-        }
-
         template<class T>
         static JsErrorCode to_native(JsValueRef value, T *result)
         {
@@ -1052,6 +1047,14 @@ namespace jsrt
         }
 
         /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        value(JsValueRef ref) :
+            reference(ref)
+        {
+        }
+
+        /// <summary>
         ///     Gets the JavaScript type of a value.
         /// </summary>
         /// <remarks>
@@ -1152,20 +1155,20 @@ namespace jsrt
     /// </summary>
     class boolean : public value
     {
-        friend class value;
-
-    private:
-        boolean(JsValueRef ref) :
-            value(ref)
-        {
-        }
-
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// <summary>
         boolean() :
             value()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        boolean(JsValueRef ref) :
+            value(ref)
         {
         }
 
@@ -1253,20 +1256,20 @@ namespace jsrt
     /// </summary>
     class number : public value
     {
-        friend class value;
-
-    private:
-        number(JsValueRef ref) :
-            value(ref)
-        {
-        }
-
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// <summary>
         number() :
             value()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        number(JsValueRef ref) :
+            value(ref)
         {
         }
 
@@ -1341,20 +1344,20 @@ namespace jsrt
     /// </summary>
     class string : public value
     {
-        friend class value;
-
-    private:
-        string(JsValueRef ref) :
-            value(ref)
-        {
-        }
-
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// <summary>
         string() :
             value()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        string(JsValueRef ref) :
+            value(ref)
         {
         }
 
@@ -1425,14 +1428,7 @@ namespace jsrt
     class object : public value
     {
         friend class function_base;
-        friend class value;
         friend class context;
-
-    protected:
-        object(JsValueRef ref) :
-            value(ref)
-        {
-        }
 
     public:
         /// <summary>
@@ -1440,6 +1436,14 @@ namespace jsrt
         /// </summary>
         object() :
             value()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        object(JsValueRef ref) :
+            value(ref)
         {
         }
 
@@ -1799,18 +1803,20 @@ namespace jsrt
     /// </summary>
     class external_object : public object
     {
-    private:
-        external_object(JsValueRef ref) :
-            object(ref)
-        {
-        }
-
     public:
         /// <summary>
         ///     Creates an invalid object handle.
         /// </summary>
         external_object() :
             object()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        external_object(JsValueRef ref) :
+            object(ref)
         {
         }
 
@@ -1890,14 +1896,7 @@ namespace jsrt
     template<class T = value>
     class array : public object
     {
-        friend class value;
         friend class object;
-
-    private:
-        array(JsValueRef ref) :
-            object(ref)
-        {
-        }
 
     public:
         /// <summary>
@@ -1962,6 +1961,14 @@ namespace jsrt
         /// </summary>
         array() :
             object()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        array(JsValueRef ref) :
+            object(ref)
         {
         }
 
@@ -2054,18 +2061,20 @@ namespace jsrt
             return errorString;
         }
 
-    protected:
-        error(JsValueRef ref) :
-            object(ref)
-        {
-        }
-
     public:
         /// <summary>
         ///     Creates an invalid handle to an error.
         /// </summary>
         error() :
             object()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        error(JsValueRef ref) :
+            object(ref)
         {
         }
 
@@ -2847,11 +2856,6 @@ namespace jsrt
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
         }
 
-        function_base(JsValueRef ref) :
-            object(ref)
-        {
-        }
-
     public:
         /// <summary>
         ///     The signature of a function callback.
@@ -2891,6 +2895,14 @@ namespace jsrt
         /// </summary>
         function_base() :
             object()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        function_base(JsValueRef ref) :
+            object(ref)
         {
         }
 
@@ -3096,17 +3108,16 @@ namespace jsrt
     template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
     class function : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, P8>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3168,17 +3179,16 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
     class function<void, P1, P2, P3, P4, P5, P6, P7, P8> : public function_base
     {
-    private:
-        function<void, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, P8>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3236,17 +3246,16 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4, class P5, class P6, class P7>
     class function<R, P1, P2, P3, P4, P5, P6, P7, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3308,17 +3317,16 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7>
     class function<void, P1, P2, P3, P4, P5, P6, P7, notdefined> : public function_base
     {
-    private:
-        function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3375,17 +3383,16 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4, class P5, class P6>
     class function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3446,17 +3453,16 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5, class P6>
     class function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3512,17 +3518,16 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4, class P5>
     class function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3582,17 +3587,16 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5>
     class function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3647,17 +3651,16 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4>
     class function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3716,17 +3719,16 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4>
     class function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3780,17 +3782,16 @@ namespace jsrt
     template<class R, class P1, class P2, class P3>
     class function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3847,17 +3848,16 @@ namespace jsrt
     template<class P1, class P2, class P3>
     class function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -3910,17 +3910,16 @@ namespace jsrt
     template<class R, class P1, class P2>
     class function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -3976,17 +3975,16 @@ namespace jsrt
     template<class P1, class P2>
     class function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -4038,17 +4036,16 @@ namespace jsrt
     template<class R, class P1>
     class function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1);
 
         function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -4103,17 +4100,16 @@ namespace jsrt
     template<class P1>
     class function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1);
 
         function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -4164,17 +4160,16 @@ namespace jsrt
     template<class R>
     class function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
-    private:
-        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
-        {
-        }
-
     public:
         typedef R(*Signature)(const call_info &call_info);
 
         function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
+        {
+        }
+
+        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
         {
         }
 
@@ -4228,17 +4223,16 @@ namespace jsrt
     template<>
     class function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
-    private:
-        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
-        {
-        }
-
     public:
         typedef void (*Signature)(const call_info &call_info);
 
         function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
+        {
+        }
+
+        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
         {
         }
 
@@ -4284,91 +4278,151 @@ namespace jsrt
     };
 #pragma endregion
 
+    /// <summary>
+    ///     A reference to a JavaScript property descriptor.
+    /// </summary>
     template<class T>
     class property_descriptor : public object
     {
-    private:
-        property_descriptor(JsValueRef ref) :
-            object(ref)
-        {
-        }
-
     public:
+        /// <summary>
+        ///     Creates an invalid handle to a property descriptor.
+        /// </summary>
         property_descriptor() :
             object()
         {
         }
 
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        property_descriptor(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
+        /// <summary>
+        ///     Converts the <c>value</c> handle to a property descriptor handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit property_descriptor(value object) :
             object(object.handle())
         {
         }
 
+        /// <summary>
+        ///     Returns the <c>writable</c> property of the descriptor.
+        /// </summary>
         bool writable()
         {
             return get_property<bool>(property_id::create(L"writable"));
         }
 
+        /// <summary>
+        ///     Sets the <c>writable</c> property of the descriptor.
+        /// </summary>
         void set_writable(bool value)
         {
             set_property<bool>(property_id::create(L"writable"), value);
         }
 
+        /// <summary>
+        ///     Returns the <c>enumerable</c> property of the descriptor.
+        /// </summary>
         bool enumerable()
         {
             return get_property<bool>(property_id::create(L"enumerable"));
         }
 
+        /// <summary>
+        ///     Sets the <c>enumerable</c> property of the descriptor.
+        /// </summary>
         void set_enumerable(bool value)
         {
             set_property(property_id::create(L"enumerable"), value);
         }
 
+        /// <summary>
+        ///     Returns the <c>configurable</c> property of the descriptor.
+        /// </summary>
         bool configurable()
         {
             return get_property<bool>(property_id::create(L"configurable"));
         }
 
+        /// <summary>
+        ///     Sets the <c>enumerable</c> property of the descriptor.
+        /// </summary>
         void set_configurable(bool value)
         {
             set_property(property_id::create(L"configurable"), value);
         }
 
+        /// <summary>
+        ///     Returns the <c>value</c> property of the descriptor.
+        /// </summary>
         T value()
         {
             return get_property<T>(property_id::create(L"value"));
         }
 
+        /// <summary>
+        ///     Sets the <c>value</c> property of the descriptor.
+        /// </summary>
         void set_value(T value)
         {
             set_property(property_id::create(L"value"), value);
         }
 
+        /// <summary>
+        ///     Returns the <c>get</c> property of the descriptor.
+        /// </summary>
         function<T> getter()
         {
             return get_property<function<T>>(property_id::create(L"get"));
         }
 
+        /// <summary>
+        ///     Sets the <c>get</c> property of the descriptor.
+        /// </summary>
         void set_getter(function<T> value)
         {
             set_property(property_id::create(L"get"), value);
         }
 
+        /// <summary>
+        ///     Returns the <c>set</c> property of the descriptor.
+        /// </summary>
         function<void, T> setter()
         {
             return get_property<function<void, T>>(property_id::create(L"set"));
         }
 
-        void setter(function<void, T> value)
+        /// <summary>
+        ///     Sets the <c>set</c> property of the descriptor.
+        /// </summary>
+        void set_setter(function<void, T> value)
         {
             set_property(property_id::create(L"set"), value);
         }
 
+        /// <summary>
+        ///     Creates a new property descriptor.
+        /// </summary>
+        /// <returns>The new property descriptor.</summary>
         static property_descriptor<T> create()
         {
             return (property_descriptor<T>)object::create();
         }
 
+        /// <summary>
+        ///     Creates a new property descriptor.
+        /// </summary>
+        /// <param name="getter">The property getter.</param>
+        /// <param name="setter">The property setter.</param>
+        /// <returns>The new property descriptor.</summary>
         static property_descriptor<T> create(function<T> getter, function<void, T> setter)
         {
             property_descriptor<T> desc = (property_descriptor<T>)object::create();
@@ -4497,15 +4551,17 @@ namespace jsrt
     {
         friend class runtime;
 
-    private:
-        compile_error(JsValueRef ref) :
-            error(ref)
-        {
-        }
-
     public:
         compile_error() :
             error()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        compile_error(JsValueRef ref) :
+            error(ref)
         {
         }
 

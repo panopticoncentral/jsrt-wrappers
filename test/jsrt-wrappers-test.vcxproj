@@ -168,6 +168,7 @@
     <ClCompile Include="object.cpp" />
     <ClCompile Include="optional.cpp" />
     <ClCompile Include="pinned.cpp" />
+    <ClCompile Include="property_descriptor.cpp" />
     <ClCompile Include="property_id.cpp" />
     <ClCompile Include="reference.cpp" />
     <ClCompile Include="rest.cpp" />
