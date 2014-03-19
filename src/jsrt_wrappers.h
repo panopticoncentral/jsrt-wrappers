@@ -4576,7 +4576,7 @@ namespace jsrt
         /// <summary>
         ///     The error object.
         /// </summary>
-        value error()
+        value error() const
         {
             return _error;
         }
@@ -4676,7 +4676,7 @@ namespace jsrt
         /// <summary>
         ///     The compile error.
         /// </summary>
-        compile_error error()
+        compile_error error() const
         {
             return _error;
         }

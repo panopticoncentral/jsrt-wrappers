@@ -31,16 +31,6 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
-        MY_TEST_METHOD(temp, "Test messages.")
-        {
-            jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
-            {
-                jsrt::context::scope scope(context);
-            }
-            runtime.dispose();
-        }
-
         MY_TEST_METHOD(invalid_argument, "Test invalid_argument_exception.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
@@ -331,6 +321,52 @@ namespace jsrtwrapperstest
                 jsrt::context::global().set_property(jsrt::property_id::create(L"bad"),
                     jsrt::function<void>::create(bad));
                 TEST_FAILED_CALL(jsrt::context::run(L"bad()"), fatal_exception);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(script, "Test script_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object object = jsrt::object::create();
+                object.prevent_extension();
+                try
+                {
+                    object.set_property(jsrt::property_id::create(L"bar"), 20);
+                    Assert::Fail();
+                }
+                catch (const jsrt::script_exception &e)
+                {
+                    Assert::IsTrue(e.error().is_valid());
+                }
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(script_compile, "Test script_compile_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                try
+                {
+                    jsrt::context::run(L"1+");
+                    Assert::Fail();
+                }
+                catch (const jsrt::script_compile_exception &e)
+                {
+                    jsrt::compile_error error = e.error();
+                    Assert::IsTrue(error.is_valid());
+                    Assert::AreEqual(error.message(), (std::wstring)L"Syntax error");
+                    Assert::AreEqual(error.line(), 0.0);
+                    Assert::AreEqual(error.column(), 2.0);
+                    Assert::AreEqual(error.length(), 0.0);
+                    Assert::AreEqual(error.source(), (std::wstring)L"1+");
+                }
             }
             runtime.dispose();
         }
