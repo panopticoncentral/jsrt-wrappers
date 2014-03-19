@@ -2894,7 +2894,7 @@ namespace jsrt
         /// <returns>The result of the call.</returns>
         typedef value (*Signature)(const call_info &call_info, const std::vector<value> &arguments);
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             std::vector<value> argument_vector;
@@ -3155,7 +3155,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -3226,7 +3226,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -3293,8 +3293,7 @@ namespace jsrt
         {
         }
 
-    private:
-
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -3364,7 +3363,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -3430,8 +3429,7 @@ namespace jsrt
         {
         }
 
-    private:
-
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -3500,7 +3498,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -3565,8 +3563,7 @@ namespace jsrt
         {
         }
 
-    private:
-
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -3634,7 +3631,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -3698,8 +3695,7 @@ namespace jsrt
         {
         }
 
-    private:
-
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -3766,7 +3762,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -3829,7 +3825,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -3895,7 +3891,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -3957,7 +3953,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -4022,7 +4018,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -4083,7 +4079,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -4147,7 +4143,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -4207,7 +4203,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             call_info info;
@@ -4270,7 +4266,7 @@ namespace jsrt
         {
         }
 
-    private:
+    protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
         {
             if (is_construct_call)
@@ -4306,6 +4302,65 @@ namespace jsrt
         }
     };
 #pragma endregion
+
+    /// <summary>
+    ///     A JavaScript function that is bound to a particular <c>this</c> value.
+    /// </summary>
+    template<class TThis, class R, class... Parameters>
+    class bound_function : public function<R, Parameters...>
+    {
+    private:
+        JsValueRef _this_value;
+
+    public:
+        /// <summary>
+        ///     Creates an invalid handle to a bound function.
+        /// </summary>
+        bound_function<TThis, R, Parameters...>() :
+            function<R, Parameters...>()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a value handle from an underlying ref.
+        /// </summary>
+        bound_function<TThis, R, Parameters...>(JsValueRef this_value, JsValueRef ref) :
+            function<R, Parameters...>(ref),
+            _this_value(this_value)
+        {
+        }
+
+        /// <summary>
+        ///     Calls the bound JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="arguments">Arguments to the call.</param>
+        /// <returns>The result of the call.</returns>
+        R operator()(Parameters... arguments)
+        {
+            return call_function<R>(pack_arguments(TThis(_this_value), arguments...));
+        }
+
+        /// <summary>
+        ///     Creates a new bound JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="this_value">
+        ///     The value of <c>this</c> for all calls to this function.
+        /// </param>
+        /// <param name="function">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        static bound_function<TThis, R, Parameters...> create(TThis this_value, Signature function_signature)
+        {
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
+            return decltype(create(TThis(), nullptr))(this_value.handle(), ref);
+        }
+    };
 
     /// <summary>
     ///     A reference to a JavaScript property descriptor.

@@ -71,5 +71,8 @@
     <ClCompile Include="exceptions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bound_function.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
