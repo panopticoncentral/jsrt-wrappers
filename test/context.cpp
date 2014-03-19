@@ -141,15 +141,7 @@ namespace jsrtwrapperstest
                 Profiler profiler;
                 jsrt::context::start_profiling(&profiler);
                 jsrt::context::stop_profiling(S_OK);
-
-                try
-                {
-                    jsrt::context::start_profiling(nullptr);
-                    Assert::Fail();
-                }
-                catch (jsrt::null_argument_exception)
-                {
-                }
+                TEST_NULL_ARG_CALL(jsrt::context::start_profiling(nullptr));
             }
             runtime.dispose();
         }
@@ -160,17 +152,23 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-
-                try
-                {
-                    jsrt::context::start_debugging(nullptr);
-                    Assert::Fail();
-                }
-                catch (jsrt::null_argument_exception)
-                {
-                }
-
+                TEST_NULL_ARG_CALL(jsrt::context::start_debugging(nullptr));
                 jsrt::context::start_debugging(get_debug_application());
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(heap_enum, "Test ::enumerate_heap and ::is_enumerating_heap.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                IActiveScriptProfilerHeapEnum *enumerator = jsrt::context::enumerate_heap();
+                Assert::IsTrue(jsrt::context::is_enumerating_heap());
+                TEST_FAILED_CALL(jsrt::object::create(), heap_enum_in_progress_exception);
+                enumerator->Release();
+                Assert::IsFalse(jsrt::context::is_enumerating_heap());
             }
             runtime.dispose();
         }
@@ -194,16 +192,7 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::error error = jsrt::error::create_syntax_error(L"");
                 Assert::IsFalse(jsrt::context::has_exception());
-
-                try
-                {
-                    jsrt::context::set_exception(jsrt::value());
-                    Assert::Fail();
-                }
-                catch (jsrt::null_argument_exception)
-                {
-                }
-
+                TEST_NULL_ARG_CALL(jsrt::context::set_exception(jsrt::value()));
                 jsrt::context::set_exception(error);
                 Assert::IsTrue(jsrt::context::has_exception());
                 jsrt::value value = jsrt::context::get_and_clear_exception();
@@ -238,14 +227,7 @@ namespace jsrtwrapperstest
                 unsigned int func1_size = jsrt::context::serialize(script1, nullptr, 0) + 16;
                 byte *buffer1 = new byte[func1_size];
                 jsrt::context::serialize(script1, buffer1, func1_size);
-                try
-                {
-                    jsrt::context::parse_serialized(script1, nullptr);
-                    Assert::Fail();
-                }
-                catch (jsrt::null_argument_exception)
-                {
-                }
+                TEST_NULL_ARG_CALL(jsrt::context::parse_serialized(script1, nullptr));
                 jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse_serialized(script1, buffer1);
                 Assert::AreEqual(func1(jsrt::context::undefined()), 3.0);
 
@@ -253,28 +235,14 @@ namespace jsrtwrapperstest
                 unsigned int func2_size = jsrt::context::serialize(script2, nullptr, 0) + 16;
                 byte *buffer2 = new byte[func2_size];
                 jsrt::context::serialize(script2, buffer2, func2_size);
-                try
-                {
-                    jsrt::context::run_serialized(script2, nullptr);
-                    Assert::Fail();
-                }
-                catch (jsrt::null_argument_exception)
-                {
-                }
+                TEST_NULL_ARG_CALL(jsrt::context::run_serialized(script2, nullptr));
                 jsrt::context::run_serialized(script2, buffer2);
 
                 const std::wstring script3 = L"foo()";
                 unsigned int func3_size = jsrt::context::serialize(script3, nullptr, 0) + 16;
                 byte *buffer3 = new byte[func3_size];
                 jsrt::context::serialize(script3, buffer3, func3_size);
-                try
-                {
-                    jsrt::context::evaluate_serialized(script3, nullptr);
-                    Assert::Fail();
-                }
-                catch (jsrt::null_argument_exception)
-                {
-                }
+                TEST_NULL_ARG_CALL(jsrt::context::evaluate_serialized(script3, nullptr));
                 Assert::AreEqual(((jsrt::number)jsrt::context::evaluate_serialized(script3, buffer3)).data(), 3.0);
 
                 delete[] buffer1;

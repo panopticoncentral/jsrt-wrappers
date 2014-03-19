@@ -164,6 +164,7 @@
     <ClCompile Include="array.cpp" />
     <ClCompile Include="context.cpp" />
     <ClCompile Include="error.cpp" />
+    <ClCompile Include="exceptions.cpp" />
     <ClCompile Include="function.cpp" />
     <ClCompile Include="object.cpp" />
     <ClCompile Include="optional.cpp" />

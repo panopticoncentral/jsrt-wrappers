@@ -238,6 +238,20 @@ namespace jsrt
         runtime::translate_error_code(JsStartDebugging(debug_application));
     }
 
+    IActiveScriptProfilerHeapEnum *context::enumerate_heap()
+    {
+        IActiveScriptProfilerHeapEnum *enumerator;
+        runtime::translate_error_code(JsEnumerateHeap(&enumerator));
+        return enumerator;
+    }
+
+    bool context::is_enumerating_heap()
+    {
+        bool value;
+        runtime::translate_error_code(JsIsEnumeratingHeap(&value));
+        return value;
+    }
+
     void context::set_exception(value object)
     {
         runtime::translate_error_code(JsSetException(object.handle()));

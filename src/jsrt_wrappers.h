@@ -45,17 +45,20 @@ namespace jsrt
     private:
         JsRuntimeHandle _handle;
 
-        runtime(JsRuntimeHandle runtime) :
-            _handle(runtime)
-        {
-        }
-
     public:
         /// <summary>
         ///     Constructs an invalid runtime handle.
         /// </summary>
         runtime() :
             _handle(JS_INVALID_RUNTIME_HANDLE)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a runtime handle from an underlying ref.
+        /// </summary>
+        runtime(JsRuntimeHandle runtime) :
+            _handle(runtime)
         {
         }
 
@@ -547,6 +550,32 @@ namespace jsrt
         /// </summary>
         /// <param name="debug_application">The debug application to use for debugging.</param>
         static void start_debugging(IDebugApplication *debug_application);
+
+        /// <summary>
+        ///     Enumerates the heap of the current context.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     While the heap is being enumerated, the current context cannot be removed, and all
+        ///     calls to modify the state of the context will fail until the heap enumerator is 
+        ///     released.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <returns>The heap enumerator.</returns>
+        static IActiveScriptProfilerHeapEnum *enumerate_heap();
+
+        /// <summary>
+        ///     Returns a value that indicates whether the heap of the current context is being 
+        ///     enumerated.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>Whether the heap is being enumerated.</returns>
+        static bool is_enumerating_heap();
 
         /// <summary>
         ///     Gets the current script context on the thread.
@@ -4432,14 +4461,13 @@ namespace jsrt
         }
     };
 
+    /// <summary>
+    ///     An exception used to indicate failure of a JsRT call.
+    /// </summary>
     class exception
     {
     protected:
         exception() { }
-    };
-
-    class invalid_cast_exception : public exception
-    {
     };
 
     class invalid_argument_exception : public exception
@@ -4536,22 +4564,35 @@ namespace jsrt
         value _error;
 
     public:
+        /// <summary>
+        ///     Creates a script exception with the specified error.
+        /// </summary>
+        /// <param name="error">The script error.</param>
         script_exception(value error) :
             _error(error)
         {
         }
 
+        /// <summary>
+        ///     The error object.
+        /// </summary>
         value error()
         {
             return _error;
         }
     };
 
+    /// <summary>
+    ///     A JavaScript error object representing a compilation error.
+    /// </summary>
     class compile_error : public error
     {
         friend class runtime;
 
     public:
+        /// <summary>
+        ///     Creates an invalid handle.
+        /// </summary>
         compile_error() :
             error()
         {
@@ -4565,59 +4606,55 @@ namespace jsrt
         {
         }
 
+        /// <summary>
+        ///     Converts the <c>value</c> handle to a compile error handle.
+        /// <summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
         explicit compile_error(value object) :
             error(object.handle())
         {
         }
 
+        /// <summary>
+        ///     The <c>message</c> property of the error.
+        /// </summary>
         std::wstring message()
         {
             return get_property<std::wstring>(property_id::create(L"message"));
         }
 
-        void set_message(std::wstring value)
-        {
-            set_property<std::wstring>(property_id::create(L"message"), value);
-        }
-
+        /// <summary>
+        ///     The <c>line</c> property of the error.
+        /// </summary>
         double line()
         {
             return get_property<double>(property_id::create(L"line"));
         }
 
-        void set_line(double value)
-        {
-            set_property(property_id::create(L"line"), value);
-        }
-
+        /// <summary>
+        ///     The <c>column</c> property of the error.
+        /// </summary>
         double column()
         {
             return get_property<double>(property_id::create(L"column"));
         }
 
-        void set_column(double value)
-        {
-            set_property(property_id::create(L"column"), value);
-        }
-
+        /// <summary>
+        ///     The <c>length</c> property of the error.
+        /// </summary>
         double length()
         {
             return get_property<double>(property_id::create(L"length"));
         }
 
-        void set_length(double value)
-        {
-            set_property(property_id::create(L"length"), value);
-        }
-
+        /// <summary>
+        ///     The <c>source</c> property of the error.
+        /// </summary>
         std::wstring source()
         {
             return get_property<std::wstring>(property_id::create(L"source"));
-        }
-
-        void set_source(std::wstring value)
-        {
-            set_property(property_id::create(L"source"), value);
         }
     };
 
@@ -4627,11 +4664,18 @@ namespace jsrt
         compile_error _error;
 
     public:
+        /// <summary>
+        ///     Creates a compile exception with the specified error.
+        /// <summary>
+        /// <param name="error">The compile error.</param>
         script_compile_exception(compile_error error) :
             _error(error)
         {
         }
 
+        /// <summary>
+        ///     The compile error.
+        /// </summary>
         compile_error error()
         {
             return _error;
