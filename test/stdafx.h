@@ -4,6 +4,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include "jsrt.h"
 #include "jsrt_wrappers.h"
+#include "profiler.h"
 #include "CppUnitTest.h"
 
 #define MY_TEST_METHOD(name, description) \

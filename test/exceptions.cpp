@@ -185,5 +185,157 @@ namespace jsrtwrapperstest
             }
             runtime.dispose();
         }
+
+        static bool CALLBACK thread_service(JsBackgroundWorkItemCallback callback, void *callbackState)
+        {
+            jsrt::context current = jsrt::context::current();
+            if (current.is_valid())
+            {
+                TEST_FAILED_CALL(current.parent().create_context(), in_thread_service_callback_exception);
+            }
+            return false;
+        }
+
+        MY_TEST_METHOD(in_thread_service_callback, "Test in_thread_service_callback_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create(JsRuntimeAttributeNone, JsRuntimeVersion11, thread_service);
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                runtime.collect_garbage();
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(cannot_serialize_debug_script, "Test cannot_serialize_debug_script_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::context::start_debugging(get_debug_application());
+                TEST_FAILED_CALL(jsrt::context::serialize(L"1 + 2", nullptr, 0), cannot_serialize_debug_script_exception);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(already_debugging_context, "Test already_debugging_context_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::context::start_debugging(get_debug_application());
+                TEST_FAILED_CALL(jsrt::context::start_debugging(get_debug_application()), already_debugging_context_exception);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(already_profiling_context, "Test already_profiling_context_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                Profiler profiler;
+                jsrt::context::start_profiling(&profiler);
+                TEST_FAILED_CALL(jsrt::context::start_profiling(&profiler), already_profiling_context_exception);
+                jsrt::context::stop_profiling(S_OK);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(idle_not_enabled, "Test idle_not_enabled_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                TEST_FAILED_CALL(jsrt::context::idle(), idle_not_enabled_exception);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(bad_serialized_script, "Test bad_serialized_script_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                //unsigned char buffer[256];
+                //memset(buffer, 0, 256);
+                //TEST_FAILED_CALL(jsrt::context::run_serialized(L"1+2", buffer), bad_serialized_script_exception);
+                // TODO: Not currently testable due to a bug in JsRT APIs.
+            }
+            runtime.dispose();
+        }
+
+        static HANDLE running_event;
+        static HANDLE ready_event;
+
+        static void signal(const jsrt::call_info &info)
+        {
+            SetEvent(running_event);
+        }
+
+        static DWORD WINAPI thread_proc2(LPVOID param)
+        {
+            jsrt::runtime runtime(param);
+            SetEvent(ready_event);
+            WaitForSingleObject(running_event, INFINITE);
+            runtime.disable_execution();
+            return 0;
+        }
+
+        MY_TEST_METHOD(script_terminated, "Test script_terminated_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create(JsRuntimeAttributeAllowScriptInterrupt);
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                running_event = CreateEvent(nullptr, true, false, nullptr);
+                ready_event = CreateEvent(nullptr, true, false, nullptr);
+                jsrt::context::global().set_property(jsrt::property_id::create(L"signal"),
+                    jsrt::function<void>::create(signal));
+                HANDLE thread = CreateThread(nullptr, 0, thread_proc2, runtime.handle(), 0, nullptr);
+                WaitForSingleObject(ready_event, INFINITE);
+                TEST_FAILED_CALL(jsrt::context::run(L"while (true) { signal(); }"), script_terminated_exception);
+                CloseHandle(ready_event);
+                CloseHandle(running_event);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(script_eval_disabled, "Test script_eval_disabled_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create(JsRuntimeAttributeDisableEval);
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                TEST_FAILED_CALL(jsrt::context::run(L"eval(\"1 + 2\")"), script_eval_disabled_exception);
+            }
+            runtime.dispose();
+        }
+
+        static void bad(const jsrt::call_info &info)
+        {
+            throw 0;
+        }
+
+        MY_TEST_METHOD(fatal, "Test fatal_exception.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create(JsRuntimeAttributeAllowScriptInterrupt);
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::context::global().set_property(jsrt::property_id::create(L"bad"),
+                    jsrt::function<void>::create(bad));
+                TEST_FAILED_CALL(jsrt::context::run(L"bad()"), fatal_exception);
+            }
+            runtime.dispose();
+        }
     };
+
+    HANDLE exceptions::running_event;
+    HANDLE exceptions::ready_event;
 }
