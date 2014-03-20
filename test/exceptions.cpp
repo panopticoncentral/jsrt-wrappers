@@ -138,8 +138,8 @@ namespace jsrtwrapperstest
 
         static DWORD WINAPI thread_proc(LPVOID param)
         {
-            jsrt::runtime runtime(param);
-            TEST_FAILED_CALL(runtime.collect_garbage(), wrong_thread_exception);
+            jsrt::runtime *runtime = (jsrt::runtime *)param;
+            TEST_FAILED_CALL(runtime->collect_garbage(), wrong_thread_exception);
             return 0;
         }
 
@@ -149,7 +149,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                HANDLE thread = CreateThread(nullptr, 0, thread_proc, runtime.handle(), 0, nullptr);
+                HANDLE thread = CreateThread(nullptr, 0, thread_proc, &runtime, 0, nullptr);
                 WaitForSingleObject(thread, INFINITE);
             }
             runtime.dispose();
@@ -284,10 +284,10 @@ namespace jsrtwrapperstest
 
         static DWORD WINAPI thread_proc2(LPVOID param)
         {
-            jsrt::runtime runtime(param);
+            jsrt::runtime *runtime = (jsrt::runtime *)param;
             SetEvent(ready_event);
             WaitForSingleObject(running_event, INFINITE);
-            runtime.disable_execution();
+            runtime->disable_execution();
             return 0;
         }
 
@@ -301,7 +301,7 @@ namespace jsrtwrapperstest
                 ready_event = CreateEvent(nullptr, true, false, nullptr);
                 jsrt::context::global().set_property(jsrt::property_id::create(L"signal"),
                     jsrt::function<void>::create(signal));
-                HANDLE thread = CreateThread(nullptr, 0, thread_proc2, runtime.handle(), 0, nullptr);
+                HANDLE thread = CreateThread(nullptr, 0, thread_proc2, &runtime, 0, nullptr);
                 WaitForSingleObject(ready_event, INFINITE);
                 TEST_FAILED_CALL(jsrt::context::run(L"while (true) { signal(); }"), script_terminated_exception);
                 CloseHandle(ready_event);

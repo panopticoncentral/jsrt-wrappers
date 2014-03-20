@@ -173,6 +173,7 @@
     <ClCompile Include="pinned.cpp" />
     <ClCompile Include="property_descriptor.cpp" />
     <ClCompile Include="property_id.cpp" />
+    <ClCompile Include="readme.cpp" />
     <ClCompile Include="reference.cpp" />
     <ClCompile Include="rest.cpp" />
     <ClCompile Include="stdafx.cpp">

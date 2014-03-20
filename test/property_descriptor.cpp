@@ -100,7 +100,7 @@ namespace jsrtwrapperstest
                 jsrt::value value = jsrt::property_descriptor<bool>::create();
                 jsrt::property_descriptor<bool> property_descriptor = (jsrt::property_descriptor<bool>)value;
                 Assert::IsTrue(property_descriptor.is_valid());
-                property_descriptor = jsrt::property_descriptor<bool>::create(b, set_b);
+                property_descriptor = jsrt::property_descriptor<bool>::create(jsrt::function<bool>::create(b), jsrt::function<void, bool>::create(set_b));
                 Assert::IsTrue(property_descriptor.is_valid());
             }
             runtime.dispose();
@@ -126,7 +126,7 @@ namespace jsrtwrapperstest
                 Assert::IsFalse(desc.enumerable());
                 Assert::IsFalse(desc.writable());
                 Assert::AreEqual(desc.value(), 10.0);
-                jsrt::property_descriptor<bool> bdesc = jsrt::property_descriptor<bool>::create(b, set_b);
+                jsrt::property_descriptor<bool> bdesc = jsrt::property_descriptor<bool>::create(jsrt::function<bool>::create(b), jsrt::function<void, bool>::create(set_b));
                 object.define_property(jsrt::property_id::create(L"b"), bdesc);
                 Assert::IsTrue(object.get_property<bool>(jsrt::property_id::create(L"b")));
                 object.set_property(jsrt::property_id::create(L"b"), true);

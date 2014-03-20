@@ -74,5 +74,8 @@
     <ClCompile Include="bound_function.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="readme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

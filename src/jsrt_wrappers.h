@@ -45,20 +45,17 @@ namespace jsrt
     private:
         JsRuntimeHandle _handle;
 
+        explicit runtime(JsRuntimeHandle runtime) :
+            _handle(runtime)
+        {
+        }
+
     public:
         /// <summary>
         ///     Constructs an invalid runtime handle.
         /// </summary>
         runtime() :
             _handle(JS_INVALID_RUNTIME_HANDLE)
-        {
-        }
-
-        /// <summary>
-        ///     Creates a runtime handle from an underlying ref.
-        /// </summary>
-        runtime(JsRuntimeHandle runtime) :
-            _handle(runtime)
         {
         }
 
@@ -263,7 +260,7 @@ namespace jsrt
     protected:
         JsRef _ref;
 
-        reference(JsRef ref) :
+        explicit reference(JsRef ref) :
             _ref(ref)
         {
         }
@@ -454,7 +451,7 @@ namespace jsrt
         friend class runtime;
 
     private:
-        context(JsContextRef context) :
+        explicit context(JsContextRef context) :
             reference(context)
         {
         }
@@ -1066,20 +1063,17 @@ namespace jsrt
             return JsPointerToString(value, wcslen(value), result);
         }
 
+        explicit value(JsValueRef ref) :
+            reference(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// </summary>
         value() :
             reference()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        value(JsValueRef ref) :
-            reference(ref)
         {
         }
 
@@ -1184,20 +1178,20 @@ namespace jsrt
     /// </summary>
     class boolean : public value
     {
+        friend class value;
+
+    private:
+        explicit boolean(JsValueRef ref) :
+            value(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// <summary>
         boolean() :
             value()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        boolean(JsValueRef ref) :
-            value(ref)
         {
         }
 
@@ -1285,20 +1279,20 @@ namespace jsrt
     /// </summary>
     class number : public value
     {
+        friend class value;
+
+    private:
+        explicit number(JsValueRef ref) :
+            value(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// <summary>
         number() :
             value()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        number(JsValueRef ref) :
-            value(ref)
         {
         }
 
@@ -1373,20 +1367,20 @@ namespace jsrt
     /// </summary>
     class string : public value
     {
+        friend class value;
+
+    private:
+        explicit string(JsValueRef ref) :
+            value(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid value handle.
         /// <summary>
         string() :
             value()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        string(JsValueRef ref) :
-            value(ref)
         {
         }
 
@@ -1458,6 +1452,13 @@ namespace jsrt
     {
         friend class function_base;
         friend class context;
+        friend class value;
+
+    protected:
+        explicit object(JsValueRef ref) :
+            value(ref)
+        {
+        }
 
     public:
         /// <summary>
@@ -1465,14 +1466,6 @@ namespace jsrt
         /// </summary>
         object() :
             value()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        object(JsValueRef ref) :
-            value(ref)
         {
         }
 
@@ -1832,20 +1825,20 @@ namespace jsrt
     /// </summary>
     class external_object : public object
     {
+        friend class value;
+
+    private:
+        explicit external_object(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid object handle.
         /// </summary>
         external_object() :
             object()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        external_object(JsValueRef ref) :
-            object(ref)
         {
         }
 
@@ -1926,6 +1919,13 @@ namespace jsrt
     class array : public object
     {
         friend class object;
+        friend class value;
+
+    private:
+        explicit array(JsValueRef ref) :
+            object(ref)
+        {
+        }
 
     public:
         /// <summary>
@@ -1990,14 +1990,6 @@ namespace jsrt
         /// </summary>
         array() :
             object()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        array(JsValueRef ref) :
-            object(ref)
         {
         }
 
@@ -2078,6 +2070,8 @@ namespace jsrt
     /// <summary>
     class error : public object
     {
+        friend class value;
+
     private:
         static JsValueRef format_message(std::wstring message, va_list argptr)
         {
@@ -2090,20 +2084,18 @@ namespace jsrt
             return errorString;
         }
 
+    protected:
+        explicit error(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid handle to an error.
         /// </summary>
         error() :
             object()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        error(JsValueRef ref) :
-            object(ref)
         {
         }
 
@@ -2351,6 +2343,7 @@ namespace jsrt
     class function_base : public object
     {
         friend class context;
+        friend class value;
 
     private:
         template<class T>
@@ -2885,6 +2878,11 @@ namespace jsrt
             runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
         }
 
+        explicit function_base(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     The signature of a function callback.
@@ -2924,14 +2922,6 @@ namespace jsrt
         /// </summary>
         function_base() :
             object()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        function_base(JsValueRef ref) :
-            object(ref)
         {
         }
 
@@ -3004,13 +2994,15 @@ namespace jsrt
     template<class R>
     class constructor_function : public function_base
     {
+        friend class value;
+
     protected:
         constructor_function() :
             function_base()
         {
         }
 
-        constructor_function(JsValueRef ref) :
+        explicit constructor_function(JsValueRef ref) :
             function_base(ref)
         {
         }
@@ -3053,13 +3045,15 @@ namespace jsrt
     template<>
     class constructor_function<value> : public function_base
     {
+        friend class value;
+
     protected:
         constructor_function() :
             function_base()
         {
         }
 
-        constructor_function(JsValueRef ref) :
+        explicit constructor_function(JsValueRef ref) :
             function_base(ref)
         {
         }
@@ -3074,13 +3068,15 @@ namespace jsrt
     template<>
     class constructor_function<std::wstring> : public function_base
     {
+        friend class value;
+
     protected:
         constructor_function() :
             function_base()
         {
         }
 
-        constructor_function(JsValueRef ref) :
+        explicit constructor_function(JsValueRef ref) :
             function_base(ref)
         {
         }
@@ -3095,13 +3091,15 @@ namespace jsrt
     template<>
     class constructor_function<double> : public function_base
     {
+        friend class value;
+
     protected:
         constructor_function() :
             function_base()
         {
         }
 
-        constructor_function(JsValueRef ref) :
+        explicit constructor_function(JsValueRef ref) :
             function_base(ref)
         {
         }
@@ -3116,13 +3114,15 @@ namespace jsrt
     template<>
     class constructor_function<bool> : public function_base
     {
+        friend class value;
+
     protected:
         constructor_function() :
             function_base()
         {
         }
 
-        constructor_function(JsValueRef ref) :
+        explicit constructor_function(JsValueRef ref) :
             function_base(ref)
         {
         }
@@ -3137,16 +3137,19 @@ namespace jsrt
     template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
     class function : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, P8>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -3208,16 +3211,19 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
     class function<void, P1, P2, P3, P4, P5, P6, P7, P8> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, P8>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, P3, P4, P5, P6, P7, P8>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -3275,16 +3281,19 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4, class P5, class P6, class P7>
     class function<R, P1, P2, P3, P4, P5, P6, P7, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -3345,16 +3354,19 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7>
     class function<void, P1, P2, P3, P4, P5, P6, P7, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -3411,16 +3423,19 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4, class P5, class P6>
     class function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -3480,16 +3495,19 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5, class P6>
     class function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -3545,16 +3563,19 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4, class P5>
     class function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -3613,16 +3634,19 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4, class P5>
     class function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -3677,16 +3701,19 @@ namespace jsrt
     template<class R, class P1, class P2, class P3, class P4>
     class function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -3744,16 +3771,19 @@ namespace jsrt
     template<class P1, class P2, class P3, class P4>
     class function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -3807,16 +3837,19 @@ namespace jsrt
     template<class R, class P1, class P2, class P3>
     class function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -3873,16 +3906,19 @@ namespace jsrt
     template<class P1, class P2, class P3>
     class function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -3935,16 +3971,19 @@ namespace jsrt
     template<class R, class P1, class P2>
     class function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -4000,16 +4039,19 @@ namespace jsrt
     template<class P1, class P2>
     class function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -4061,16 +4103,19 @@ namespace jsrt
     template<class R, class P1>
     class function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info, P1 p1);
 
         function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -4125,16 +4170,19 @@ namespace jsrt
     template<class P1>
     class function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info, P1 p1);
 
         function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -4185,16 +4233,19 @@ namespace jsrt
     template<class R>
     class function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public constructor_function<R>
     {
+        friend class value;
+
+    protected:
+        explicit function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            constructor_function<R>(ref)
+        {
+        }
+
     public:
         typedef R(*Signature)(const call_info &call_info);
 
         function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             constructor_function<R>()
-        {
-        }
-
-        function<R, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            constructor_function<R>(ref)
         {
         }
 
@@ -4248,16 +4299,19 @@ namespace jsrt
     template<>
     class function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
+        friend class value;
+
+    protected:
+        explicit function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
+            function_base(ref)
+        {
+        }
+
     public:
         typedef void (*Signature)(const call_info &call_info);
 
         function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
-        {
-        }
-
-        function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :
-            function_base(ref)
         {
         }
 
@@ -4309,8 +4363,16 @@ namespace jsrt
     template<class TThis, class R, class... Parameters>
     class bound_function : public function<R, Parameters...>
     {
+        friend class value;
+
     private:
-        JsValueRef _this_value;
+        TThis _this_value;
+
+        explicit bound_function<TThis, R, Parameters...>(TThis this_value, JsValueRef ref) :
+            function<R, Parameters...>(ref),
+            _this_value(this_value)
+        {
+        }
 
     public:
         /// <summary>
@@ -4322,10 +4384,14 @@ namespace jsrt
         }
 
         /// <summary>
-        ///     Creates a value handle from an underlying ref.
+        ///     Creates a value handle from a <c>this</c> value and a function.
         /// </summary>
-        bound_function<TThis, R, Parameters...>(JsValueRef this_value, JsValueRef ref) :
-            function<R, Parameters...>(ref),
+        /// <param name="this_value">
+        ///     The value the <c>this</c> parameter should be bound to.
+        /// </param>
+        /// <param name="func">A reference to the function.</param>
+        bound_function<TThis, R, Parameters...>(TThis this_value, function<R, Parameters...> func) :
+            function<R, Parameters...>(func),
             _this_value(this_value)
         {
         }
@@ -4340,7 +4406,7 @@ namespace jsrt
         /// <returns>The result of the call.</returns>
         R operator()(Parameters... arguments)
         {
-            return call_function<R>(pack_arguments(TThis(_this_value), arguments...));
+            return call_function<R>(pack_arguments(_this_value, arguments...));
         }
 
         /// <summary>
@@ -4358,7 +4424,7 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
-            return decltype(create(TThis(), nullptr))(this_value.handle(), ref);
+            return decltype(create(TThis(), nullptr))(this_value, ref);
         }
     };
 
@@ -4368,20 +4434,20 @@ namespace jsrt
     template<class T>
     class property_descriptor : public object
     {
+        friend class value;
+
+    private:
+        explicit property_descriptor(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
     public:
         /// <summary>
         ///     Creates an invalid handle to a property descriptor.
         /// </summary>
         property_descriptor() :
             object()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        property_descriptor(JsValueRef ref) :
-            object(ref)
         {
         }
 
@@ -4643,6 +4709,13 @@ namespace jsrt
     class compile_error : public error
     {
         friend class runtime;
+        friend class value;
+
+    private:
+        explicit compile_error(JsValueRef ref) :
+            error(ref)
+        {
+        }
 
     public:
         /// <summary>
@@ -4650,14 +4723,6 @@ namespace jsrt
         /// </summary>
         compile_error() :
             error()
-        {
-        }
-
-        /// <summary>
-        ///     Creates a value handle from an underlying ref.
-        /// </summary>
-        compile_error(JsValueRef ref) :
-            error(ref)
         {
         }
 
