@@ -2054,7 +2054,7 @@ namespace jsrt
         /// <returns>The new array object.</returns>
         static array<T> create(std::initializer_list<T> values)
         {
-            array<T> array = create(values.size());
+            array<T> array = create((unsigned int) values.size());
             int index = 0;
             for (auto iter = values.begin(); iter != values.end(); iter++)
             {
@@ -2864,7 +2864,7 @@ namespace jsrt
         R call_function(std::vector<JsValueRef> &arguments)
         {
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), (unsigned short)arguments.size(), &resultValue));
 
             R result;
             runtime::translate_error_code(to_native(resultValue, &result));
@@ -2875,7 +2875,7 @@ namespace jsrt
         void call_function(std::vector<JsValueRef> &arguments)
         {
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), (unsigned short)arguments.size(), &resultValue));
         }
 
         explicit function_base(JsValueRef ref) :
@@ -2950,7 +2950,7 @@ namespace jsrt
             std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) call_arguments.data(), arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) call_arguments.data(), (unsigned short)arguments.size(), &resultValue));
             return value(resultValue);
         }
 
@@ -2968,7 +2968,7 @@ namespace jsrt
             std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *) call_arguments.data(), arguments.size(), &resultValue));
+            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *) call_arguments.data(), (unsigned short)arguments.size(), &resultValue));
             return value(resultValue);
         }
 
@@ -3015,7 +3015,7 @@ namespace jsrt
         R construct_object(std::vector<JsValueRef> &arguments)
         {
             JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), arguments.size(), &resultValue));
+            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), (unsigned short)arguments.size(), &resultValue));
 
             R result;
             runtime::translate_error_code(to_native(resultValue, &result));
