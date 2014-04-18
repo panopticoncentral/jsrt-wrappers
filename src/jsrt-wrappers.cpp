@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "stdafx.h"
-#include "jsrt_wrappers.h"
+#include "jsrt-wrappers.h"
 
 namespace jsrt
 {

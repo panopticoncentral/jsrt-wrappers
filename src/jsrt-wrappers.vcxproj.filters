@@ -21,7 +21,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="jsrt_wrappers.h">
+    <ClInclude Include="jsrt-wrappers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -29,7 +29,7 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="jsrt_wrappers.cpp">
+    <ClCompile Include="jsrt-wrappers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
