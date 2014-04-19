@@ -905,6 +905,13 @@ namespace jsrt
     };
 
     /// <summary>
+    ///     A missing optional value.
+    /// </summary>
+    struct missing
+    {
+    };
+
+    /// <summary>
     ///     An optional value.
     /// </summary>
     template<class T>
@@ -930,6 +937,15 @@ namespace jsrt
         optional(T value) :
             _hasValue(true),
             _value(value)
+        {
+        }
+
+        /// <summary>
+        ///     Constructs an optional missing value.
+        /// </summary>
+        optional(missing value) :
+            _hasValue(false),
+            _value()
         {
         }
 
@@ -1037,6 +1053,18 @@ namespace jsrt
         {
             *result = value.handle();
             return JsNoError;
+        }
+
+        template<class T>
+        static JsErrorCode from_native(optional<T> value, JsValueRef *result)
+        {
+            if (!value.has_value())
+            {
+                // shouldn't get here
+                return JsErrorInvalidArgument;
+            }
+
+            return from_native(value.value(), result);
         }
 
         template<>
@@ -2291,6 +2319,14 @@ namespace jsrt
             optional(value)
         {
         }
+
+        /// <summary>
+        ///     Constructs a missing rest value.
+        /// </summary>
+        rest(missing value) :
+            optional(value)
+        {
+        }
     };
 
     /// <summary>
@@ -2448,15 +2484,21 @@ namespace jsrt
         }
 
         template<class T>
-        static unsigned rest_argument_count(T value)
+        static unsigned optional_argument_count(T value)
         {
             return 1;
         };
 
         template<class T>
-        static unsigned rest_argument_count(rest<T> value)
+        static unsigned optional_argument_count(optional<T> value)
         {
-            return value.has_value() ? (int) value.value.length : 0;
+            return value.has_value() ? 1 : 0;
+        };
+
+        template<class T>
+        static unsigned optional_argument_count(rest<T> value)
+        {
+            return value.has_value() ? (int) value.value().length() : 0;
         };
 
         template<class T>
@@ -2470,9 +2512,9 @@ namespace jsrt
         {
             if (rest.has_value())
             {
-                for (unsigned index = 0; index < rest.value.length; index++)
+                for (int index = 0; index < rest.value().length(); index++)
                 {
-                    runtime::translate_error_code(from_native((T) rest.value[index], &arguments[start + index]));
+                    runtime::translate_error_code(from_native((T) rest.value()[index], &arguments[start + index]));
                 }
             }
         }
@@ -2649,7 +2691,15 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            unsigned argument_count = 8 + rest_argument_count(p8);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2) +
+                optional_argument_count(p3) +
+                optional_argument_count(p4) +
+                optional_argument_count(p5) +
+                optional_argument_count(p6) +
+                optional_argument_count(p7) +
+                optional_argument_count(p8);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2662,14 +2712,36 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            runtime::translate_error_code(from_native(p2, &arguments[2]));
-            runtime::translate_error_code(from_native(p3, &arguments[3]));
-            runtime::translate_error_code(from_native(p4, &arguments[4]));
-            runtime::translate_error_code(from_native(p5, &arguments[5]));
-            runtime::translate_error_code(from_native(p6, &arguments[6]));
-            runtime::translate_error_code(from_native(p7, &arguments[7]));
-            fill_rest(p8, 8, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p8, 8, arguments);
+                    // fall through
+                case 8:
+                    runtime::translate_error_code(from_native(p7, &arguments[7]));
+                    // fall through
+                case 7:
+                    runtime::translate_error_code(from_native(p6, &arguments[6]));
+                    // fall through
+                case 6:
+                    runtime::translate_error_code(from_native(p5, &arguments[5]));
+                    // fall through
+                case 5:
+                    runtime::translate_error_code(from_native(p4, &arguments[4]));
+                    // fall through
+                case 4:
+                    runtime::translate_error_code(from_native(p3, &arguments[3]));
+                    // fall through
+                case 3:
+                    runtime::translate_error_code(from_native(p2, &arguments[2]));
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2677,7 +2749,14 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            unsigned argument_count = 7 + rest_argument_count(p7);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2) +
+                optional_argument_count(p3) +
+                optional_argument_count(p4) +
+                optional_argument_count(p5) +
+                optional_argument_count(p6) +
+                optional_argument_count(p7);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2690,13 +2769,33 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            runtime::translate_error_code(from_native(p2, &arguments[2]));
-            runtime::translate_error_code(from_native(p3, &arguments[3]));
-            runtime::translate_error_code(from_native(p4, &arguments[4]));
-            runtime::translate_error_code(from_native(p5, &arguments[5]));
-            runtime::translate_error_code(from_native(p6, &arguments[6]));
-            fill_rest(p7, 7, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p7, 7, arguments);
+                    // fall through
+                case 7:
+                    runtime::translate_error_code(from_native(p6, &arguments[6]));
+                    // fall through
+                case 6:
+                    runtime::translate_error_code(from_native(p5, &arguments[5]));
+                    // fall through
+                case 5:
+                    runtime::translate_error_code(from_native(p4, &arguments[4]));
+                    // fall through
+                case 4:
+                    runtime::translate_error_code(from_native(p3, &arguments[3]));
+                    // fall through
+                case 3:
+                    runtime::translate_error_code(from_native(p2, &arguments[2]));
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2704,7 +2803,13 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5, class P6>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            unsigned argument_count = 6 + rest_argument_count(p6);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2) +
+                optional_argument_count(p3) +
+                optional_argument_count(p4) +
+                optional_argument_count(p5) +
+                optional_argument_count(p6);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2717,12 +2822,30 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            runtime::translate_error_code(from_native(p2, &arguments[2]));
-            runtime::translate_error_code(from_native(p3, &arguments[3]));
-            runtime::translate_error_code(from_native(p4, &arguments[4]));
-            runtime::translate_error_code(from_native(p5, &arguments[5]));
-            fill_rest(p6, 6, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p6, 6, arguments);
+                    // fall through
+                case 6:
+                    runtime::translate_error_code(from_native(p5, &arguments[5]));
+                    // fall through
+                case 5:
+                    runtime::translate_error_code(from_native(p4, &arguments[4]));
+                    // fall through
+                case 4:
+                    runtime::translate_error_code(from_native(p3, &arguments[3]));
+                    // fall through
+                case 3:
+                    runtime::translate_error_code(from_native(p2, &arguments[2]));
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2730,7 +2853,12 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            unsigned argument_count = 5 + rest_argument_count(p5);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2) +
+                optional_argument_count(p3) +
+                optional_argument_count(p4) +
+                optional_argument_count(p5);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2743,11 +2871,27 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            runtime::translate_error_code(from_native(p2, &arguments[2]));
-            runtime::translate_error_code(from_native(p3, &arguments[3]));
-            runtime::translate_error_code(from_native(p4, &arguments[4]));
-            fill_rest(p5, 5, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p5, 5, arguments);
+                    // fall through
+                case 5:
+                    runtime::translate_error_code(from_native(p4, &arguments[4]));
+                    // fall through
+                case 4:
+                    runtime::translate_error_code(from_native(p3, &arguments[3]));
+                    // fall through
+                case 3:
+                    runtime::translate_error_code(from_native(p2, &arguments[2]));
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2755,7 +2899,11 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            unsigned argument_count = 4 + rest_argument_count(p4);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2) +
+                optional_argument_count(p3) +
+                optional_argument_count(p4);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2768,10 +2916,24 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            runtime::translate_error_code(from_native(p2, &arguments[2]));
-            runtime::translate_error_code(from_native(p3, &arguments[3]));
-            fill_rest(p4, 4, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p4, 4, arguments);
+                    // fall through
+                case 4:
+                    runtime::translate_error_code(from_native(p3, &arguments[3]));
+                    // fall through
+                case 3:
+                    runtime::translate_error_code(from_native(p2, &arguments[2]));
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2779,7 +2941,10 @@ namespace jsrt
         template <class P1, class P2, class P3>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            unsigned argument_count = 3 + rest_argument_count(p3);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2) +
+                optional_argument_count(p3);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2792,9 +2957,21 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            runtime::translate_error_code(from_native(p2, &arguments[2]));
-            fill_rest(p3, 3, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p3, 3, arguments);
+                    // fall through
+                case 3:
+                    runtime::translate_error_code(from_native(p2, &arguments[2]));
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2802,7 +2979,9 @@ namespace jsrt
         template <class P1, class P2>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2)
         {
-            unsigned argument_count = 2 + rest_argument_count(p2);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1) +
+                optional_argument_count(p2);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2815,8 +2994,18 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            runtime::translate_error_code(from_native(p1, &arguments[1]));
-            fill_rest(p2, 2, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p2, 2, arguments);
+                    // fall through
+                case 2:
+                    runtime::translate_error_code(from_native(p1, &arguments[1]));
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }
@@ -2824,7 +3013,8 @@ namespace jsrt
         template <class P1>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1)
         {
-            unsigned argument_count = 1 + rest_argument_count(p1);
+            unsigned argument_count = 1 +
+                optional_argument_count(p1);
             std::vector<JsValueRef> arguments(argument_count);
 
             if (this_value.is_valid())
@@ -2837,7 +3027,15 @@ namespace jsrt
                 runtime::translate_error_code(JsGetUndefinedValue(&arguments[0]));
             }
 
-            fill_rest(p1, 1, arguments);
+            switch (argument_count)
+            {
+                default:
+                    fill_rest(p1, 1, arguments);
+                    // fall through
+                case 1:
+                    // Nothing to do
+                    break;
+            }
 
             return arguments;
         }

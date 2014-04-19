@@ -40,6 +40,9 @@ namespace jsrtwrapperstest
                 o2.clear();
                 Assert::IsFalse(o2.has_value());
                 Assert::IsFalse(o2.value().is_valid());
+                o2 = jsrt::missing();
+                Assert::IsFalse(o2.has_value());
+                Assert::IsFalse(o2.value().is_valid());
             }
             runtime.dispose();
         }

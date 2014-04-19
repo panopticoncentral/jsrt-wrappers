@@ -35,6 +35,9 @@ namespace jsrtwrapperstest
             o1.clear();
             Assert::IsFalse(o1.has_value());
             Assert::AreEqual(o1.value(), 0);
+            o1 = jsrt::missing();
+            Assert::IsFalse(o1.has_value());
+            Assert::AreEqual(o1.value(), 0);
         }
     };
 }

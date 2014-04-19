@@ -598,6 +598,80 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
+        MY_TEST_METHOD(strongly_typed_generic, "Test strongly typed functions with generic ::create.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object this_value = jsrt::external_object::create((void *) 0xdeadbeef);
+
+                auto f8 = jsrt::function_base::create(callback8);
+                double result = f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
+                Assert::AreEqual(result, 8.0);
+
+                auto f7 = jsrt::function_base::create(callback7);
+                result = f7(this_value, L"foo", 2, true, L"bar", 5, false, L"baz");
+                Assert::AreEqual(result, 7.0);
+
+                auto f6 = jsrt::function_base::create(callback6);
+                result = f6(this_value, L"foo", 2, true, L"bar", 5, false);
+                Assert::AreEqual(result, 6.0);
+
+                auto f5 = jsrt::function_base::create(callback5);
+                result = f5(this_value, L"foo", 2, true, L"bar", 5);
+                Assert::AreEqual(result, 5.0);
+
+                auto f4 = jsrt::function_base::create(callback4);
+                result = f4(this_value, L"foo", 2, true, L"bar");
+                Assert::AreEqual(result, 4.0);
+
+                auto f3 = jsrt::function_base::create(callback3);
+                result = f3(this_value, L"foo", 2, true);
+                Assert::AreEqual(result, 3.0);
+
+                auto f2 = jsrt::function_base::create(callback2);
+                result = f2(this_value, L"foo", 2);
+                Assert::AreEqual(result, 2.0);
+
+                auto f1 = jsrt::function_base::create(callback1);
+                result = f1(this_value, L"foo");
+                Assert::AreEqual(result, 1.0);
+
+                auto f0 = jsrt::function_base::create(callback0);
+                result = f0(this_value);
+                Assert::AreEqual(result, 0.0);
+
+                auto f8v = jsrt::function_base::create(callback8v);
+                f8v(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
+
+                auto f7v = jsrt::function_base::create(callback7v);
+                f7v(this_value, L"foo", 2, true, L"bar", 5, false, L"baz");
+
+                auto f6v = jsrt::function_base::create(callback6v);
+                f6v(this_value, L"foo", 2, true, L"bar", 5, false);
+
+                auto f5v = jsrt::function_base::create(callback5v);
+                f5v(this_value, L"foo", 2, true, L"bar", 5);
+
+                auto f4v = jsrt::function_base::create(callback4v);
+                f4v(this_value, L"foo", 2, true, L"bar");
+
+                auto f3v = jsrt::function_base::create(callback3v);
+                f3v(this_value, L"foo", 2, true);
+
+                auto f2v = jsrt::function_base::create(callback2v);
+                f2v(this_value, L"foo", 2);
+
+                auto f1v = jsrt::function_base::create(callback1v);
+                f1v(this_value, L"foo");
+
+                auto f0v = jsrt::function_base::create(callback0v);
+                f0v(this_value);
+            }
+            runtime.dispose();
+        }
+
         static jsrt::object callback8c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7, double p8)
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
