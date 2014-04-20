@@ -672,6 +672,281 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
+        static void callback8o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, jsrt::optional<double> p2, jsrt::optional<bool> p3, jsrt::optional<std::wstring> p4, jsrt::optional<double> p5, jsrt::optional<bool> p6, jsrt::optional<std::wstring> p7, std::vector<double> p8)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            if (p2.has_value())
+            {
+                Assert::AreEqual(p2.value(), 2.0);
+            }
+            if (p3.has_value())
+            {
+                Assert::AreEqual(p3.value(), true);
+            }
+            if (p4.has_value())
+            {
+                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+            }
+            if (p5.has_value())
+            {
+                Assert::AreEqual(p5.value(), 5.0);
+            }
+            if (p6.has_value())
+            {
+                Assert::AreEqual(p6.value(), false);
+            }
+            if (p7.has_value())
+            {
+                Assert::AreEqual(p7.value(), (std::wstring)L"baz");
+            }
+            for (auto &v : p8)
+            {
+                Assert::AreEqual(v, 8.0);
+            }
+        }
+
+        static void callback7o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, jsrt::optional<double> p2, jsrt::optional<bool> p3, jsrt::optional<std::wstring> p4, jsrt::optional<double> p5, jsrt::optional<bool> p6, std::vector<std::wstring> p7)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            if (p2.has_value())
+            {
+                Assert::AreEqual(p2.value(), 2.0);
+            }
+            if (p3.has_value())
+            {
+                Assert::AreEqual(p3.value(), true);
+            }
+            if (p4.has_value())
+            {
+                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+            }
+            if (p5.has_value())
+            {
+                Assert::AreEqual(p5.value(), 5.0);
+            }
+            if (p6.has_value())
+            {
+                Assert::AreEqual(p6.value(), false);
+            }
+            for (auto &v : p7)
+            {
+                Assert::AreEqual(v, (std::wstring)L"baz");
+            }
+        }
+
+        static void callback6o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, jsrt::optional<double> p2, jsrt::optional<bool> p3, jsrt::optional<std::wstring> p4, jsrt::optional<double> p5, std::vector<bool> p6)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            if (p2.has_value())
+            {
+                Assert::AreEqual(p2.value(), 2.0);
+            }
+            if (p3.has_value())
+            {
+                Assert::AreEqual(p3.value(), true);
+            }
+            if (p4.has_value())
+            {
+                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+            }
+            if (p5.has_value())
+            {
+                Assert::AreEqual(p5.value(), 5.0);
+            }
+            for (auto &v : p6)
+            {
+                Assert::AreEqual((bool) v, false);
+            }
+        }
+
+        static void callback5o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, jsrt::optional<double> p2, jsrt::optional<bool> p3, jsrt::optional<std::wstring> p4, std::vector<double> p5)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            if (p2.has_value())
+            {
+                Assert::AreEqual(p2.value(), 2.0);
+            }
+            if (p3.has_value())
+            {
+                Assert::AreEqual(p3.value(), true);
+            }
+            if (p4.has_value())
+            {
+                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+            }
+            for (auto &v : p5)
+            {
+                Assert::AreEqual(v, 5.0);
+            }
+        }
+
+        static void callback4o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, jsrt::optional<double> p2, jsrt::optional<bool> p3, std::vector<std::wstring> p4)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            if (p2.has_value())
+            {
+                Assert::AreEqual(p2.value(), 2.0);
+            }
+            if (p3.has_value())
+            {
+                Assert::AreEqual(p3.value(), true);
+            }
+            for (auto &v : p4)
+            {
+                Assert::AreEqual(v, (std::wstring)L"bar");
+            }
+        }
+
+        static void callback3o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, jsrt::optional<double> p2, std::vector<bool> p3)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            if (p2.has_value())
+            {
+                Assert::AreEqual(p2.value(), 2.0);
+            }
+            for (auto &v : p3)
+            {
+                Assert::AreEqual((bool) v, true);
+            }
+        }
+
+        static void callback2o(const jsrt::call_info &info, jsrt::optional<std::wstring> p1, std::vector<double> p2)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            if (p1.has_value())
+            {
+                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+            }
+            for (auto &v : p2)
+            {
+                Assert::AreEqual(v, 2.0);
+            }
+        }
+
+        static void callback1o(const jsrt::call_info &info, std::vector<std::wstring> p1)
+        {
+            Assert::AreEqual(info.callee().type(), JsFunction);
+            Assert::AreEqual(info.this_value().type(), JsObject);
+            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+            void *data = ((jsrt::external_object)info.this_value()).data();
+            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::IsFalse(info.is_construct_call());
+
+            for (auto &v : p1)
+            {
+                Assert::AreEqual(v, (std::wstring)L"foo");
+            }
+        }
+
+        MY_TEST_METHOD(strongly_typed_optional, "Test strongly typed functions with optional arguments.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object this_value = jsrt::external_object::create((void *) 0xdeadbeef);
+
+                auto f8o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, std::vector<double>>::create(callback8o);
+                f8o(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", { 8 });
+                f8o(this_value, jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), {});
+
+                auto f7o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, std::vector<std::wstring>>::create(callback7o);
+                f7o(this_value, L"foo", 2, true, L"bar", 5, false, { L"baz" });
+                f7o(this_value, jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), {});
+
+                auto f6o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, jsrt::optional<double>, std::vector<bool>>::create(callback6o);
+                f6o(this_value, L"foo", 2, true, L"bar", 5, { false });
+                f6o(this_value, jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), {});
+
+                auto f5o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, std::vector<double>>::create(callback5o);
+                f5o(this_value, L"foo", 2, true, L"bar", { 5 });
+                f5o(this_value, jsrt::missing(), jsrt::missing(), jsrt::missing(), jsrt::missing(), {});
+
+                auto f4o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, std::vector<std::wstring>>::create(callback4o);
+                f4o(this_value, L"foo", 2, true, { L"bar" });
+                f4o(this_value, jsrt::missing(), jsrt::missing(), jsrt::missing(), {});
+
+                auto f3o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, std::vector<bool>>::create(callback3o);
+                f3o(this_value, L"foo", 2, { true });
+                f3o(this_value, jsrt::missing(), jsrt::missing(), {});
+
+                auto f2o = jsrt::function<void, jsrt::optional<std::wstring>, std::vector<double>>::create(callback2o);
+                f2o(this_value, L"foo", { 2 });
+                f2o(this_value, jsrt::missing(), {});
+
+                auto f1o = jsrt::function<void, std::vector<std::wstring>>::create(callback1o);
+                f1o(this_value, { L"foo" });
+                f1o(this_value, {});
+            }
+            runtime.dispose();
+        }
+
         static jsrt::object callback8c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7, double p8)
         {
             Assert::AreEqual(info.callee().type(), JsFunction);

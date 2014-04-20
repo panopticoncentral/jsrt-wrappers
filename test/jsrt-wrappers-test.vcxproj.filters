@@ -62,9 +62,6 @@
     <ClCompile Include="optional.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rest.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="property_descriptor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

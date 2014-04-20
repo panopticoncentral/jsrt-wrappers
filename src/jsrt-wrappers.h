@@ -17,6 +17,7 @@
 /// \file
 /// \brief Wrappers to make working with Chakra's hosting API simpler in C++.
 
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <initializer_list>
@@ -911,6 +912,19 @@ namespace jsrt
     {
     };
 
+    template<class T> 
+    struct optional_string_type
+    {
+        // bogus incomplete type for T != std::wstring
+        struct type;
+    };
+
+    template<> 
+    struct optional_string_type<std::wstring>
+    {
+        typedef const wchar_t *type;
+    };
+
     /// <summary>
     ///     An optional value.
     /// </summary>
@@ -946,6 +960,14 @@ namespace jsrt
         optional(missing value) :
             _hasValue(false),
             _value()
+        {
+        }
+
+        /// <summary>
+        ///     Constructs an optional string value from a buffer.
+        /// </summary>
+        optional(typename optional_string_type<T>::type value) :
+            optional((std::wstring)value)
         {
         }
 
@@ -2298,38 +2320,6 @@ namespace jsrt
     };
 
     /// <summary>
-    ///     Represents a variable number of values.
-    /// </summary>
-    template<class T>
-    class rest : public optional<array<T>>
-    {
-    public:
-        /// <summary>
-        ///     Constructs a variable number of values with no values.
-        /// </summary>
-        rest() :
-            optional()
-        {
-        }
-
-        /// <summary>
-        ///     Constructs a variable number of values.
-        /// </summary>
-        rest(array<T> value) :
-            optional(value)
-        {
-        }
-
-        /// <summary>
-        ///     Constructs a missing rest value.
-        /// </summary>
-        rest(missing value) :
-            optional(value)
-        {
-        }
-    };
-
-    /// <summary>
     ///     Information about a function call.
     /// </summary>
     class call_info
@@ -2401,7 +2391,7 @@ namespace jsrt
         };
 
         template<class T>
-        static bool is_rest(rest<T> value)
+        static bool is_rest(std::vector<T> value)
         {
             return true;
         };
@@ -2428,7 +2418,7 @@ namespace jsrt
         {
             if (position > argument_count - 1)
             {
-                result = T();
+                result = missing();
             }
             else
             {
@@ -2436,7 +2426,7 @@ namespace jsrt
                 if (to_native(arguments[position], &nativeValue) != JsNoError)
                 {
                     context::set_exception(error::create_type_error(L"Could not convert value."));
-                    result = optional<T>();
+                    result = missing();
                 }
                 else
                 {
@@ -2448,57 +2438,46 @@ namespace jsrt
         }
 
         template<class T>
-        static bool argument_from_value(int position, JsValueRef *arguments, int argument_count, rest<T> &result)
+        static bool argument_from_value(int position, JsValueRef *arguments, int argument_count, std::vector<T> &result)
         {
+            bool succeeded = true;
+
             if (position < argument_count)
             {
-                array<T> rest;
-                
-                try
-                {
-                    rest = array<T>::create(argument_count - position);
-                }
-                catch (const exception &)
-                {
-                    context::set_exception(error::create(L"Unknown error."));
-                    return false;
-                }
-
-                for (int index = 0; index < argument_count - position; index++)
+                result = std::vector<T>(argument_count - position);
+                std::transform(arguments + position, arguments + argument_count, result.begin(), [&](JsValueRef v)
                 {
                     T value;
 
-                    if (to_native(arguments[position + index], &value) != JsNoError)
+                    if (to_native(v, &value) != JsNoError)
                     {
                         context::set_exception(error::create_type_error(L"Could not convert value."));
-                        return false;
+                        succeeded = true;
                     }
 
-                    rest[index] = value;
-                }
-
-                result = rest;
+                    return value;
+                });
             }
 
-            return true;
+            return succeeded;
         }
 
         template<class T>
-        static unsigned optional_argument_count(T value)
+        static size_t optional_argument_count(T value)
         {
             return 1;
         };
 
         template<class T>
-        static unsigned optional_argument_count(optional<T> value)
+        static size_t optional_argument_count(optional<T> value)
         {
             return value.has_value() ? 1 : 0;
         };
 
         template<class T>
-        static unsigned optional_argument_count(rest<T> value)
+        static size_t optional_argument_count(std::vector<T> &value)
         {
-            return value.has_value() ? (int) value.value().length() : 0;
+            return value.size();
         };
 
         template<class T>
@@ -2508,15 +2487,14 @@ namespace jsrt
         }
 
         template<class T>
-        static void fill_rest(rest<T> rest, unsigned start, std::vector<JsValueRef> &arguments)
+        static void fill_rest(std::vector<T> &rest, unsigned start, std::vector<JsValueRef> &arguments)
         {
-            if (rest.has_value())
+            std::transform(rest.begin(), rest.end(), arguments.begin() + start, [&](T v) 
             {
-                for (int index = 0; index < rest.value().length(); index++)
-                {
-                    runtime::translate_error_code(from_native((T) rest.value()[index], &arguments[start + index]));
-                }
-            }
+                JsValueRef value;
+                runtime::translate_error_code(from_native(v, &value));
+                return value;
+            });
         }
 
     protected:
@@ -2691,7 +2669,7 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2) +
                 optional_argument_count(p3) +
@@ -2749,7 +2727,7 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5, class P6, class P7>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2) +
                 optional_argument_count(p3) +
@@ -2803,7 +2781,7 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5, class P6>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2) +
                 optional_argument_count(p3) +
@@ -2853,7 +2831,7 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4, class P5>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2) +
                 optional_argument_count(p3) +
@@ -2899,7 +2877,7 @@ namespace jsrt
         template <class P1, class P2, class P3, class P4>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2) +
                 optional_argument_count(p3) +
@@ -2941,7 +2919,7 @@ namespace jsrt
         template <class P1, class P2, class P3>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2, P3 p3)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2) +
                 optional_argument_count(p3);
@@ -2979,7 +2957,7 @@ namespace jsrt
         template <class P1, class P2>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1, P2 p2)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1) +
                 optional_argument_count(p2);
             std::vector<JsValueRef> arguments(argument_count);
@@ -3013,7 +2991,7 @@ namespace jsrt
         template <class P1>
         static std::vector<JsValueRef> pack_arguments(value this_value, P1 p1)
         {
-            unsigned argument_count = 1 +
+            size_t argument_count = 1 +
                 optional_argument_count(p1);
             std::vector<JsValueRef> arguments(argument_count);
 
