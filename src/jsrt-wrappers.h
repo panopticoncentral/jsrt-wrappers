@@ -3188,6 +3188,20 @@ namespace jsrt
         {
             return function<R, Parameters...>::create(signature);
         }
+
+        /// <summary>
+        ///     Creates a new JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="signature">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        template<class R>
+        static function<R> create(R(*signature)(const jsrt::call_info &info))
+        {
+            return function<R>::create(signature);
+        }
     };
 
     /// <summary>
@@ -4763,7 +4777,7 @@ namespace jsrt
         /// <summary>
         ///     Creates a new property descriptor.
         /// </summary>
-        /// <returns>The new property descriptor.</summary>
+        /// <returns>The new property descriptor.</returns>
         static property_descriptor<T> create()
         {
             return (property_descriptor<T>)object::create();
@@ -4774,7 +4788,7 @@ namespace jsrt
         /// </summary>
         /// <param name="getter">The property getter.</param>
         /// <param name="setter">The property setter.</param>
-        /// <returns>The new property descriptor.</summary>
+        /// <returns>The new property descriptor.</returns>
         static property_descriptor<T> create(function<T> getter, function<void, T> setter)
         {
             property_descriptor<T> desc = (property_descriptor<T>)object::create();
