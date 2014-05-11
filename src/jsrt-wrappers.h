@@ -237,7 +237,7 @@ namespace jsrt
         ///     Translates a Chakra error code into a wrapper exception.
         /// </summary>
         /// <remarks>
-        ///     If the error code is not <c>JsNoError</c>, this will thrown the corresponding
+        ///     If the error code is not <c>JsNoError</c>, this will throw the corresponding
         ///     exception.
         /// </remarks>
         static void translate_error_code(JsErrorCode errorCode);
@@ -1572,8 +1572,6 @@ namespace jsrt
             runtime::translate_error_code(JsGetExtensionAllowed(handle(), &isExtensionaAllowed));
             return isExtensionaAllowed;
         }
-
-        typedef object prototype_type;
 
         /// <summary>
         ///     Returns the prototype of an object.
@@ -3242,18 +3240,18 @@ namespace jsrt
         /// <summary>
         ///     The object that will be the prototype of objects created by this function.
         /// </summary>
-        typename R::prototype_type constructor_prototype()
+        typename object constructor_prototype()
         {
-            return get_property<R::prototype_type>(property_id::create(L"prototype"));
+            return get_property<object>(property_id::create(L"prototype"));
         }
 
         /// <summary>
         ///     Sets the object that will be the prototype of objects created by this function.
         /// </summary>
         /// <param name="prototype">The prototype object.</param>
-        void set_constructor_prototype(typename R::prototype_type prototype)
+        void set_constructor_prototype(typename object prototype)
         {
-            return set_property<R::prototype_type>(property_id::create(L"prototype"), prototype);
+            return set_property<object>(property_id::create(L"prototype"), prototype);
         }
     };
 
