@@ -321,23 +321,8 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
-        static void bad(const jsrt::call_info &info)
-        {
-            throw 0;
-        }
-
-        MY_TEST_METHOD(fatal, "Test fatal_exception.")
-        {
-            jsrt::runtime runtime = jsrt::runtime::create(JsRuntimeAttributeAllowScriptInterrupt);
-            jsrt::context context = runtime.create_context();
-            {
-                jsrt::context::scope scope(context);
-                jsrt::context::global().set_property(jsrt::property_id::create(L"bad"),
-                    jsrt::function<void>::create(bad));
-                TEST_FAILED_CALL(jsrt::context::run(L"bad()"), fatal_exception);
-            }
-            runtime.dispose();
-        }
+        // Can't test fatal_exception since there's no scenario where we can generate it & it's not
+        // a bug...
 
         MY_TEST_METHOD(script, "Test script_exception.")
         {

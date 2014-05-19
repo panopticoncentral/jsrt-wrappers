@@ -1160,5 +1160,33 @@ namespace jsrtwrapperstest
             }
             runtime.dispose();
         }
+
+        static void callback_throws(const jsrt::call_info &info)
+        {
+            throw 5;
+        }
+
+        MY_TEST_METHOD(throws, "Test function that throws and doesn't guard.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object this_value = jsrt::external_object::create((void *) 0xdeadbeef);
+
+                auto t = jsrt::function<void>::create(callback_throws);
+                bool threw = false;
+                try
+                {
+                    t(this_value);
+                }
+                catch (const jsrt::script_exception &)
+                {
+                    threw = true;
+                }
+                Assert::IsTrue(threw);
+            }
+            runtime.dispose();
+        }
     };
 }

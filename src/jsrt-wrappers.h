@@ -3090,7 +3090,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            value result = callback(info, argument_vector);
+            value result = value();
+            try
+            {
+                result = callback(info, argument_vector);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3391,7 +3400,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3471,7 +3489,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
+            try
+            {
+                callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -3534,7 +3560,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2, p3, p4, p5, p6, p7);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2, p3, p4, p5, p6, p7);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3613,7 +3648,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2, p3, p4, p5, p6, p7);
+            try
+            {
+                callback(info, p1, p2, p3, p4, p5, p6, p7);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -3675,7 +3718,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2, p3, p4, p5, p6);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2, p3, p4, p5, p6);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3753,7 +3805,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2, p3, p4, p5, p6);
+            try
+            {
+                callback(info, p1, p2, p3, p4, p5, p6);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -3814,7 +3874,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2, p3, p4, p5);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2, p3, p4, p5);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -3891,7 +3960,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2, p3, p4, p5);
+            try
+            {
+                callback(info, p1, p2, p3, p4, p5);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -3951,7 +4028,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2, p3, p4);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2, p3, p4);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -4027,7 +4113,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2, p3, p4);
+            try
+            {
+                callback(info, p1, p2, p3, p4);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -4086,7 +4180,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2, p3);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2, p3);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -4161,7 +4264,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2, p3);
+            try
+            {
+                callback(info, p1, p2, p3);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -4219,7 +4330,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1, p2);
+            R result = R();
+            try
+            {
+                result = callback(info, p1, p2);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -4293,7 +4413,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1, p2);
+            try
+            {
+                callback(info, p1, p2);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -4350,7 +4478,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info, p1);
+            R result = R();
+            try
+            {
+                result = callback(info, p1);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -4423,7 +4560,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info, p1);
+            try
+            {
+                callback(info, p1);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
@@ -4479,7 +4624,16 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            R result = callback(info);
+            R result = R();
+            try
+            {
+                result = callback(info);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             JsValueRef resultValue;
             if (from_native(result, &resultValue) != JsNoError)
@@ -4551,7 +4705,15 @@ namespace jsrt
             }
 
             Signature callback = (Signature) callback_state;
-            callback(info);
+            try
+            {
+                callback(info);
+            }
+            catch (...)
+            {
+                context::set_exception(error::create(L"Fatal error."));
+                return JS_INVALID_REFERENCE;
+            }
 
             return JS_INVALID_REFERENCE;
         }
