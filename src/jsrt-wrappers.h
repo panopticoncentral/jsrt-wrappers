@@ -1253,7 +1253,7 @@ namespace jsrt
     public:
         /// <summary>
         ///     Creates an invalid value handle.
-        /// <summary>
+        /// </summary>
         boolean() :
             value()
         {
@@ -1261,7 +1261,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to a <c>boolean</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -1354,7 +1354,7 @@ namespace jsrt
     public:
         /// <summary>
         ///     Creates an invalid value handle.
-        /// <summary>
+        /// </summary>
         number() :
             value()
         {
@@ -1362,7 +1362,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to a <c>number</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -1442,7 +1442,7 @@ namespace jsrt
     public:
         /// <summary>
         ///     Creates an invalid value handle.
-        /// <summary>
+        /// </summary>
         string() :
             value()
         {
@@ -1450,7 +1450,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to a <c>string</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -1535,7 +1535,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to an <c>object</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -1906,7 +1906,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to an external <c>object</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -2057,7 +2057,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to an <c>array</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -2129,7 +2129,7 @@ namespace jsrt
 
     /// <summary>
     ///     A reference to a JavaScript error.
-    /// <summary>
+    /// </summary>
     class error : public object
     {
         friend class value;
@@ -2163,7 +2163,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to an <c>error</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -3122,7 +3122,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to a <c>function</c> handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -4829,7 +4829,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to a property descriptor handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -5104,7 +5104,7 @@ namespace jsrt
 
         /// <summary>
         ///     Converts the <c>value</c> handle to a compile error handle.
-        /// <summary>
+        /// </summary>
         /// <remarks>
         ///     The type of the underlying value is not checked.
         /// </remarks>
@@ -5162,7 +5162,7 @@ namespace jsrt
     public:
         /// <summary>
         ///     Creates a compile exception with the specified error.
-        /// <summary>
+        /// </summary>
         /// <param name="error">The compile error.</param>
         script_compile_exception(compile_error error) :
             _error(error)
