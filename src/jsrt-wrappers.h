@@ -1034,13 +1034,29 @@ namespace jsrt
         template<>
         static JsErrorCode to_native<double>(JsValueRef value, double *result)
         {
-            return JsNumberToDouble(value, result);
+			//make sure value is of the correct type
+			JsValueRef typeValue = nullptr;
+			JsValueType type;
+			JsErrorCode error = JsGetValueType(value, &type);
+			if (error != JsNoError) return error;
+			if (type != JsNumber) JsConvertValueToNumber(value, &typeValue);
+			else typeValue = value; 
+			
+			return JsNumberToDouble(typeValue, result);
         }
 
         template<>
         static JsErrorCode to_native<bool>(JsValueRef value, bool *result)
         {
-            return JsBooleanToBool(value, result);
+			//make sure value is of the correct type
+			JsValueRef typeValue = nullptr;
+			JsValueType type;
+			JsErrorCode error = JsGetValueType(value, &type);
+			if (error != JsNoError) return error;
+			if (type != JsBoolean) JsConvertValueToBoolean(value, &typeValue);
+			else typeValue = value;
+			
+			return JsBooleanToBool(typeValue, result);
         }
 
         template<>
@@ -1048,7 +1064,8 @@ namespace jsrt
         {
             JsValueType type;
             JsErrorCode error = JsGetValueType(value, &type);
-            if (error != JsNoError)
+			JsValueRef strValue=nullptr;
+			if (error != JsNoError)
             {
                 return error;
             }
@@ -1057,11 +1074,17 @@ namespace jsrt
             {
                 *result = std::wstring();
             }
-            else
-            {
+			else if (type != JsString) {
+				error = JsConvertValueToString(value, &strValue);
+			}
+			else strValue = value;
+            
+			if (type != JsNull && error == JsNoError)
+			{
                 const wchar_t *resultptr = nullptr;
                 size_t length;
-                error = JsStringToPointer(value, &resultptr, &length);
+
+                error = JsStringToPointer(strValue, &resultptr, &length);
                 if (error == JsNoError)
                 {
                     *result = std::wstring(resultptr, length);
