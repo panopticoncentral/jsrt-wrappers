@@ -5011,99 +5011,136 @@ namespace jsrt
     /// <summary>
     ///     An exception used to indicate failure of a JsRT call.
     /// </summary>
-    class exception
+    class exception  
     {
     protected:
-        exception() { }
+		JsErrorCode _errNumber;
+		
+		exception() : _errNumber(JsErrorCode::JsNoError) { }
+		exception(JsErrorCode err) : _errNumber(err) {}
+	public:
+		std::wstring what() const
+		{
+			wchar_t _errDesc[25];
+			if (_errNumber & JsErrorCode::JsErrorCategoryUsage)        swprintf_s(_errDesc, 25, L"Usage error %X", _errNumber);
+			else if (_errNumber & JsErrorCode::JsErrorCategoryEngine)  swprintf_s(_errDesc, 25, L"Engine error %X", _errNumber);
+			else if (_errNumber & JsErrorCode::JsErrorCategoryFatal)   swprintf_s(_errDesc, 25, L"Fatal error %X", _errNumber);
+			else if (_errNumber & JsErrorCode::JsErrorCategoryScript)  swprintf_s(_errDesc, 25, L"Script error %X", _errNumber);
+			else swprintf_s(_errDesc, 25, L"Unknown error %X", _errNumber);
+			return _errDesc;
+		}
+		JsErrorCode error() { return _errNumber; }
     };
 
     class invalid_argument_exception : public exception
     {
+	public: invalid_argument_exception() : exception(JsErrorCode::JsErrorInvalidArgument){}
     };
 
     class out_of_memory_exception : public exception
     {
+	public: out_of_memory_exception() : exception(JsErrorCode::JsErrorOutOfMemory){}
     };
 
     class in_disabled_state_exception : public exception
     {
-    };
+	public: in_disabled_state_exception() : exception(JsErrorCode::JsErrorInDisabledState){}
+	};
 
     class null_argument_exception : public exception
     {
-    };
+	public: null_argument_exception() : exception(JsErrorCode::JsErrorNullArgument){}
+	};
 
     class no_current_context_exception : public exception
     {
-    };
+	public: no_current_context_exception() : exception(JsErrorCode::JsErrorNoCurrentContext){}
+	};
 
     class in_exception_state_exception : public exception
     {
-    };
+	public: in_exception_state_exception() : exception(JsErrorCode::JsErrorInExceptionState){}
+	};
 
     class not_implemented_exception : public exception
     {
-    };
+	public: not_implemented_exception() : exception(JsErrorCode::JsErrorNotImplemented){}
+	};
 
     class wrong_thread_exception : public exception
     {
-    };
+	public: wrong_thread_exception() : exception(JsErrorCode::JsErrorWrongThread){}
+	};
 
     class runtime_in_use_exception : public exception
     {
-    };
+	public: runtime_in_use_exception() : exception(JsErrorCode::JsErrorRuntimeInUse){}
+	};
 
     class cannot_disable_execution_exception : public exception
     {
-    };
+	public: cannot_disable_execution_exception() : exception(JsErrorCode::JsErrorCannotDisableExecution){}
+	};
 
     class heap_enum_in_progress_exception : public exception
     {
-    };
+	public: heap_enum_in_progress_exception() : exception(JsErrorCode::JsErrorHeapEnumInProgress){}
+	};
 
     class argument_not_object_exception : public exception
     {
-    };
+	public: argument_not_object_exception() : exception(JsErrorCode::JsErrorArgumentNotObject){}
+	};
 
     class in_profile_callback_exception : public exception
     {
-    };
+	public: in_profile_callback_exception() : exception(JsErrorCode::JsErrorInProfileCallback){}
+	};
 
     class in_thread_service_callback_exception : public exception
     {
-    };
+	public: in_thread_service_callback_exception() : exception(JsErrorCode::JsErrorInThreadServiceCallback){}
+	};
 
     class cannot_serialize_debug_script_exception : public exception
     {
-    };
+	public: cannot_serialize_debug_script_exception() : exception(JsErrorCode::JsErrorCannotSerializeDebugScript){}
+	};
 
     class already_debugging_context_exception : public exception
     {
-    };
+	public: already_debugging_context_exception() : exception(JsErrorCode::JsErrorAlreadyDebuggingContext){}
+	};
 
     class already_profiling_context_exception : public exception
     {
-    };
+	public: already_profiling_context_exception() : exception(JsErrorCode::JsErrorAlreadyProfilingContext){}
+	};
 
     class idle_not_enabled_exception : public exception
     {
-    };
+	public: idle_not_enabled_exception() : exception(JsErrorCode::JsErrorIdleNotEnabled){}
+	};
 
     class bad_serialized_script_exception : public exception
     {
-    };
+	public: bad_serialized_script_exception() : exception(JsErrorCode::JsErrorBadSerializedScript){}
+	};
 
     class script_terminated_exception : public exception
     {
-    };
+	public: script_terminated_exception() : exception(JsErrorCode::JsErrorScriptTerminated){}
+	};
 
     class script_eval_disabled_exception : public exception
     {
-    };
+	public: script_eval_disabled_exception() : exception(JsErrorCode::JsErrorScriptEvalDisabled){}
+	};
 
     class fatal_exception : public exception
     {
-    };
+	public: fatal_exception() : exception(JsErrorCode::JsErrorFatal){}
+	};
 
     class script_exception : public exception
     {
@@ -5116,7 +5153,7 @@ namespace jsrt
         /// </summary>
         /// <param name="error">The script error.</param>
         script_exception(value error) :
-            _error(error)
+			_error(error), exception(JsErrorCode::JsErrorScriptException)
         {
         }
 
@@ -5127,6 +5164,12 @@ namespace jsrt
         {
             return _error;
         }
+
+		std::wstring what() const
+		{
+			object err(_error);
+			return err.get_property<std::wstring>(jsrt::property_id::create(L"stack"));
+		}
     };
 
     /// <summary>
@@ -5215,7 +5258,7 @@ namespace jsrt
         /// </summary>
         /// <param name="error">The compile error.</param>
         script_compile_exception(compile_error error) :
-            _error(error)
+			_error(error), exception(JsErrorCode::JsErrorScriptCompile)
         {
         }
 
@@ -5226,5 +5269,11 @@ namespace jsrt
         {
             return _error;
         }
+
+		std::wstring what() const
+		{
+			return L"Compile error: " + error().message() +
+				L" at line " + std::to_wstring((int)error().line()) + L" column " + std::to_wstring((int)error().column());
+		}
     };
 }
