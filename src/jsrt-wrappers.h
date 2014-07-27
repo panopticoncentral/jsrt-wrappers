@@ -2676,10 +2676,9 @@ namespace jsrt
         {
             value_arguments = std::vector<value>(argument_count - 1);
 
-            JsValueRef *current = arguments + 1;
             for (int index = 1; index < argument_count; index++)
             {
-                value_arguments[index] = value(current);
+				value_arguments[index - 1] = value(arguments[index]);
             }
 
             info = call_info(value(callee), value(arguments[0]), is_construct_call);
