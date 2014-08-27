@@ -14,7 +14,7 @@
 
 #include "stdafx.h"
 #include "jsrt-wrappers.h"
-
+#include "jsrt-proxy_object.h"
 namespace jsrt
 {
     void runtime::dispose()
