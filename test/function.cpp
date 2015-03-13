@@ -66,7 +66,7 @@ namespace jsrtwrapperstest
 
             TEST_NO_CONTEXT_CALL(jsrt::function_base::create(nullptr));
             TEST_NO_CONTEXT_CALL(base_function(jsrt::value(), {}));
-            TEST_NO_CONTEXT_CALL(base_function.construct(jsrt::value(), {}));
+            TEST_NO_CONTEXT_CALL(base_function.construct({}));
             TEST_NO_CONTEXT_CALL((jsrt::function<double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(nullptr)));
             TEST_NO_CONTEXT_CALL((f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
             TEST_NO_CONTEXT_CALL((jsrt::function<double, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(nullptr)));
@@ -151,7 +151,7 @@ namespace jsrtwrapperstest
                 jsrt::function<jsrt::object, std::wstring> f1c;
                 jsrt::function<jsrt::object> f0c;
                 TEST_NULL_ARG_CALL(func(jsrt::value(), {}));
-                TEST_NULL_ARG_CALL(func.construct(jsrt::value(), {}));
+                TEST_NULL_ARG_CALL(func.construct({}));
                 TEST_NULL_ARG_CALL((f8(jsrt::value(), L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
                 TEST_NULL_ARG_CALL((f7(jsrt::value(), L"foo", 2, true, L"bar", 5, false, L"baz")));
                 TEST_NULL_ARG_CALL((f6(jsrt::value(), L"foo", 2, true, L"bar", 5, false)));
@@ -187,6 +187,13 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
+
+            Assert::AreEqual(arguments.size(), (size_t)2);
+            Assert::AreEqual(arguments[0].type(), JsNumber);
+            Assert::AreEqual(((jsrt::number)arguments[0]).data(), 1.0);
+            Assert::AreEqual(arguments[1].type(), JsNumber);
+            Assert::AreEqual(((jsrt::number)arguments[1]).data(), 2.0);
+
             if (((jsrt::object)info.this_value()).is_external())
             {
                 void *data = ((jsrt::external_object)info.this_value()).data();
@@ -226,11 +233,11 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::function_base func = jsrt::function_base::create(base_callback);
-                jsrt::value result = func(jsrt::external_object::create((void *) 0xdeadbeef), { jsrt::number::create(1) });
+                jsrt::value result = func(jsrt::external_object::create((void *) 0xdeadbeef), { jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsNumber);
                 Assert::AreEqual(((jsrt::number)result).data(), 2.0);
 
-                result = func.construct(jsrt::external_object::create((void *) 0xdeadc0de), { jsrt::number::create(1) });
+                result = func.construct({ jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsObject);
                 Assert::IsTrue(((jsrt::object)result).is_external());
                 Assert::AreEqual(((jsrt::external_object)result).data(), (void *) 0xdeadc0de);

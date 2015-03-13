@@ -2653,10 +2653,9 @@ namespace jsrt
         {
             value_arguments = std::vector<value>(argument_count - 1);
 
-            JsValueRef *current = arguments + 1;
-            for (int index = 1; index < argument_count; index++)
+            for (int index = 0; index < argument_count - 1; index++)
             {
-                value_arguments[index] = value(current);
+                value_arguments[index] = value(arguments[index + 1]);
             }
 
             info = call_info(value(callee), value(arguments[0]), is_construct_call);
@@ -3145,7 +3144,7 @@ namespace jsrt
             std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) call_arguments.data(), (unsigned short)arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) call_arguments.data(), (unsigned short) call_arguments.size(), &resultValue));
             return value(resultValue);
         }
 
@@ -3155,15 +3154,14 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
-        /// <param name="this_value">The value of <c>this</c> for the call.</param>
         /// <param name="arguments">Arguments to the constructor call.</param>
         /// <returns>The result of the constructor call.</returns>
-        value construct(value this_value, std::initializer_list<value> arguments)
+        value construct(std::initializer_list<value> arguments)
         {
-            std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
+            std::vector<JsValueRef> call_arguments = pack_arguments(value(), arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *) call_arguments.data(), (unsigned short)arguments.size(), &resultValue));
+            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *) call_arguments.data(), (unsigned short) call_arguments.size(), &resultValue));
             return value(resultValue);
         }
 
