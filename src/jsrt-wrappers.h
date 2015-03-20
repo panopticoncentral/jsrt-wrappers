@@ -1018,9 +1018,16 @@ namespace jsrt
         template<class T>
         static JsErrorCode to_native(JsValueRef value, optional<T> *result)
         {
-            *result = T();
-            // We should never get here with an optional value.
-            return JsErrorInvalidArgument;
+            T innerValue;
+            JsErrorCode error = to_native(value, &innerValue);
+
+            if (error != JsNoError)
+            {
+                return error;
+            }
+
+            *result = optional<T>(innerValue);
+            return JsNoError;
         }
 
         template<>
