@@ -13,3 +13,13 @@ win8.1/src/x64/
 win8.1/test/Debug/
 win8.1/test/Release/
 win8.1/test/x64/
+win10/ie/ipch/
+win10/ie/Debug/
+win10/ie/Release/
+win10/ie/x64/
+win10/ie/src/Debug/
+win10/ie/src/Release/
+win10/ie/src/x64/
+win10/ie/test/Debug/
+win10/ie/test/Release/
+win10/ie/test/x64/
