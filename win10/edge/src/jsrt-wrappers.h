@@ -320,6 +320,26 @@ namespace jsrt
             return count;
         }
 
+        /// <summary>
+        ///     Sets a callback function that is called by the runtime before garbage collection of an
+        ///     object.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     The callback is invoked on the current runtime execution thread, therefore execution is 
+        ///     blocked until the callback completes.
+        ///     </para>
+        ///     <para>
+        ///     The callback can be used by hosts to prepare for garbage collection. For example, by 
+        ///     releasing unnecessary references on Chakra objects.
+        ///     </para>
+        /// </remarks>
+        /// <param name="callback_state">
+        ///     User provided state that will be passed back to the callback.
+        /// </param>
+        /// <param name="beforeCollectCallback">The callback function being set.</param>
+        void set_before_collect_callback(void *callback_state, JsObjectBeforeCollectCallback beforeCollectCallback);
+
         bool operator ==(const reference &other)
         {
             return this->handle() == other.handle();

@@ -239,6 +239,11 @@ namespace jsrt
         return context(newContext);
     }
 
+    void reference::set_before_collect_callback(void *callback_state, JsObjectBeforeCollectCallback beforeCollectCallback)
+    {
+        runtime::translate_error_code(JsSetObjectBeforeCollectCallback(_ref, callback_state, beforeCollectCallback));
+    }
+
     void context::start_debugging()
     {
         runtime::translate_error_code(JsStartDebugging());

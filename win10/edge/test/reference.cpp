@@ -50,23 +50,36 @@ namespace jsrtwrapperstest
         {
             jsrt::context context;
 
-            try
-            {
-                context.add_reference();
-                Assert::Fail();
-            }
-            catch (jsrt::null_argument_exception)
-            {
-            }
+            TEST_NULL_ARG_CALL(context.add_reference());
+            TEST_NULL_ARG_CALL(context.release());
+            TEST_NULL_ARG_CALL(context.set_before_collect_callback(nullptr, nullptr))
+        }
 
-            try
+        static int callback_count;
+
+        static void CALLBACK collect_callback(JsRef ref, void *callbackState)
+        {
+            Assert::AreEqual(callbackState, (void *)0xdeadbeef);
+            TEST_FAILED_CALL(jsrt::error::create(L"test"), in_object_before_collect_callback_exception);
+            callback_count++;
+        }
+
+        MY_TEST_METHOD(collection_and_callbacks, "Test ::set_before_collect_callback.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            callback_count = 0;
             {
-                context.release();
-                Assert::Fail();
+                jsrt::context context = runtime.create_context();
+                jsrt::context::scope scope(context);
+                jsrt::object object = jsrt::object::create();
+                object.set_before_collect_callback((void *)0xdeadbeef, collect_callback);
+                object = jsrt::object();
+                runtime.collect_garbage();
             }
-            catch (jsrt::null_argument_exception)
-            {
-            }
+            Assert::AreNotEqual(callback_count, 0);
+            runtime.dispose();
         }
     };
+
+    int reference::callback_count = 0;
 }
