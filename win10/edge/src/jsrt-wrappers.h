@@ -5024,6 +5024,30 @@ namespace jsrt
     {
     };
 
+    class cannot_set_projection_enqueue_callback_exception : public exception
+    {
+    };
+
+    class cannot_start_projection_exception : public exception
+    {
+    };
+
+    class in_object_before_collect_callback_exception : public exception
+    {
+    };
+
+    class object_not_inspectable_exception : public exception
+    {
+    };
+
+    class property_not_symbol_exception : public exception
+    {
+    };
+
+    class property_not_string_exception : public exception
+    {
+    };
+
     class bad_serialized_script_exception : public exception
     {
     };

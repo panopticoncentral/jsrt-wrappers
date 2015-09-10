@@ -175,6 +175,18 @@ namespace jsrt
             throw already_profiling_context_exception();
         case JsErrorIdleNotEnabled:
             throw idle_not_enabled_exception();
+        case JsCannotSetProjectionEnqueueCallback:
+            throw cannot_set_projection_enqueue_callback_exception();
+        case JsErrorCannotStartProjection:
+            throw cannot_start_projection_exception();
+        case JsErrorInObjectBeforeCollectCallback:
+            throw in_object_before_collect_callback_exception();
+        case JsErrorObjectNotInspectable:
+            throw object_not_inspectable_exception();
+        case JsErrorPropertyNotSymbol:
+            throw property_not_symbol_exception();
+        case JsErrorPropertyNotString:
+            throw property_not_string_exception();
         case JsErrorOutOfMemory:
             throw out_of_memory_exception();
         case JsErrorScriptException:
