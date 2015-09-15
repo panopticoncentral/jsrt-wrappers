@@ -178,8 +178,7 @@ namespace jsrtwrapperstest
                 object.set_property(jsrt::property_id::create(L"x"), L"foo");
                 object.set_property(jsrt::property_id::create(L"y"), object);
 
-                TEST_INVALID_ARG_CALL(object.get_property<int>(jsrt::property_id::create(L"foo")));
-                Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(L"foo")), 10.0);
+                Assert::AreEqual(object.get_property<int>(jsrt::property_id::create(L"foo")), 10);
                 Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(L"bar")), 20.0);
                 Assert::AreEqual(object.get_property<bool>(jsrt::property_id::create(L"baz")), true);
                 Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(L"x")), (std::wstring)L"foo");
@@ -219,8 +218,7 @@ namespace jsrtwrapperstest
                 object.set_property(jsrt::property_id::create(x), L"foo");
                 object.set_property(jsrt::property_id::create(y), object);
 
-                TEST_INVALID_ARG_CALL(object.get_property<int>(jsrt::property_id::create(foo)));
-                Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(foo)), 10.0);
+                Assert::AreEqual(object.get_property<int>(jsrt::property_id::create(foo)), 10);
                 Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(bar)), 20.0);
                 Assert::AreEqual(object.get_property<bool>(jsrt::property_id::create(baz)), true);
                 Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(x)), (std::wstring)L"foo");

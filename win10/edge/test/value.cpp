@@ -55,7 +55,8 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(jsrt::boolean::false_value());
             TEST_NO_CONTEXT_CALL(((jsrt::boolean)value).data());
             TEST_NO_CONTEXT_CALL(jsrt::number::create(1.0));
-            TEST_NO_CONTEXT_CALL(((jsrt::number)value).data());
+            TEST_NO_CONTEXT_CALL(((jsrt::number)value).as_double());
+            TEST_NO_CONTEXT_CALL(((jsrt::number)value).as_int());
             TEST_NO_CONTEXT_CALL(jsrt::string::create(L"foo"));
             TEST_NO_CONTEXT_CALL(((jsrt::string)value).data());
             TEST_NO_CONTEXT_CALL(((jsrt::string)value).length());
@@ -75,7 +76,8 @@ namespace jsrtwrapperstest
                 jsrt::boolean boolean;
                 TEST_NULL_ARG_CALL(boolean.data());
                 jsrt::number number;
-                TEST_NULL_ARG_CALL(number.data());
+                TEST_NULL_ARG_CALL(number.as_int());
+                TEST_NULL_ARG_CALL(number.as_double());
                 jsrt::string string;
                 TEST_NULL_ARG_CALL(string.data());
                 TEST_NULL_ARG_CALL(string.length());
@@ -125,7 +127,7 @@ namespace jsrtwrapperstest
                 v.intVal = 42;
                 jsrt::value value = jsrt::value::from_variant(&v);
                 Assert::AreEqual((int) value.type(), (int) JsNumber);
-                Assert::AreEqual(((jsrt::number) value).data(), 42.0);
+                Assert::AreEqual(((jsrt::number) value).as_int(), 42);
                 value = jsrt::number::create(32);
                 value.to_variant(&v);
                 Assert::AreEqual((int) v.vt, (int) VT_I4);
@@ -176,9 +178,9 @@ namespace jsrtwrapperstest
                 jsrt::value value = jsrt::number::create(1.0);
                 jsrt::number number = jsrt::number::convert(value);
                 Assert::AreEqual(value.type(), JsNumber);
-                Assert::AreEqual(number.data(), 1.0);
+                Assert::AreEqual(number.as_double(), 1.0);
                 number = jsrt::number::create(42);
-                Assert::AreEqual(number.data(), 42.0);
+                Assert::AreEqual(number.as_int(), 42);
             }
             runtime.dispose();
         }

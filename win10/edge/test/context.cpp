@@ -153,7 +153,7 @@ namespace jsrtwrapperstest
                 jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse(L"1 + 2");
                 Assert::AreEqual(func1(jsrt::context::undefined()), 3.0);
                 jsrt::context::run(L"function foo() { return 1 + 2; }");
-                Assert::AreEqual(((jsrt::number)jsrt::context::evaluate(L"foo()")).data(), 3.0);
+                Assert::AreEqual(((jsrt::number)jsrt::context::evaluate(L"foo()")).as_int(), 3);
             }
             runtime.dispose();
         }
@@ -185,7 +185,7 @@ namespace jsrtwrapperstest
                 byte *buffer3 = new byte[func3_size];
                 jsrt::context::serialize(script3, buffer3, func3_size);
                 TEST_NULL_ARG_CALL(jsrt::context::evaluate_serialized(script3, nullptr));
-                Assert::AreEqual(((jsrt::number)jsrt::context::evaluate_serialized(script3, buffer3)).data(), 3.0);
+                Assert::AreEqual(((jsrt::number)jsrt::context::evaluate_serialized(script3, buffer3)).as_int(), 3);
 
                 delete[] buffer1;
                 delete[] buffer2;

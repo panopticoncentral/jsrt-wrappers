@@ -190,9 +190,9 @@ namespace jsrtwrapperstest
 
             Assert::AreEqual(arguments.size(), (size_t)2);
             Assert::AreEqual(arguments[0].type(), JsNumber);
-            Assert::AreEqual(((jsrt::number)arguments[0]).data(), 1.0);
+            Assert::AreEqual(((jsrt::number)arguments[0]).as_int(), 1);
             Assert::AreEqual(arguments[1].type(), JsNumber);
-            Assert::AreEqual(((jsrt::number)arguments[1]).data(), 2.0);
+            Assert::AreEqual(((jsrt::number)arguments[1]).as_int(), 2);
 
             if (((jsrt::object)info.this_value()).is_external())
             {
@@ -235,7 +235,7 @@ namespace jsrtwrapperstest
                 jsrt::function_base func = jsrt::function_base::create(base_callback);
                 jsrt::value result = func(jsrt::external_object::create((void *) 0xdeadbeef), { jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsNumber);
-                Assert::AreEqual(((jsrt::number)result).data(), 2.0);
+                Assert::AreEqual(((jsrt::number)result).as_int(), 2);
 
                 result = func.construct({ jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsObject);

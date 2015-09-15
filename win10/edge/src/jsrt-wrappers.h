@@ -1095,9 +1095,7 @@ namespace jsrt
         template<>
         static JsErrorCode to_native<int>(JsValueRef value, int *result)
         {
-            // This may work in the future, so we want to prevent it from
-            // falling back to the general case above.
-            return JsErrorInvalidArgument;
+            return JsNumberToInt(value, result);
         }
 
         template<>
@@ -1441,13 +1439,27 @@ namespace jsrt
         }
 
         /// <summary>
+        ///     Retrieves the <c>int</c> value of a number value.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>The <c>int</c> value.</returns>
+        int as_int()
+        {
+            int result;
+            runtime::translate_error_code(to_native(_ref, &result));
+            return result;
+        }
+
+        /// <summary>
         ///     Retrieves the <c>double</c> value of a number value.
         /// </summary>
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The <c>double</c> value.</returns>
-        double data()
+        double as_double()
         {
             double result;
             runtime::translate_error_code(to_native(_ref, &result));
