@@ -2209,23 +2209,23 @@ namespace jsrt
         }
 
         /// <summary>
-        ///     Gets the length of an array value.
+        ///     Gets the size of an array value.
         /// </summary>
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
-        /// <returns>The length of the array.</returns>
-        int length()
+        /// <returns>The size of the array.</returns>
+        int size()
         {
             JsPropertyIdRef lengthName;
             JsValueRef lengthValue;
-            double lengthDouble;
+            int length;
 
             // CONSIDER: Caching this somewhere?
             runtime::translate_error_code(JsGetPropertyIdFromName(L"length", &lengthName));
             runtime::translate_error_code(JsGetProperty(handle(), lengthName, &lengthValue));
-            runtime::translate_error_code(JsNumberToDouble(lengthValue, &lengthDouble));
-            return (int) lengthDouble;
+            runtime::translate_error_code(JsNumberToInt(lengthValue, &length));
+            return length;
         }
 
         /// <summary>

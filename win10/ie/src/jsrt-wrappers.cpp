@@ -351,7 +351,7 @@ namespace jsrt
 
         auto namesArray = array<std::wstring>(names);
 
-        for (int index = 0; index < namesArray.length(); index++)
+        for (int index = 0; index < namesArray.size(); index++)
         {
             namesVector.push_back(namesArray[index]);
         }

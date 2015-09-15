@@ -35,7 +35,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             jsrt::array<> array;
             TEST_NO_CONTEXT_CALL(jsrt::array<>::create(0));
-            TEST_NO_CONTEXT_CALL(array.length());
+            TEST_NO_CONTEXT_CALL(array.size());
             TEST_NO_CONTEXT_CALL(array[0]);
             TEST_NO_CONTEXT_CALL(array[0] = jsrt::value());
             runtime.dispose();
@@ -48,7 +48,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::array<> array;
-                TEST_NULL_ARG_CALL(array.length());
+                TEST_NULL_ARG_CALL(array.size());
                 TEST_NULL_ARG_CALL((jsrt::value)array[0]);
                 TEST_NULL_ARG_CALL(array[0] = jsrt::value());
             }
@@ -95,7 +95,7 @@ namespace jsrtwrapperstest
                 Assert::AreEqual((std::wstring) sarray[0], (std::wstring)L"foo");
                 Assert::AreEqual((std::wstring) sarray[1], (std::wstring)L"bar");
 
-                Assert::AreEqual(sarray.length(), 2);
+                Assert::AreEqual(sarray.size(), 2);
             }
             runtime.dispose();
         }

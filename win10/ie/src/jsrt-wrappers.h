@@ -2079,13 +2079,13 @@ namespace jsrt
         }
 
         /// <summary>
-        ///     Gets the length of an array value.
+        ///     Gets the size of an array value.
         /// </summary>
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
-        /// <returns>The length of the array.</returns>
-        int length()
+        /// <returns>The size of the array.</returns>
+        int size()
         {
             JsPropertyIdRef lengthName;
             JsValueRef lengthValue;
