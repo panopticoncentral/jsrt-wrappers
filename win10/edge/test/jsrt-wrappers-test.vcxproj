@@ -91,6 +91,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="array.cpp" />
+    <ClCompile Include="array_buffer.cpp" />
     <ClCompile Include="bound_function.cpp" />
     <ClCompile Include="context.cpp" />
     <ClCompile Include="error.cpp" />

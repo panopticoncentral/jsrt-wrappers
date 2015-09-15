@@ -2265,6 +2265,94 @@ namespace jsrt
     };
 
     /// <summary>
+    ///     A reference to an ArrayBuffer.
+    /// </summary>
+    class array_buffer : public object
+    {
+    private:
+        explicit array_buffer(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
+    public:
+        /// <summary>
+        ///     Creates an invalid handle to an ArrayBuffer.
+        /// </summary>
+        array_buffer() :
+            object()
+        {
+        }
+
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an <c>array_buffer</c> handle.
+        /// </summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
+        explicit array_buffer(value object) :
+            object(object.handle())
+        {
+        }
+
+        /// <summary>
+        ///     Retrieves the data from the ArrayBuffer.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        ///     <para>
+        ///     The lifetime of the data returned is the same as the lifetime of the ArrayBuffer.
+        ///     The pointer does not count as a reference to the ArrayBuffer for the purposes
+        ///     of garbage collection.
+        ///     </para>
+        /// </remarks>
+        /// <returns>
+        ///     The data stored in the ArrayBuffer.
+        /// </returns>
+        unsigned char *data()
+        {
+            unsigned char *data;
+            unsigned int size;
+            runtime::translate_error_code(JsGetArrayBufferStorage(handle(), &data, &size));
+            return data;
+        }
+
+        /// <summary>
+        ///     Retrieves the size of the data in the ArrayBuffer in bytes.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The size of the data stored in the ArrayBuffer in bytes.
+        /// </returns>
+        unsigned int size()
+        {
+            unsigned char *data;
+            unsigned int size;
+            runtime::translate_error_code(JsGetArrayBufferStorage(handle(), &data, &size));
+            return size;
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript ArrayBuffer object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="length">The initial byte length of the ArrayBuffer.</param>
+        /// <returns>The new ArrayBuffer object.</returns>
+        static array_buffer create(unsigned int length)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateArrayBuffer(length, &array));
+            return array_buffer(array);
+        }
+    };
+
+    /// <summary>
     ///     A reference to a JavaScript error.
     /// </summary>
     class error : public object
