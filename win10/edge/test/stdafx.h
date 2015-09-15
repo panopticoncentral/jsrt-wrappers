@@ -81,6 +81,28 @@ static std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString(cons
         return L"JsError";
     case JsArray:
         return L"JsArray";
+    case JsSymbol:
+        return L"JsSymbol";
+    case JsArrayBuffer:
+        return L"JsArrayBuffer";
+    case JsTypedArray:
+        return L"JsTypedArray";
+    case JsDataView:
+        return L"JsDataView";
+    default:
+        return std::wstring();
+    }
+}
+
+template <>
+static std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString(const JsPropertyIdType& q)
+{
+    switch (q)
+    {
+    case JsPropertyIdTypeString:
+        return L"JsPropertyIdTypeString";
+    case JsPropertyIdTypeSymbol:
+        return L"JsPropertyIdTypeSymbol";
     default:
         return std::wstring();
     }

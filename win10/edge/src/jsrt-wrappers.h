@@ -39,6 +39,7 @@ namespace jsrt
     class object;
     template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
     class function;
+    class symbol;
 
     /// <summary>
     ///     A class that wraps a handle to a Chakra runtime.
@@ -866,7 +867,7 @@ namespace jsrt
     class property_id : public reference
     {
     private:
-        property_id(JsPropertyIdRef propertyId) :
+        explicit property_id(JsPropertyIdRef propertyId) :
             reference(propertyId)
         {
         }
@@ -881,6 +882,17 @@ namespace jsrt
         }
 
         /// <summary>
+        ///     Gets the symbol associated with the property ID.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <returns>The symbol associated with the property ID.</returns>
+        symbol symbol();
+
+        /// <summary>
         ///     Gets the name associated with the property ID.
         /// </summary>
         /// <remarks>
@@ -893,6 +905,22 @@ namespace jsrt
         {
             const wchar_t *result;
             runtime::translate_error_code(JsGetPropertyNameFromId(_ref, &result));
+            return result;
+        }
+
+        /// <summary>
+        ///     Gets the type of the property ID.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <returns>The property ID type.</returns>
+        JsPropertyIdType type() const
+        {
+            JsPropertyIdType result;
+            runtime::translate_error_code(JsGetPropertyIdType(_ref, &result));
             return result;
         }
 
@@ -917,6 +945,23 @@ namespace jsrt
             runtime::translate_error_code(JsGetPropertyIdFromName(name.c_str(), &propertyId));
             return property_id(propertyId);
         }
+
+        /// <summary>
+        ///     Gets the property ID associated with the symbol. 
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Property IDs are specific to a context and cannot be used across contexts.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="symbol">
+        ///     The symbol of the property ID to get or create.
+        /// </param>
+        /// <returns>The property ID in this runtime for the given symbol.</returns>
+        static property_id create(jsrt::symbol symbol);
     };
 
     /// <summary>
@@ -1043,6 +1088,9 @@ namespace jsrt
             *result = optional<T>(innerValue);
             return JsNoError;
         }
+
+        template<>
+        static JsErrorCode to_native(JsValueRef value, symbol *result);
 
         template<>
         static JsErrorCode to_native<int>(JsValueRef value, int *result)
@@ -1531,6 +1579,53 @@ namespace jsrt
     };
 
     /// <summary>
+    ///     A unique symbol that can be used as a property identifier.
+    /// </summary>
+    class symbol : public value
+    {
+        friend class value;
+        friend class property_id;
+
+    private:
+        explicit symbol(JsValueRef symbol) :
+            value(symbol)
+        {
+        }
+
+    public:
+        /// <summary>
+        ///     Constructs an invalid symbol.
+        /// </summary>
+        symbol() :
+            value()
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new symbol. 
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Symbols are specific to a context and cannot be used across contexts.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="description">
+        ///     A description of the symbol, can be empty.
+        /// </param>
+        /// <returns>The new symbol.</returns>
+        static symbol create(const std::wstring description)
+        {
+            JsValueRef symbol_value;
+            string description_value = string::create(description);
+            runtime::translate_error_code(JsCreateSymbol(description_value.handle(), &symbol_value));
+            return symbol(symbol_value);
+        }
+    };
+
+    /// <summary>
     ///     A reference to a JavaScript object.
     /// </summary>
     class object : public value
@@ -1669,13 +1764,22 @@ namespace jsrt
         }
 
         /// <summary>
-        ///     Gets the list of all properties on the object.
+        ///     Gets the list of all named properties on the object.
         /// </summary>
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>An array of property names.</returns>
         std::vector<std::wstring> get_own_property_names();
+
+        /// <summary>
+        ///     Gets the list of all symbol properties on the object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>An array of property symbols.</returns>
+        std::vector<symbol> get_own_property_symbols();
 
         /// <summary>
         ///     Puts an object's property.

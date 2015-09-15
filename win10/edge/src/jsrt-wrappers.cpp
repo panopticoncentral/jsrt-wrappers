@@ -332,6 +332,27 @@ namespace jsrt
         return object(globalObject);
     }
 
+    symbol property_id::symbol()
+    {
+        JsValueRef result;
+        runtime::translate_error_code(JsGetSymbolFromPropertyId(_ref, &result));
+        return jsrt::symbol(result);
+    }
+
+    property_id property_id::create(jsrt::symbol symbol)
+    {
+        JsPropertyIdRef propertyId;
+        runtime::translate_error_code(JsGetPropertyIdFromSymbol(symbol.handle(), &propertyId));
+        return property_id(propertyId);
+    }
+
+    template<>
+    static JsErrorCode value::to_native(JsValueRef value, symbol *result)
+    {
+        *result = symbol(value);
+        return JsNoError;
+    }
+
     boolean boolean::convert(value value)
     {
         JsValueRef booleanValue;
@@ -351,6 +372,23 @@ namespace jsrt
         JsValueRef stringValue;
         runtime::translate_error_code(JsConvertValueToString(value.handle(), &stringValue));
         return string(stringValue);
+    }
+
+    std::vector<symbol> object::get_own_property_symbols()
+    {
+        std::vector<symbol> symbolsVector;
+
+        JsValueRef symbols;
+        runtime::translate_error_code(JsGetOwnPropertySymbols(handle(), &symbols));
+
+        auto symbolsArray = array<symbol>(symbols);
+
+        for (int index = 0; index < symbolsArray.length(); index++)
+        {
+            symbolsVector.push_back(symbolsArray[index]);
+        }
+
+        return symbolsVector;
     }
 
     std::vector<std::wstring> object::get_own_property_names()

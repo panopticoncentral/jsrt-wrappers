@@ -101,11 +101,13 @@ namespace jsrtwrapperstest
                 TEST_INVALID_ARG_CALL(valid_object.has_property(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.set_property(jsrt::property_id(), jsrt::value()));
                 TEST_NULL_ARG_CALL(valid_object.set_property(jsrt::property_id::create(L"foo"), jsrt::value()));
+                TEST_NULL_ARG_CALL(valid_object.set_property(jsrt::property_id::create(jsrt::symbol::create(L"foo")), jsrt::value()));
                 TEST_INVALID_ARG_CALL(valid_object.get_property(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.delete_property(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.get_own_property_descriptor(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
                 TEST_NULL_ARG_CALL(valid_object.define_property(jsrt::property_id::create(L"foo"), jsrt::property_descriptor<double>()));
+                TEST_NULL_ARG_CALL(valid_object.define_property(jsrt::property_id::create(jsrt::symbol::create(L"foo")), jsrt::property_descriptor<double>()));
                 TEST_NULL_ARG_CALL(valid_object.has_index(jsrt::string()));
                 TEST_NULL_ARG_CALL(valid_object.set_index(0, jsrt::value()));
                 TEST_NULL_ARG_CALL(valid_object.set_index(jsrt::string(), jsrt::value()));
@@ -162,7 +164,7 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
-        MY_TEST_METHOD(properties, "Test property methods.")
+        MY_TEST_METHOD(string_properties, "Test string property methods.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
@@ -195,6 +197,47 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
+        MY_TEST_METHOD(symbol_properties, "Test symbol property methods.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+
+                jsrt::symbol foo = jsrt::symbol::create(L"foo");
+                jsrt::symbol bar = jsrt::symbol::create(L"bar");
+                jsrt::symbol baz = jsrt::symbol::create(L"baz");
+                jsrt::symbol x = jsrt::symbol::create(L"x");
+                jsrt::symbol y = jsrt::symbol::create(L"y");
+                jsrt::symbol z = jsrt::symbol::create(L"z");
+
+                jsrt::object object = jsrt::object::create();
+
+                object.set_property(jsrt::property_id::create(foo), 10);
+                object.set_property(jsrt::property_id::create(bar), 20.0);
+                object.set_property(jsrt::property_id::create(baz), true);
+                object.set_property(jsrt::property_id::create(x), L"foo");
+                object.set_property(jsrt::property_id::create(y), object);
+
+                TEST_INVALID_ARG_CALL(object.get_property<int>(jsrt::property_id::create(foo)));
+                Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(foo)), 10.0);
+                Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(bar)), 20.0);
+                Assert::AreEqual(object.get_property<bool>(jsrt::property_id::create(baz)), true);
+                Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(x)), (std::wstring)L"foo");
+                Assert::AreEqual(object.get_property(jsrt::property_id::create(y)).handle(), object.handle());
+
+                Assert::AreEqual(object.get_property(jsrt::property_id::create(z)).handle(), jsrt::context::undefined().handle());
+                Assert::IsFalse(object.has_property(jsrt::property_id::create(z)));
+                object.set_property(jsrt::property_id::create(z), 10);
+                Assert::IsTrue(object.has_property(jsrt::property_id::create(z)));
+                Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(z)), 10.0);
+                object.delete_property(jsrt::property_id::create(z));
+                Assert::IsFalse(object.has_property(jsrt::property_id::create(z)));
+                Assert::AreEqual(object.get_property(jsrt::property_id::create(z)).handle(), jsrt::context::undefined().handle());
+            }
+            runtime.dispose();
+        }
+
         MY_TEST_METHOD(descriptors, "Test ::get_own_property_descriptor and ::define_property methods.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
@@ -207,16 +250,24 @@ namespace jsrtwrapperstest
                 desc.set_configurable(false);
                 desc.set_writable(false);
                 desc.set_value(10);
+
                 object.define_property(jsrt::property_id::create(L"a"), desc);
                 object.set_property(jsrt::property_id::create(L"a"), 20, false);
                 Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(L"a")), 10.0);
                 TEST_SCRIPT_EXCEPTION_CALL(object.set_property(jsrt::property_id::create(L"a"), 20));
                 TEST_SCRIPT_EXCEPTION_CALL(object.delete_property(jsrt::property_id::create(L"a")));
+
+                jsrt::symbol a = jsrt::symbol::create(L"a");
+                object.define_property(jsrt::property_id::create(a), desc);
+                object.set_property(jsrt::property_id::create(a), 20, false);
+                Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(a)), 10.0);
+                TEST_SCRIPT_EXCEPTION_CALL(object.set_property(jsrt::property_id::create(a), 20));
+                TEST_SCRIPT_EXCEPTION_CALL(object.delete_property(jsrt::property_id::create(a)));
             }
             runtime.dispose();
         }
 
-        MY_TEST_METHOD(enumerable, "Test ::get_own_property_names.")
+        MY_TEST_METHOD(enumerable_string, "Test ::get_own_property_names.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
@@ -230,11 +281,39 @@ namespace jsrtwrapperstest
                 desc.set_enumerable(false);
                 desc.set_value(10);
                 object.define_property(jsrt::property_id::create(L"b"), desc);
+                object.set_property<double>(jsrt::property_id::create(jsrt::symbol::create(L"foo")), 10);
 
                 std::vector<std::wstring> properties = object.get_own_property_names();
                 Assert::AreEqual(properties.size(), (size_t)2);
                 Assert::AreEqual(properties[0], (std::wstring)L"a");
                 Assert::AreEqual(properties[1], (std::wstring)L"b");
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(enumerable_symbol, "Test ::get_own_property_symbols.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object object = jsrt::object::create();
+
+                jsrt::symbol a = jsrt::symbol::create(L"a");
+                jsrt::symbol b = jsrt::symbol::create(L"b");
+
+                Assert::AreEqual(object.get_own_property_symbols().size(), (size_t)0);
+                object.set_property<double>(jsrt::property_id::create(a), 10);
+                jsrt::property_descriptor<double> desc = jsrt::property_descriptor<double>::create();
+                desc.set_enumerable(false);
+                desc.set_value(10);
+                object.define_property(jsrt::property_id::create(b), desc);
+                object.set_property<double>(jsrt::property_id::create(L"foo"), 10);
+
+                std::vector<jsrt::symbol> properties = object.get_own_property_symbols();
+                Assert::AreEqual(properties.size(), (size_t)2);
+                Assert::IsTrue(properties[0].strict_equals(a));
+                Assert::IsTrue(properties[1].strict_equals(b));
             }
             runtime.dispose();
         }

@@ -30,7 +30,7 @@ namespace jsrtwrapperstest
             Assert::IsFalse(id.is_valid());
         }
 
-        MY_TEST_METHOD(name, "Test a property ID.")
+        MY_TEST_METHOD(name, "Test a string property ID.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
@@ -38,6 +38,37 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::property_id id = jsrt::property_id::create(L"foo");
                 Assert::AreEqual(id.name(), (std::wstring) L"foo");
+                TEST_FAILED_CALL(id.symbol(), property_not_symbol_exception);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(symbol, "Test a symbol property ID.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::symbol symbol = jsrt::symbol::create(L"foo");
+                jsrt::property_id id = jsrt::property_id::create(symbol);
+                Assert::IsTrue(id.symbol().strict_equals(symbol));
+                TEST_FAILED_CALL(id.name(), property_not_string_exception);
+            }
+            runtime.dispose();
+        }
+
+        MY_TEST_METHOD(type, "Test property ID type.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::symbol symbol = jsrt::symbol::create(L"foo");
+                jsrt::property_id id = jsrt::property_id::create(symbol);
+                Assert::AreEqual(id.type(), JsPropertyIdTypeSymbol);
+
+                id = jsrt::property_id::create(L"foo");
+                Assert::AreEqual(id.type(), JsPropertyIdTypeString);
             }
             runtime.dispose();
         }

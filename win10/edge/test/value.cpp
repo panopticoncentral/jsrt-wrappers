@@ -108,6 +108,8 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(value.type(), JsError);
                 value = jsrt::array<jsrt::boolean>::create(10);
                 Assert::AreEqual(value.type(), JsArray);
+                value = jsrt::symbol::create(L"foo");
+                Assert::AreEqual(value.type(), JsSymbol);
             }
             runtime.dispose();
         }
