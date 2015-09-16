@@ -2353,6 +2353,96 @@ namespace jsrt
     };
 
     /// <summary>
+    ///     A reference to a DataView.
+    /// </summary>
+    class data_view : public object
+    {
+    private:
+        explicit data_view(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
+    public:
+        /// <summary>
+        ///     Creates an invalid handle to a DataView.
+        /// </summary>
+        data_view() :
+            object()
+        {
+        }
+
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an <c>data_view</c> handle.
+        /// </summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
+        explicit data_view(value object) :
+            object(object.handle())
+        {
+        }
+
+        /// <summary>
+        ///     Retrieves the data from the DataView.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        ///     <para>
+        ///     The lifetime of the data returned is the same as the lifetime of the DataView.
+        ///     The pointer does not count as a reference to the DataView for the purposes
+        ///     of garbage collection.
+        ///     </para>
+        /// </remarks>
+        /// <returns>
+        ///     The data stored in the DataView.
+        /// </returns>
+        unsigned char *data()
+        {
+            unsigned char *data;
+            unsigned int size;
+            runtime::translate_error_code(JsGetDataViewStorage(handle(), &data, &size));
+            return data;
+        }
+
+        /// <summary>
+        ///     Retrieves the size of the data in the DataView in bytes.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The size of the data stored in the DataView in bytes.
+        /// </returns>
+        unsigned int size()
+        {
+            unsigned char *data;
+            unsigned int size;
+            runtime::translate_error_code(JsGetDataViewStorage(handle(), &data, &size));
+            return size;
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript DataView object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
+        /// <param name="offset">The offset in the <c>array_buffer</c> to start. </param>
+        /// <param name="length">The length in the <c>array_buffer</c> to reference.</param>
+        /// <returns>The new DataView object.</returns>
+        static data_view create(array_buffer buffer, unsigned int offset, unsigned int length)
+        {
+            JsValueRef view;
+            runtime::translate_error_code(JsCreateDataView(buffer.handle(), offset, length, &view));
+            return data_view(view);
+        }
+    };
+
+    /// <summary>
     ///     A reference to a JavaScript error.
     /// </summary>
     class error : public object
