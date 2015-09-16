@@ -110,6 +110,7 @@
     </ClCompile>
     <ClCompile Include="runtime.cpp" />
     <ClCompile Include="symbol.cpp" />
+    <ClCompile Include="typed_array.cpp" />
     <ClCompile Include="value.cpp" />
   </ItemGroup>
   <ItemGroup>

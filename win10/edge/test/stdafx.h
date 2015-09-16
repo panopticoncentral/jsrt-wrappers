@@ -107,3 +107,31 @@ static std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString(cons
         return std::wstring();
     }
 }
+
+template<>
+static std::wstring Microsoft::VisualStudio::CppUnitTestFramework::ToString(const JsTypedArrayType& q)
+{
+    switch (q)
+    {
+    case JsArrayTypeInt8:
+        return L"JsArrayTypeInt8";
+    case JsArrayTypeUint8:
+        return L"JsArrayTypeUint8";
+    case JsArrayTypeUint8Clamped:
+        return L"JsArrayTypeUint8Clamped";
+    case JsArrayTypeInt16:
+        return L"JsArrayTypeInt16";
+    case JsArrayTypeUint16:
+        return L"JsArrayTypeUint16";
+    case JsArrayTypeInt32:
+        return L"JsArrayTypeInt32";
+    case JsArrayTypeUint32:
+        return L"JsArrayTypeUint32";
+    case JsArrayTypeFloat32:
+        return L"JsArrayTypeFloat32";
+    case JsArrayTypeFloat64:
+        return L"JsArrayTypeFloat64";
+    default:
+        return std::wstring();
+    }
+}

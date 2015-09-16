@@ -2442,6 +2442,254 @@ namespace jsrt
         }
     };
 
+    template<class T, bool clamped>
+    struct typed_array_type
+    {
+    };
+
+    template<>
+    struct typed_array_type<char, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeInt8;
+    };
+
+    template<>
+    struct typed_array_type<unsigned char, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint8;
+    };
+
+    template<>
+    struct typed_array_type<unsigned char, true>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint8Clamped;
+    };
+
+    template<>
+    struct typed_array_type<short, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeInt16;
+    };
+
+    template<>
+    struct typed_array_type<unsigned short, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint16;
+    };
+
+    template<>
+    struct typed_array_type<int, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeInt32;
+    };
+
+    template<>
+    struct typed_array_type<unsigned int, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint32;
+    };
+
+    template<>
+    struct typed_array_type<float, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeFloat32;
+    };
+
+    template<>
+    struct typed_array_type<double, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeFloat64;
+    };
+
+    /// <summary>
+    ///     A reference to a TypedArray.
+    /// </summary>
+    template<class T, bool clamped = false>
+    class typed_array : public object
+    {
+    private:
+        explicit typed_array(JsValueRef ref) :
+            object(ref)
+        {
+        }
+
+    public:
+        /// <summary>
+        ///     Creates an invalid handle to a TypedArray.
+        /// </summary>
+        typed_array() :
+            object()
+        {
+        }
+
+        /// <summary>
+        ///     Converts the <c>value</c> handle to an <c>typed_array</c> handle.
+        /// </summary>
+        /// <remarks>
+        ///     The type of the underlying value is not checked.
+        /// </remarks>
+        explicit typed_array(value object) :
+            object(object.handle())
+        {
+        }
+
+        /// <summary>
+        ///     Retrieves the data from the TypedArray.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        ///     <para>
+        ///     The lifetime of the data returned is the same as the lifetime of the TypedArray.
+        ///     The pointer does not count as a reference to the TypedArray for the purposes
+        ///     of garbage collection.
+        ///     </para>
+        /// </remarks>
+        /// <returns>
+        ///     The data stored in the TypedArray.
+        /// </returns>
+        unsigned char *data()
+        {
+            unsigned char *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            int element_size;
+            runtime::translate_error_code(JsGetTypedArrayStorage(handle(), &data, &size, &type, &element_size));
+            return data;
+        }
+
+        /// <summary>
+        ///     Retrieves the size of the data in the TypedArray in bytes.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The size of the data stored in the TypedArray in bytes.
+        /// </returns>
+        unsigned int data_size()
+        {
+            unsigned char *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            int element_size;
+            runtime::translate_error_code(JsGetTypedArrayStorage(handle(), &data, &size, &type, &element_size));
+            return size;
+        }
+
+        /// <summary>
+        ///     Retrieves the type of the data in the TypedArray.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The type of the data stored in the TypedArray.
+        /// </returns>
+        JsTypedArrayType type()
+        {
+            unsigned char *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            int element_size;
+            runtime::translate_error_code(JsGetTypedArrayStorage(handle(), &data, &size, &type, &element_size));
+            return type;
+        }
+
+        /// <summary>
+        ///     Retrieves the element size in bytes of the data in the TypedArray.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The element size in bytesof the data stored in the TypedArray.
+        /// </returns>
+        int element_size()
+        {
+            unsigned char *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            int element_size;
+            runtime::translate_error_code(JsGetTypedArrayStorage(handle(), &data, &size, &type, &element_size));
+            return element_size;
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="length">The length of the new TypedArray.</param>
+        /// <returns>The new TypedArray object.</returns>
+        static typed_array create(unsigned int length)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, JS_INVALID_REFERENCE, 0, length, &array));
+            return typed_array(array);
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object backed by an <c>array_buffer</c>.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
+        /// <param name="offset">The offset in the <c>array_buffer</c> to start. </param>
+        /// <param name="length">The length in the <c>array_buffer</c> to reference.</param>
+        /// <returns>The new TypedArray object.</returns>
+        static typed_array create(array_buffer buffer, unsigned int offset, unsigned int length)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, buffer.handle(), offset, length, &array));
+            return typed_array(array);
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object copied from another <c>typed_array</c>.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The <c>typed_array</c> to copy from.</param>
+        /// <returns>The new TypedArray object.</returns>
+        template<class base_T, bool base_clamped>
+        static typed_array create(typed_array<base_T, base_clamped> base_array)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base_array.handle(), 0, 0, &array));
+            return typed_array(array);
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object copied from an <c>array</c>.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The <c>array</c> to copy from.</param>
+        /// <returns>The new TypedArray object.</returns>
+        template<class T>
+        static typed_array create(array<T> base_array)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base_array.handle(), 0, 0, &array));
+            return typed_array(array);
+        }
+    };
+
     /// <summary>
     ///     A reference to a JavaScript error.
     /// </summary>
