@@ -350,6 +350,27 @@ namespace jsrtwrapperstest
             runtime.dispose();
         }
 
+        MY_TEST_METHOD(external_indexes, "Test external indexed properties.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::object object = jsrt::object::create();
+
+                Assert::IsFalse(object.has_external_indexes());
+                auto array = jsrt::typed_array<int>::create({ 1, 2, 3, 4, 5 });
+                Assert::AreEqual(array.get_index<int>(2), 3);
+                object.set_external_indexes(array);
+                Assert::IsTrue(object.has_external_indexes());
+                Assert::AreEqual(object.external_indexes_type(), JsArrayTypeInt32);
+                Assert::AreEqual(object.external_indexes_size(), 5u);
+                Assert::IsNotNull(object.external_indexes_data());
+                Assert::AreEqual(object.get_index<int>(2), 3);
+            }
+            runtime.dispose();
+        }
+
         static void CALLBACK finalize(void *data)
         {
             Assert::AreEqual(data, (void *) 0xdeadbeef);

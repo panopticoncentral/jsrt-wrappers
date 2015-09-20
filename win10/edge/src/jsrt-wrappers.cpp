@@ -17,6 +17,15 @@
 
 namespace jsrt
 {
+    const std::wstring typed_array_type<char, false>::type_name = L"Int8";
+    const std::wstring typed_array_type<unsigned char, false>::type_name = L"Uint8";
+    const std::wstring typed_array_type<short, false>::type_name = L"Int16";
+    const std::wstring typed_array_type<unsigned short, false>::type_name = L"Uint16";
+    const std::wstring typed_array_type<int, false>::type_name = L"Int32";
+    const std::wstring typed_array_type<unsigned int, false>::type_name = L"Uint32";
+    const std::wstring typed_array_type<float, false>::type_name = L"Float32";
+    const std::wstring typed_array_type<double, false>::type_name = L"Float64";
+
     void runtime::dispose()
     {
         // TODO: Throws an access violation in this case, which shouldn't happen

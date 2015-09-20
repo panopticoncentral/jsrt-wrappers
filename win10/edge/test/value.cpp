@@ -114,8 +114,10 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(value.type(), JsSymbol);
                 value = jsrt::array_buffer::create(0);
                 Assert::AreEqual(value.type(), JsArrayBuffer);
-                value = jsrt::data_view::create(jsrt::array_buffer::create(0), 0, 0);
+                value = jsrt::data_view<>::create(jsrt::array_buffer::create(0), 0, 0);
                 Assert::AreEqual(value.type(), JsDataView);
+                value = jsrt::typed_array<int>::create(5);
+                Assert::AreEqual(value.type(), JsTypedArray);
             }
             runtime.dispose();
         }

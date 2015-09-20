@@ -73,6 +73,8 @@ namespace jsrtwrapperstest
 
                 jsrt::array<int> base_array = jsrt::array<int>::create(5);
                 int_array = jsrt::typed_array<int>::create(base_array);
+
+                int_array = jsrt::typed_array<int>::create({ 1, 2, 3, 4 });
             }
             runtime.dispose();
         }

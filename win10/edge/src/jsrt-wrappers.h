@@ -40,6 +40,24 @@ namespace jsrt
     template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
     class function;
     class symbol;
+    template<class T, bool clamped = false>
+    class typed_array;
+
+    /// <summary>
+    ///     Specified the endedness of an operation.
+    /// </summary>
+    enum class endedness
+    {
+        /// <summary>
+        ///     The operation is little-endian.
+        /// </summary>
+        little_endian,
+
+        /// <summary>
+        ///     THe operation is big-endian.
+        /// </summary>
+        big_endian
+    };
 
     /// <summary>
     ///     A class that wraps a handle to a Chakra runtime.
@@ -1065,6 +1083,8 @@ namespace jsrt
         friend class runtime;
         friend class context;
         friend class object;
+        template<endedness byte_order>
+        friend class data_view;
 
     protected:
         template<class T>
@@ -1637,6 +1657,91 @@ namespace jsrt
         }
     };
 
+    template<class T, bool clamped>
+    struct typed_array_type
+    {
+    };
+
+    template<>
+    struct typed_array_type<char, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeInt8;
+        static const std::wstring type_name;
+        static const int size = 1;
+    };
+
+    template<>
+    struct typed_array_type<unsigned char, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint8;
+        static const std::wstring type_name;
+        static const int size = 1;
+    };
+
+    template<>
+    struct typed_array_type<unsigned char, true>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint8Clamped;
+        static const int size = 1;
+    };
+
+    template<>
+    struct typed_array_type<short, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeInt16;
+        static const std::wstring type_name;
+        static const int size = 2;
+    };
+
+    template<>
+    struct typed_array_type<unsigned short, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint16;
+        static const std::wstring type_name;
+        static const int size = 2;
+    };
+
+    template<>
+    struct typed_array_type<int, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeInt32;
+        static const std::wstring type_name;
+        static const int size = 4;
+    };
+
+    template<>
+    struct typed_array_type<unsigned int, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeUint32;
+        static const std::wstring type_name;
+        static const int size = 4;
+    };
+
+    template<>
+    struct typed_array_type<float, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeFloat32;
+        static const std::wstring type_name;
+        static const int size = 4;
+    };
+
+    template<>
+    struct typed_array_type<double, false>
+    {
+    public:
+        static const JsTypedArrayType type = JsArrayTypeFloat64;
+        static const std::wstring type_name;
+        static const int size = 8;
+    };
+
     /// <summary>
     ///     A reference to a JavaScript object.
     /// </summary>
@@ -2005,6 +2110,108 @@ namespace jsrt
         }
 
         /// <summary>
+        ///     Determines whether an object has its indexed properties in external data.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     Whether the object has its indexed properties in external data.
+        /// </returns>
+        bool has_external_indexes()
+        {
+            bool value;
+            runtime::translate_error_code(JsHasIndexedPropertiesExternalData(handle(), &value));
+            return value;
+        }
+
+        /// <summary>
+        ///     Retrieves the object's indexed properties external data.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The object's indexed properties external data.
+        /// </returns>
+        void *external_indexes_data()
+        {
+            void *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            runtime::translate_error_code(JsGetIndexedPropertiesExternalData(handle(), &data, &type, &size));
+            return data;
+        }
+
+        /// <summary>
+        ///     Retrieves the object's indexed properties external data size in elements.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The object's indexed properties external data size in elements.
+        /// </returns>
+        unsigned int external_indexes_size()
+        {
+            void *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            runtime::translate_error_code(JsGetIndexedPropertiesExternalData(handle(), &data, &type, &size));
+            return size;
+        }
+
+        /// <summary>
+        ///     Retrieves the object's indexed properties external data type.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <returns>
+        ///     The object's indexed properties external data type.
+        /// </returns>
+        JsTypedArrayType external_indexes_type()
+        {
+            void *data;
+            unsigned int size;
+            JsTypedArrayType type;
+            runtime::translate_error_code(JsGetIndexedPropertiesExternalData(handle(), &data, &type, &size));
+            return type;
+        }
+
+        /// <summary>
+        ///     Sets an object's indexed properties to external data. The external data will be used as back
+        ///     store for the object's indexed properties and accessed like a typed array.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="data">The external data to be used as back store for the object's indexed properties.</param>
+        /// <param name="arrayType">The array element type in the external data.</param>
+        /// <param name="size">The number of array elements in the external data.</param>
+        template<class T, bool clamped = false>
+        void set_external_indexes(void *data, unsigned int size)
+        {
+            runtime::translate_error_code(JsSetIndexedPropertiesToExternalData(handle(), data, typed_array_type<T, clamped>::type, size));
+        }
+
+        /// <summary>
+        ///     Sets an object's indexed properties to external data. The external data will be used as back
+        ///     store for the object's indexed properties and accessed like a typed array.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="data">The external data to be used as back store for the object's indexed properties.</param>
+        /// <param name="arrayType">The array element type in the external data.</param>
+        /// <param name="size">The number of array elements in the external data.</param>
+        template<class T, bool clamped>
+        void set_external_indexes(typed_array<T, clamped> array)
+        {
+            runtime::translate_error_code(JsSetIndexedPropertiesToExternalData(handle(), (void *)array.data(), array.type(), array.data_size() / array.element_size()));
+        }
+
+        /// <summary>
         ///     Creates a new object.
         /// </summary>
         /// <remarks>
@@ -2355,6 +2562,7 @@ namespace jsrt
     /// <summary>
     ///     A reference to a DataView.
     /// </summary>
+    template<endedness byte_order = endedness::little_endian>
     class data_view : public object
     {
     private:
@@ -2425,6 +2633,77 @@ namespace jsrt
         }
 
         /// <summary>
+        ///     Gets a typed value from the <c>data_view</c>.
+        /// </summary>
+        /// <param name="offset">The byte offset of the value.</param>
+        /// <returns>The value at that position.</returns>
+        template<class T>
+        T get(int offset)
+        {
+            if (typed_array_type<T, false>::size > 1)
+            {
+                auto accessor = get_property<function<T, int, bool>>(jsrt::property_id::create((std::wstring)L"get" + typed_array_type<T, false>::type_name));
+                return accessor(jsrt::value(handle()), offset, byte_order == endedness::little_endian);
+            }
+            else
+            {
+                auto accessor = get_property<function<T, int>>(jsrt::property_id::create((std::wstring)L"get" + typed_array_type<T, false>::type_name));
+                return accessor(jsrt::value(handle()), offset);
+            }
+        }
+
+        /// <summary>
+        ///     Sets a typed value into the <c>data_view</c>.
+        /// </summary>
+        /// <param name="offset">The byte offset to set.</param>
+        /// <param name="value">The value to set.</param>
+        template<class T>
+        void set(int offset, T value)
+        {
+            if (typed_array_type<T, false>::size > 1)
+            {
+                auto accessor = get_property<function<void, int, T, bool>>(jsrt::property_id::create((std::wstring)L"set" + typed_array_type<T, false>::type_name));
+                accessor(jsrt::value(handle()), offset, value, byte_order == endedness::little_endian);
+            }
+            else
+            {
+                auto accessor = get_property<function<void, int, T>>(jsrt::property_id::create((std::wstring)L"set" + typed_array_type<T, false>::type_name));
+                accessor(jsrt::value(handle()), offset, value);
+            }
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript DataView object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
+        /// <returns>The new DataView object.</returns>
+        static data_view create(array_buffer buffer)
+        {
+            JsValueRef view;
+            runtime::translate_error_code(JsCreateDataView(buffer.handle(), 0, buffer.size(), &view));
+            return data_view(view);
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript DataView object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
+        /// <param name="offset">The offset in the <c>array_buffer</c> to start. </param>
+        /// <returns>The new DataView object.</returns>
+        static data_view create(array_buffer buffer, unsigned int offset)
+        {
+            JsValueRef view;
+            runtime::translate_error_code(JsCreateDataView(buffer.handle(), offset, buffer.size(), &view));
+            return data_view(view);
+        }
+
+        /// <summary>
         ///     Creates a JavaScript DataView object.
         /// </summary>
         /// <remarks>
@@ -2442,78 +2721,10 @@ namespace jsrt
         }
     };
 
-    template<class T, bool clamped>
-    struct typed_array_type
-    {
-    };
-
-    template<>
-    struct typed_array_type<char, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeInt8;
-    };
-
-    template<>
-    struct typed_array_type<unsigned char, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeUint8;
-    };
-
-    template<>
-    struct typed_array_type<unsigned char, true>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeUint8Clamped;
-    };
-
-    template<>
-    struct typed_array_type<short, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeInt16;
-    };
-
-    template<>
-    struct typed_array_type<unsigned short, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeUint16;
-    };
-
-    template<>
-    struct typed_array_type<int, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeInt32;
-    };
-
-    template<>
-    struct typed_array_type<unsigned int, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeUint32;
-    };
-
-    template<>
-    struct typed_array_type<float, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeFloat32;
-    };
-
-    template<>
-    struct typed_array_type<double, false>
-    {
-    public:
-        static const JsTypedArrayType type = JsArrayTypeFloat64;
-    };
-
     /// <summary>
     ///     A reference to a TypedArray.
     /// </summary>
-    template<class T, bool clamped = false>
+    template<class T, bool clamped>
     class typed_array : public object
     {
     private:
@@ -2647,6 +2858,37 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
+        /// <returns>The new TypedArray object.</returns>
+        static typed_array create(array_buffer buffer)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, buffer.handle(), 0, buffer.size() / typed_array_type<T, clamped>::size, &array));
+            return typed_array(array);
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object backed by an <c>array_buffer</c>.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
+        /// <param name="offset">The offset in the <c>array_buffer</c> to start. </param>
+        /// <returns>The new TypedArray object.</returns>
+        static typed_array create(array_buffer buffer, unsigned int offset)
+        {
+            JsValueRef array;
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, buffer.handle(), offset, buffer.size() / typed_array_type<T, clamped>::size, &array));
+            return typed_array(array);
+        }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object backed by an <c>array_buffer</c>.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="buffer">The underlying <c>array_buffer</c>.</param>
         /// <param name="offset">The offset in the <c>array_buffer</c> to start. </param>
         /// <param name="length">The length in the <c>array_buffer</c> to reference.</param>
         /// <returns>The new TypedArray object.</returns>
@@ -2688,6 +2930,28 @@ namespace jsrt
             runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base_array.handle(), 0, 0, &array));
             return typed_array(array);
         }
+
+        /// <summary>
+        ///     Creates a JavaScript TypedArray object.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="values">The values to initialize the array with.</param>
+        /// <returns>The new TypedArray object.</returns>
+        static typed_array<T, false> create(std::initializer_list<T> values)
+        {
+            auto buffer = array_buffer::create(sizeof(T) * values.size());
+            auto view = data_view<>::create(buffer);
+            int index = 0;
+            for (auto iter = values.begin(); iter != values.end(); iter++)
+            {
+                view.set<T>(sizeof(T) * index++, *iter);
+            }
+
+            return create(buffer);
+        }
+
     };
 
     /// <summary>
