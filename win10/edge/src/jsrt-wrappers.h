@@ -40,6 +40,8 @@ namespace jsrt
     template<class R = notdefined, class P1 = notdefined, class P2 = notdefined, class P3 = notdefined, class P4 = notdefined, class P5 = notdefined, class P6 = notdefined, class P7 = notdefined, class P8 = notdefined>
     class function;
     class symbol;
+    template<class T>
+    class array;
     template<class T, bool clamped = false>
     class typed_array;
 
@@ -1085,6 +1087,8 @@ namespace jsrt
         friend class object;
         template<endedness byte_order>
         friend class data_view;
+        template<class T>
+        friend class array_element;
 
     protected:
         template<class T>
@@ -2319,6 +2323,57 @@ namespace jsrt
     };
 
     /// <summary>
+    ///     Represents an element of a JavaScript array.
+    /// </summary>
+    template<class T>
+    class array_element
+    {
+    private:
+        value _array;
+        value _index;
+
+    public:
+        /// <summary>
+        ///     Creates a new JavaScript array element handle.
+        /// </summary>
+        /// <param name="array">The array the element is from.</param>
+        /// <param name="index">The index of the element.</param>
+        array_element(array<T> array, value index) :
+            _array(array), _index(index)
+        {
+        }
+
+        /// <summary>
+        ///     Creates a new JavaScript array element handle.
+        /// </summary>
+        /// <param name="array">The array the element is from.</param>
+        /// <param name="index">The index of the element.</param>
+        array_element(typed_array<T> array, value index) :
+            _array(array), _index(index)
+        {
+        }
+
+        array_element operator=(T value)
+        {
+            JsValueRef valueReference;
+            runtime::translate_error_code(value::from_native<T>(value, &valueReference));
+            runtime::translate_error_code(JsSetIndexedProperty(_array.handle(), _index.handle(), valueReference));
+            return *this;
+        }
+
+        operator T()
+        {
+            JsValueRef valueReference;
+            runtime::translate_error_code(JsGetIndexedProperty(_array.handle(), _index.handle(), &valueReference));
+
+            T value;
+            runtime::translate_error_code(value::to_native(valueReference, &value));
+
+            return value;
+        }
+    };
+
+    /// <summary>
     ///     A reference to a JavaScript array.
     /// </summary>
     template<class T = value>
@@ -2334,63 +2389,6 @@ namespace jsrt
         }
 
     public:
-        /// <summary>
-        ///     Represents an element of a JavaScript array.
-        /// </summary>
-        template<class T>
-        class array_element
-        {
-        private:
-            array<T> _array;
-            value _index;
-
-        public:
-            /// <summary>
-            ///     Creates a new JavaScript array element handle.
-            /// </summary>
-            /// <param name="array">The array the element is from.</param>
-            /// <param name="index">The index of the element.</param>
-            array_element(array<T> array, value index) :
-                _array(array), _index(index)
-            {
-            }
-
-            /// <summary>
-            ///     The array the element is from.
-            /// </summary>
-            array<T> array()
-            {
-                return _array;
-            }
-
-            /// <summary>
-            ///     The index of the element.
-            /// </summary>
-            value index()
-            {
-                return _index;
-            }
-
-            array_element operator=(T value)
-            {
-                JsValueRef valueReference;
-                runtime::translate_error_code(value::from_native<T>(value, &valueReference));
-                runtime::translate_error_code(JsSetIndexedProperty(_array.handle(), _index.handle(), valueReference));
-                return *this;
-            }
-
-            operator T()
-            {
-                JsValueRef valueReference;
-                runtime::translate_error_code(JsGetIndexedProperty(_array.handle(), _index.handle(), &valueReference));
-
-                T value;
-                runtime::translate_error_code(to_native(valueReference, &value));
-
-                return value;
-            }
-        };
-
         /// <summary>
         ///     Creates an invalid handle to an array.
         /// </summary>
@@ -2751,6 +2749,11 @@ namespace jsrt
         explicit typed_array(value object) :
             object(object.handle())
         {
+        }
+
+        array_element<T> operator [](int index)
+        {
+            return array_element<T>(*this, number::create(index));
         }
 
         /// <summary>

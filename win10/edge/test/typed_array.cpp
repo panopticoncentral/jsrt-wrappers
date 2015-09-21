@@ -114,5 +114,27 @@ namespace jsrtwrapperstest
             }
             runtime.dispose();
         }
+
+        MY_TEST_METHOD(indexing, "Test indexing.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::array_buffer buffer = jsrt::array_buffer::create(64);
+                jsrt::typed_array<double> darray = jsrt::typed_array<double>::create(buffer, 0, 2);
+                darray[0] = 10;
+                darray[1] = 20;
+                Assert::AreEqual((double)darray[0], 10.0);
+                Assert::AreEqual((double)darray[1], 20.0);
+
+                jsrt::typed_array<int> iarray = jsrt::typed_array<int>::create(buffer, 0, 2);
+                iarray[0] = 30;
+                iarray[1] = 40;
+                Assert::AreEqual((int)iarray[0], 30);
+                Assert::AreEqual((int)iarray[1], 40);
+            }
+            runtime.dispose();
+        }
     };
 }
