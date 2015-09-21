@@ -446,7 +446,7 @@ namespace jsrt
 
         T* operator->() const
         {
-            return (T *) &_reference;
+            return (T *)&_reference;
         }
 
         T operator*() const
@@ -529,7 +529,7 @@ namespace jsrt
 
             // Disallow some operators to keep the scope on the stack, where it belongs.
             scope(const scope&);
-            void operator=(const scope&) ;
+            void operator=(const scope&);
             void* operator new(size_t size);
             void operator delete(void*, size_t);
 
@@ -991,14 +991,14 @@ namespace jsrt
     {
     };
 
-    template<class T> 
+    template<class T>
     struct optional_string_type
     {
         // bogus incomplete type for T != std::wstring
         struct type;
     };
 
-    template<> 
+    template<>
     struct optional_string_type<std::wstring>
     {
         typedef const wchar_t *type;
@@ -2458,7 +2458,7 @@ namespace jsrt
         /// <returns>The new array object.</returns>
         static array<T> create(std::initializer_list<T> values)
         {
-            array<T> array = create((unsigned int) values.size());
+            array<T> array = create((unsigned int)values.size());
             int index = 0;
             for (auto iter = values.begin(); iter != values.end(); iter++)
             {
@@ -3011,7 +3011,7 @@ namespace jsrt
 
             if (name.has_value() && name.value().type() == JsString)
             {
-                return ((string) name.value()).data();
+                return ((string)name.value()).data();
             }
 
             return L"";
@@ -3026,7 +3026,7 @@ namespace jsrt
 
             if (message.has_value() && message.value().type() == JsString)
             {
-                return ((string) message.value()).data();
+                return ((string)message.value()).data();
             }
 
             return L"";
@@ -3317,7 +3317,7 @@ namespace jsrt
         template<class T>
         static void fill_rest(std::vector<T> &rest, unsigned start, std::vector<JsValueRef> &arguments)
         {
-            std::transform(rest.begin(), rest.end(), arguments.begin() + start, [&](T v) 
+            std::transform(rest.begin(), rest.end(), arguments.begin() + start, [&](T v)
             {
                 JsValueRef value;
                 runtime::translate_error_code(from_native(v, &value));
@@ -3519,33 +3519,33 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p8, 8, arguments);
-                    // fall through
-                case 8:
-                    runtime::translate_error_code(from_native(p7, &arguments[7]));
-                    // fall through
-                case 7:
-                    runtime::translate_error_code(from_native(p6, &arguments[6]));
-                    // fall through
-                case 6:
-                    runtime::translate_error_code(from_native(p5, &arguments[5]));
-                    // fall through
-                case 5:
-                    runtime::translate_error_code(from_native(p4, &arguments[4]));
-                    // fall through
-                case 4:
-                    runtime::translate_error_code(from_native(p3, &arguments[3]));
-                    // fall through
-                case 3:
-                    runtime::translate_error_code(from_native(p2, &arguments[2]));
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p8, 8, arguments);
+                // fall through
+            case 8:
+                runtime::translate_error_code(from_native(p7, &arguments[7]));
+                // fall through
+            case 7:
+                runtime::translate_error_code(from_native(p6, &arguments[6]));
+                // fall through
+            case 6:
+                runtime::translate_error_code(from_native(p5, &arguments[5]));
+                // fall through
+            case 5:
+                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                // fall through
+            case 4:
+                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                // fall through
+            case 3:
+                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3576,30 +3576,30 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p7, 7, arguments);
-                    // fall through
-                case 7:
-                    runtime::translate_error_code(from_native(p6, &arguments[6]));
-                    // fall through
-                case 6:
-                    runtime::translate_error_code(from_native(p5, &arguments[5]));
-                    // fall through
-                case 5:
-                    runtime::translate_error_code(from_native(p4, &arguments[4]));
-                    // fall through
-                case 4:
-                    runtime::translate_error_code(from_native(p3, &arguments[3]));
-                    // fall through
-                case 3:
-                    runtime::translate_error_code(from_native(p2, &arguments[2]));
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p7, 7, arguments);
+                // fall through
+            case 7:
+                runtime::translate_error_code(from_native(p6, &arguments[6]));
+                // fall through
+            case 6:
+                runtime::translate_error_code(from_native(p5, &arguments[5]));
+                // fall through
+            case 5:
+                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                // fall through
+            case 4:
+                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                // fall through
+            case 3:
+                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3629,27 +3629,27 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p6, 6, arguments);
-                    // fall through
-                case 6:
-                    runtime::translate_error_code(from_native(p5, &arguments[5]));
-                    // fall through
-                case 5:
-                    runtime::translate_error_code(from_native(p4, &arguments[4]));
-                    // fall through
-                case 4:
-                    runtime::translate_error_code(from_native(p3, &arguments[3]));
-                    // fall through
-                case 3:
-                    runtime::translate_error_code(from_native(p2, &arguments[2]));
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p6, 6, arguments);
+                // fall through
+            case 6:
+                runtime::translate_error_code(from_native(p5, &arguments[5]));
+                // fall through
+            case 5:
+                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                // fall through
+            case 4:
+                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                // fall through
+            case 3:
+                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3678,24 +3678,24 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p5, 5, arguments);
-                    // fall through
-                case 5:
-                    runtime::translate_error_code(from_native(p4, &arguments[4]));
-                    // fall through
-                case 4:
-                    runtime::translate_error_code(from_native(p3, &arguments[3]));
-                    // fall through
-                case 3:
-                    runtime::translate_error_code(from_native(p2, &arguments[2]));
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p5, 5, arguments);
+                // fall through
+            case 5:
+                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                // fall through
+            case 4:
+                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                // fall through
+            case 3:
+                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3723,21 +3723,21 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p4, 4, arguments);
-                    // fall through
-                case 4:
-                    runtime::translate_error_code(from_native(p3, &arguments[3]));
-                    // fall through
-                case 3:
-                    runtime::translate_error_code(from_native(p2, &arguments[2]));
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p4, 4, arguments);
+                // fall through
+            case 4:
+                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                // fall through
+            case 3:
+                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3764,18 +3764,18 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p3, 3, arguments);
-                    // fall through
-                case 3:
-                    runtime::translate_error_code(from_native(p2, &arguments[2]));
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p3, 3, arguments);
+                // fall through
+            case 3:
+                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3801,15 +3801,15 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p2, 2, arguments);
-                    // fall through
-                case 2:
-                    runtime::translate_error_code(from_native(p1, &arguments[1]));
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p2, 2, arguments);
+                // fall through
+            case 2:
+                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3834,12 +3834,12 @@ namespace jsrt
 
             switch (argument_count)
             {
-                default:
-                    fill_rest(p1, 1, arguments);
-                    // fall through
-                case 1:
-                    // Nothing to do
-                    break;
+            default:
+                fill_rest(p1, 1, arguments);
+                // fall through
+            case 1:
+                // Nothing to do
+                break;
             }
 
             return arguments;
@@ -3905,7 +3905,7 @@ namespace jsrt
         /// <param name="call_info">Information about the call.</param>
         /// <param name="arguments">Arguments to the call.</param>
         /// <returns>The result of the call.</returns>
-        typedef value (*Signature)(const call_info &call_info, const std::vector<value> &arguments);
+        typedef value(*Signature)(const call_info &call_info, const std::vector<value> &arguments);
 
     protected:
         static JsValueRef CALLBACK thunk(JsValueRef callee, bool is_construct_call, JsValueRef *arguments, unsigned short argument_count, void *callback_state)
@@ -3918,7 +3918,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             value result = value();
             try
             {
@@ -3974,7 +3974,7 @@ namespace jsrt
             std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *) call_arguments.data(), (unsigned short) call_arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *)call_arguments.data(), (unsigned short)call_arguments.size(), &resultValue));
             return value(resultValue);
         }
 
@@ -3991,7 +3991,7 @@ namespace jsrt
             std::vector<JsValueRef> call_arguments = pack_arguments(value(), arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *) call_arguments.data(), (unsigned short) call_arguments.size(), &resultValue));
+            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *)call_arguments.data(), (unsigned short)call_arguments.size(), &resultValue));
             return value(resultValue);
         }
 
@@ -4016,12 +4016,45 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
+        /// <param name="name">The name of the method for debugging/stringification purposes.</param>
+        /// <param name="signature">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        static function_base create(std::wstring name, Signature signature)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, signature, &ref));
+            return function_base(ref);
+        }
+
+        /// <summary>
+        ///     Creates a new JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
         /// <param name="signature">The method to call when the function is invoked.</param>
         /// <returns>The new function object.</returns>
         template<class R, class... Parameters>
         static function<R, Parameters...> create(R(*signature)(const jsrt::call_info &info, Parameters...))
         {
             return function<R, Parameters...>::create(signature);
+        }
+
+        /// <summary>
+        ///     Creates a new JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="name">The name of the method for debugging/stringification purposes.</param>
+        /// <param name="signature">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        template<class R, class... Parameters>
+        static function<R, Parameters...> create(std::wstring name, R(*signature)(const jsrt::call_info &info, Parameters...))
+        {
+            return function<R, Parameters...>::create(name, signature);
         }
     };
 
@@ -4213,7 +4246,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -4252,6 +4285,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2, P3, P4, P5, P6, P7, P8> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
@@ -4266,7 +4308,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, P8>() :
             function_base()
@@ -4302,7 +4344,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
@@ -4326,6 +4368,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2, P3, P4, P5, P6, P7, P8> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4373,7 +4424,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -4412,6 +4463,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2, P3, P4, P5, P6, P7> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2, class P3, class P4, class P5, class P6, class P7>
@@ -4426,7 +4486,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7);
 
         function<void, P1, P2, P3, P4, P5, P6, P7, notdefined>() :
             function_base()
@@ -4461,7 +4521,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2, p3, p4, p5, p6, p7);
@@ -4485,6 +4545,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2, P3, P4, P5, P6, P7> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4531,7 +4600,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -4570,6 +4639,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2, P3, P4, P5, P6> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2, class P3, class P4, class P5, class P6>
@@ -4584,7 +4662,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6);
 
         function<void, P1, P2, P3, P4, P5, P6, notdefined, notdefined>() :
             function_base()
@@ -4618,7 +4696,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2, p3, p4, p5, p6);
@@ -4642,6 +4720,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2, P3, P4, P5, P6> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4687,7 +4774,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -4726,6 +4813,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2, P3, P4, P5> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2, class P3, class P4, class P5>
@@ -4740,7 +4836,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5);
 
         function<void, P1, P2, P3, P4, P5, notdefined, notdefined, notdefined>() :
             function_base()
@@ -4773,7 +4869,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2, p3, p4, p5);
@@ -4797,6 +4893,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2, P3, P4, P5> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4841,7 +4946,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -4880,6 +4985,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2, P3, P4> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2, class P3, class P4>
@@ -4894,7 +5008,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3, P4 p4);
 
         function<void, P1, P2, P3, P4, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -4926,7 +5040,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2, p3, p4);
@@ -4950,6 +5064,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2, P3, P4> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4993,7 +5116,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -5032,6 +5155,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2, P3> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2, class P3>
@@ -5046,7 +5178,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2, P3 p3);
 
         function<void, P1, P2, P3, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -5077,7 +5209,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2, p3);
@@ -5101,6 +5233,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2, P3> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5143,7 +5284,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -5182,6 +5323,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1, P2> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1, class P2>
@@ -5196,7 +5346,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1, P2 p2);
+        typedef void(*Signature)(const call_info &call_info, P1 p1, P2 p2);
 
         function<void, P1, P2, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -5226,7 +5376,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1, p2);
@@ -5250,6 +5400,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1, P2> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5291,7 +5450,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -5330,6 +5489,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R, P1> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<class P1>
@@ -5344,7 +5512,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info, P1 p1);
+        typedef void(*Signature)(const call_info &call_info, P1 p1);
 
         function<void, P1, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -5373,7 +5541,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info, p1);
@@ -5397,6 +5565,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void, P1> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5437,7 +5614,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             R result = R();
             try
             {
@@ -5476,6 +5653,15 @@ namespace jsrt
             runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
+
+        static function<R> create(std::wstring name, Signature function)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            return decltype(create(nullptr))(ref);
+        }
     };
 
     template<>
@@ -5490,7 +5676,7 @@ namespace jsrt
         }
 
     public:
-        typedef void (*Signature)(const call_info &call_info);
+        typedef void(*Signature)(const call_info &call_info);
 
         function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>() :
             function_base()
@@ -5518,7 +5704,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature) callback_state;
+            Signature callback = (Signature)callback_state;
             try
             {
                 callback(info);
@@ -5542,6 +5728,15 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
+            return decltype(create(nullptr))(ref);
+        }
+
+        static function<void> create(std::wstring name, Signature function_signature)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5614,6 +5809,28 @@ namespace jsrt
         {
             JsValueRef ref;
             runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
+            return decltype(create(TThis(), nullptr))(this_value, ref);
+        }
+
+        /// <summary>
+        ///     Creates a new bound JavaScript function.
+        /// </summary>
+        /// <remarks>
+        ///     Requires an active script context.
+        /// </remarks>
+        /// <param name="this_value">
+        ///     The value of <c>this</c> for all calls to this function.
+        /// </param>
+        /// <param name="name">The name of the method for debugging/stringification purposes.</param>
+        /// <param name="function">The method to call when the function is invoked.</param>
+        /// <returns>The new function object.</returns>
+        static bound_function<TThis, R, Parameters...> create(std::wstring name, TThis this_value, Signature function_signature)
+        {
+            JsValueRef nameRef;
+            runtime::translate_error_code(value::from_native(name, &nameRef));
+            JsValueRef ref;
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
+
             return decltype(create(TThis(), nullptr))(this_value, ref);
         }
     };
