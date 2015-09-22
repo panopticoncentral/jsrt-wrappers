@@ -320,6 +320,11 @@ namespace jsrt
         return value(result);
     }
 
+    void CALLBACK context::promise_thunk(JsValueRef task, void *callbackState)
+    {
+        (*((std::function<void(jsrt::function<void>)> *)callbackState))(jsrt::function<void>(task));
+    }
+
     value context::undefined()
     {
         JsValueRef undefinedValue;

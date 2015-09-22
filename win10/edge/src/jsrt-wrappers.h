@@ -21,6 +21,8 @@
 #include <string>
 #include <vector>
 #include <initializer_list>
+#include <functional>
+#include <memory>
 
 #pragma once
 
@@ -507,6 +509,8 @@ namespace jsrt
         {
         }
 
+        static void CALLBACK promise_thunk(JsValueRef task, void *callbackState);
+
     public:
         /// <summary>
         ///     Constructs an invalid context reference.
@@ -848,6 +852,25 @@ namespace jsrt
         ///     The result of running the script, if any.
         /// </returns>
         static value evaluate_serialized(std::wstring script, unsigned char *buffer, JsSourceContext source_context = JS_SOURCE_CONTEXT_NONE, std::wstring source_url = std::wstring());
+
+        /// <summary>
+        ///     Sets a promise continuation callback function that is called by the context when a task
+        ///     needs to be queued for future execution
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     The callback pointer is stored in raw form, so the pointer passed in needs to be kept
+        ///     alive by the caller.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="callback">The callback function being set.</param>
+        static void set_promise_continuation_callback(std::shared_ptr<std::function<void(jsrt::function<void>)>> callback)
+        {
+            runtime::translate_error_code(JsSetPromiseContinuationCallback(promise_thunk, callback.get()));
+        }
 
         /// <summary>
         ///     Gets the value of <c>undefined</c> in the current script context.
@@ -5668,6 +5691,7 @@ namespace jsrt
     class function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined> : public function_base
     {
         friend class value;
+        friend class context;
 
     protected:
         explicit function<void, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined, notdefined>(JsValueRef ref) :

@@ -69,6 +69,7 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(jsrt::context::run_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::parse_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::evaluate_serialized(L"1 + 2", nullptr));
+            TEST_NO_CONTEXT_CALL(jsrt::context::set_promise_continuation_callback(nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::undefined());
             TEST_NO_CONTEXT_CALL(jsrt::context::null());
             TEST_NO_CONTEXT_CALL(jsrt::context::global());
@@ -206,6 +207,32 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(value.type(), JsNull);
                 value = jsrt::context::global();
                 Assert::AreEqual(value.type(), JsObject);
+            }
+            runtime.dispose();
+        }
+
+        static void promise_callback(std::shared_ptr<std::queue<jsrt::function<void>>> callbacks, jsrt::function<void> task)
+        {
+            callbacks->push(task);
+        }
+
+        MY_TEST_METHOD(promises, "Test promises.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                auto callbacks = std::make_shared<std::queue<jsrt::function<void>>>();
+                auto cb = std::make_shared<std::function<void(jsrt::function<void>)>>(std::bind(promise_callback, callbacks, std::placeholders::_1));
+                jsrt::context::set_promise_continuation_callback(cb);
+
+                jsrt::context::run(L"new Promise(function(resolve, reject) {resolve();}).then(function() {}).then(function () {});");
+
+                while (callbacks->size() > 0)
+                {
+                    callbacks->front()(jsrt::context::undefined());
+                    callbacks->pop();
+                }
             }
             runtime.dispose();
         }

@@ -21,6 +21,9 @@
 #include "profiler.h"
 #include "CppUnitTest.h"
 
+#include <memory>
+#include <queue>
+
 #define MY_TEST_METHOD(name, description) \
     BEGIN_TEST_METHOD_ATTRIBUTE(name) \
         TEST_DESCRIPTION(description) \
