@@ -70,6 +70,8 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(jsrt::context::parse_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::evaluate_serialized(L"1 + 2", nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::set_promise_continuation_callback(nullptr));
+            TEST_NO_CONTEXT_CALL(jsrt::context::project_uwp_namespace(std::wstring()));
+            TEST_NO_CONTEXT_CALL(jsrt::context::set_uwp_completion_callback(nullptr));
             TEST_NO_CONTEXT_CALL(jsrt::context::undefined());
             TEST_NO_CONTEXT_CALL(jsrt::context::null());
             TEST_NO_CONTEXT_CALL(jsrt::context::global());
@@ -235,6 +237,66 @@ namespace jsrtwrapperstest
                 }
             }
             runtime.dispose();
+        }
+
+        MY_TEST_METHOD(uwp, "Test UWP projection.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::context::project_uwp_namespace(L"Windows");
+
+                jsrt::context::run(L"var x = new Windows.Foundation.Uri('http://microsoft.com');");
+            }
+            runtime.dispose();
+        }
+
+        static void uwp_callback(HANDLE event, std::shared_ptr<std::queue<std::function<void()>>> callbacks, std::function<void()> callback)
+        {
+            callbacks->push(callback);
+            SetEvent(event);
+        }
+
+        static DWORD WINAPI uwp_thread(LPVOID data)
+        {
+            Assert::IsTrue(CoInitializeEx(nullptr, COINIT_MULTITHREADED) == S_OK);
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+
+                HANDLE event = CreateEventEx(nullptr, nullptr, CREATE_EVENT_MANUAL_RESET, EVENT_ALL_ACCESS);
+                Assert::IsNotNull(event);
+
+                auto callbacks = std::make_shared<std::queue<std::function<void()>>>();
+                auto bound = std::make_shared<std::function<void(std::function<void()>)>>(std::bind(uwp_callback, event, callbacks, std::placeholders::_1));
+                jsrt::context::set_uwp_completion_callback(bound);
+
+                jsrt::context::project_uwp_namespace(L"Windows");
+
+                jsrt::context::run(L"Windows.Storage.KnownFolders.documentsLibrary.tryGetItemAsync('filedoesnotexist.txt').done(function (file) {});");
+
+                DWORD wait_result = WaitForSingleObjectEx(event, 10000, FALSE);
+                Assert::AreEqual(wait_result, WAIT_OBJECT_0);
+
+                while (callbacks->size() > 0)
+                {
+                    callbacks->front()();
+                    callbacks->pop();
+                }
+            }
+            runtime.dispose();
+            CoUninitialize();
+            return 0;
+        }
+        
+        MY_TEST_METHOD(uwp_callbacks, "Test UWP projection callbacks.")
+        {
+            DWORD threadId;
+            HANDLE thread = CreateThread(NULL, 0, &uwp_thread, NULL, 0, &threadId);
+            WaitForSingleObject(thread, INFINITE);
+            CloseHandle(thread);
         }
     };
 }

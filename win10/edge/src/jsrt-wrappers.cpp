@@ -325,6 +325,11 @@ namespace jsrt
         (*((std::function<void(jsrt::function<void>)> *)callbackState))(jsrt::function<void>(task));
     }
 
+    void CALLBACK context::uwp_thunk(JsProjectionCallback jsCallback, JsProjectionCallbackContext jsContext, void *callbackState)
+    {
+        (*((std::function<void(std::function<void()>)> *)callbackState))(std::bind(jsCallback, jsContext));
+    }
+
     value context::undefined()
     {
         JsValueRef undefinedValue;

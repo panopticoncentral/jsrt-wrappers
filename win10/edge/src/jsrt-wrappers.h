@@ -511,6 +511,8 @@ namespace jsrt
 
         static void CALLBACK promise_thunk(JsValueRef task, void *callbackState);
 
+        static void CALLBACK uwp_thunk(JsProjectionCallback jsCallback, JsProjectionCallbackContext jsContext, void *callbackState);
+
     public:
         /// <summary>
         ///     Constructs an invalid context reference.
@@ -870,6 +872,41 @@ namespace jsrt
         static void set_promise_continuation_callback(std::shared_ptr<std::function<void(jsrt::function<void>)>> callback)
         {
             runtime::translate_error_code(JsSetPromiseContinuationCallback(promise_thunk, callback.get()));
+        }
+
+        /// <summary>
+        ///     Project a UWP (Universal Windows Platform) namespace.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="name">The namespace to be projected.</param>
+        static void project_uwp_namespace(std::wstring name)
+        {
+            runtime::translate_error_code(JsProjectWinRTNamespace(name.c_str()));
+        }
+
+        /// <summary>
+        ///     Sets the callback to be used in order to invoke a UWP projection completion back to the
+        ///     callers required thread.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        ///     <para>
+        ///     The caller must be running in an different thread in the MTA or free threaded apartment.
+        ///     When running on STA, COM manages the return to the required thread.
+        ///     </para>
+        /// </remarks>
+        /// <param name="callback">
+        ///     The callback that will be invoked any time a projection completion occurs on a background thread.
+        /// </param>
+        static void set_uwp_completion_callback(std::shared_ptr<std::function<void(std::function<void()>)>> callback)
+        {
+            runtime::translate_error_code(JsSetProjectionEnqueueCallback(uwp_thunk, callback.get()));
         }
 
         /// <summary>
@@ -2236,6 +2273,50 @@ namespace jsrt
         void set_external_indexes(typed_array<T, clamped> array)
         {
             runtime::translate_error_code(JsSetIndexedPropertiesToExternalData(handle(), (void *)array.data(), array.type(), array.data_size() / array.element_size()));
+        }
+
+        /// <summary>
+        ///     Unwraps a JavaScript object to an <c>IInspectable</c> pointer
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     Hosts are responsible for enforcing COM threading rules.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <returns>
+        ///     The <c>IInspectable</c> value of the object.
+        /// </returns>
+        IInspectable *to_inspectable()
+        {
+            IInspectable *inspectable;
+            runtime::translate_error_code(JsObjectToInspectable(_ref, &inspectable));
+            return inspectable;
+        }
+
+        /// <summary>
+        ///     Creates an object that is a projection of the passed in <c>IInspectable</c> pointer.
+        /// </summary>
+        /// <remarks>
+        ///     <para>
+        ///     The projected value can be used by script to call an IInspectable object.
+        ///     Hosts are responsible for enforcing COM threading rules.
+        ///     </para>
+        ///     <para>
+        ///     Requires an active script context.
+        ///     </para>
+        /// </remarks>
+        /// <param name="inspectable">A <c>IInspectable</c> to be projected.</param>
+        /// <returns>
+        ///     A JavaScript object that is a projection of the <c>IInspectable</c>.
+        /// </returns>
+        static object create(IInspectable *value)
+        {
+            JsValueRef result;
+            runtime::translate_error_code(JsInspectableToObject(value, &result));
+            return object(result);
         }
 
         /// <summary>

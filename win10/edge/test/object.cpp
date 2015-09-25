@@ -36,6 +36,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             jsrt::object object;
             TEST_NO_CONTEXT_CALL(jsrt::object::create());
+            TEST_NO_CONTEXT_CALL(jsrt::object::create(nullptr));
             TEST_NO_CONTEXT_CALL(object.is_external());
             TEST_NO_CONTEXT_CALL(object.is_extension_allowed());
             TEST_NO_CONTEXT_CALL(object.prevent_extension());
@@ -56,6 +57,7 @@ namespace jsrtwrapperstest
             TEST_NO_CONTEXT_CALL(object.get_index(jsrt::string()));
             TEST_NO_CONTEXT_CALL(object.delete_index(0));
             TEST_NO_CONTEXT_CALL(object.delete_index(jsrt::string()));
+            TEST_NO_CONTEXT_CALL(object.to_inspectable());
 
             jsrt::external_object external_object;
             TEST_NO_CONTEXT_CALL(jsrt::external_object::create());
@@ -91,6 +93,7 @@ namespace jsrtwrapperstest
                 TEST_NULL_ARG_CALL(object.get_index(jsrt::string()));
                 TEST_NULL_ARG_CALL(object.delete_index(0));
                 TEST_NULL_ARG_CALL(object.delete_index(jsrt::string()));
+                TEST_NULL_ARG_CALL(object.to_inspectable());
 
                 jsrt::external_object external_object;
                 TEST_NULL_ARG_CALL(external_object.data());
@@ -395,5 +398,21 @@ namespace jsrtwrapperstest
             }
             runtime.dispose();
         }
+
+        MY_TEST_METHOD(inspectable, "Test inspectable conversions.")
+        {
+            jsrt::runtime runtime = jsrt::runtime::create();
+            jsrt::context context = runtime.create_context();
+            {
+                jsrt::context::scope scope(context);
+                jsrt::context::project_uwp_namespace(L"Windows");
+                auto uri = jsrt::context::evaluate(L"new Windows.Foundation.Uri('http://microsoft.com');");
+                IInspectable *uri_ptr = ((jsrt::object)uri).to_inspectable();
+                Assert::IsNotNull(uri_ptr);
+                auto uri_copy = jsrt::object::create(uri_ptr);
+            }
+            runtime.dispose();
+        }
+
     };
 }
