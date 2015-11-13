@@ -33,3 +33,4 @@ win10/edge/src/x64/
 win10/edge/test/Debug/
 win10/edge/test/Release/
 win10/edge/test/x64/
+*.opendb
