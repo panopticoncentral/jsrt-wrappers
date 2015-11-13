@@ -2954,7 +2954,10 @@ namespace jsrt
         static typed_array create(unsigned int length)
         {
             JsValueRef array;
-            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, JS_INVALID_REFERENCE, 0, length, &array));
+			array_buffer base = array_buffer::create(typed_array_type<T, clamped>::size * length);
+			runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base.handle(), 0, length, &array));
+			// TODO: This is broken in Windows 10 TH2, incorrectly returns JsInvalidArgument
+			//runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, JS_INVALID_REFERENCE, 0, length, &array));
             return typed_array(array);
         }
 
@@ -4092,7 +4095,7 @@ namespace jsrt
         /// <returns>The result of the constructor call.</returns>
         value construct(std::initializer_list<value> arguments)
         {
-            std::vector<JsValueRef> call_arguments = pack_arguments(value(), arguments);
+            std::vector<JsValueRef> call_arguments = pack_arguments(context::undefined(), arguments);
 
             JsValueRef resultValue;
             runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *)call_arguments.data(), (unsigned short)call_arguments.size(), &resultValue));
@@ -4110,7 +4113,11 @@ namespace jsrt
         static function_base create(Signature signature)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, signature, &ref));
+			if (signature == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, signature, &ref));
             return function_base(ref);
         }
 
@@ -4128,6 +4135,10 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
+			if (signature == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
             runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, signature, &ref));
             return function_base(ref);
         }
@@ -4380,13 +4391,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
         {
-            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5, p6, p7, p8));
+            return construct_object(pack_arguments(context::undefined(), p1, p2, p3, p4, p5, p6, p7, p8));
         }
 
         static function<R, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4395,7 +4410,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4471,7 +4490,11 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4480,7 +4503,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4558,13 +4585,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7)
         {
-            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5, p6, p7));
+            return construct_object(pack_arguments(context::undefined(), p1, p2, p3, p4, p5, p6, p7));
         }
 
         static function<R, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4573,7 +4604,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4648,7 +4683,11 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4657,7 +4696,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4734,13 +4777,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
         {
-            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5, p6));
+            return construct_object(pack_arguments(context::undefined(), p1, p2, p3, p4, p5, p6));
         }
 
         static function<R, P1, P2, P3, P4, P5, P6> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4749,7 +4796,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4823,7 +4874,11 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5, P6> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4832,7 +4887,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4908,13 +4967,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
         {
-            return construct_object(pack_arguments(value(), p1, p2, p3, p4, p5));
+            return construct_object(pack_arguments(context::undefined(), p1, p2, p3, p4, p5));
         }
 
         static function<R, P1, P2, P3, P4, P5> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -4923,7 +4986,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4996,7 +5063,11 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5005,7 +5076,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5080,13 +5155,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3, P4 p4)
         {
-            return construct_object(pack_arguments(value(), p1, p2, p3, p4));
+            return construct_object(pack_arguments(context::undefined(), p1, p2, p3, p4));
         }
 
         static function<R, P1, P2, P3, P4> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5095,7 +5174,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5167,7 +5250,11 @@ namespace jsrt
         static function<void, P1, P2, P3, P4> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5176,7 +5263,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5250,13 +5341,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2, P3 p3)
         {
-            return construct_object(pack_arguments(value(), p1, p2, p3));
+            return construct_object(pack_arguments(context::undefined(), p1, p2, p3));
         }
 
         static function<R, P1, P2, P3> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5265,7 +5360,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5336,7 +5435,11 @@ namespace jsrt
         static function<void, P1, P2, P3> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5345,7 +5448,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5418,13 +5525,17 @@ namespace jsrt
 
         R construct(P1 p1, P2 p2)
         {
-            return construct_object(pack_arguments(value(), p1, p2));
+            return construct_object(pack_arguments(context::undefined(), p1, p2));
         }
 
         static function<R, P1, P2> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5433,7 +5544,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5503,7 +5618,11 @@ namespace jsrt
         static function<void, P1, P2> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5512,7 +5631,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5584,13 +5707,17 @@ namespace jsrt
 
         R construct(P1 p1)
         {
-            return construct_object(pack_arguments(value(), p1));
+            return construct_object(pack_arguments(context::undefined(), p1));
         }
 
         static function<R, P1> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5599,7 +5726,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5668,7 +5799,11 @@ namespace jsrt
         static function<void, P1> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5677,7 +5812,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5748,13 +5887,17 @@ namespace jsrt
 
         R construct()
         {
-            return construct_object(pack_arguments(value()));
+            return construct_object(pack_arguments(context::undefined()));
         }
 
         static function<R> create(Signature function)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
@@ -5763,7 +5906,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+			if (function == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5832,6 +5979,10 @@ namespace jsrt
         static function<void> create(Signature function_signature)
         {
             JsValueRef ref;
+			if (function_signature == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
             runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
             return decltype(create(nullptr))(ref);
         }
@@ -5841,7 +5992,11 @@ namespace jsrt
             JsValueRef nameRef;
             runtime::translate_error_code(value::from_native(name, &nameRef));
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
+			if (function_signature == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5913,7 +6068,11 @@ namespace jsrt
         static bound_function<TThis, R, Parameters...> create(TThis this_value, Signature function_signature)
         {
             JsValueRef ref;
-            runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
+			if (function_signature == nullptr)
+			{
+				runtime::translate_error_code(JsErrorNullArgument);
+			}
+			runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
             return decltype(create(TThis(), nullptr))(this_value, ref);
         }
 

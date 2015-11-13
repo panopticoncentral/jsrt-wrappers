@@ -94,24 +94,16 @@ namespace jsrtwrapperstest
 
         MY_TEST_METHOD(no_context, "Test property ID methods with no context.")
         {
-            try
-            {
-                jsrt::property_id::create(L"foo");
-                Assert::Fail();
-            }
-            catch (jsrt::no_current_context_exception)
-            {
-            }
-
-            try
-            {
-                jsrt::property_id foo;
-                foo.name();
-                Assert::Fail();
-            }
-            catch (jsrt::no_current_context_exception)
-            {
-            }
+			jsrt::runtime runtime = jsrt::runtime::create();
+			jsrt::context context = runtime.create_context();
+			TEST_NO_CONTEXT_CALL(jsrt::property_id::create(L"foo"));
+			jsrt::property_id foo;
+			{
+				jsrt::context::scope scope(context);
+				foo = jsrt::property_id::create(L"foo");
+			}
+			foo.name();
+			runtime.dispose();
         }
     };
 }

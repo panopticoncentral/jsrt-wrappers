@@ -50,9 +50,9 @@ namespace jsrtwrapperstest
         {
             jsrt::context context;
 
-            TEST_NULL_ARG_CALL(context.add_reference());
-            TEST_NULL_ARG_CALL(context.release());
-            TEST_NULL_ARG_CALL(context.set_before_collect_callback(nullptr, nullptr))
+            TEST_INVALID_ARG_CALL(context.add_reference());
+            TEST_INVALID_ARG_CALL(context.release());
+            TEST_INVALID_ARG_CALL(context.set_before_collect_callback(nullptr, nullptr))
         }
 
         static int callback_count;

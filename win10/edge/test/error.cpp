@@ -45,7 +45,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::error error;
-                TEST_NULL_ARG_CALL(error.message());
+                TEST_INVALID_ARG_CALL(error.message());
             }
             runtime.dispose();
         }

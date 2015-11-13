@@ -34,10 +34,22 @@ namespace jsrtwrapperstest
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
             jsrt::array_buffer buffer;
+            {
+				jsrt::context::scope scope(context);
+				buffer = jsrt::array_buffer::create(256);
+            }
             jsrt::data_view<> view;
+
+			// JsCreateDataView
             TEST_NO_CONTEXT_CALL(jsrt::data_view<>::create(buffer, 0, 0));
-            TEST_NO_CONTEXT_CALL(view.data());
-            TEST_NO_CONTEXT_CALL(view.size());
+			{
+				jsrt::context::scope scope(context);
+				view = jsrt::data_view<>::create(buffer, 0, 0);
+			}
+
+			// JsGetDataViewStorage doesn't require a context
+			view.data();
+            view.size();
             runtime.dispose();
         }
 
@@ -48,8 +60,8 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::data_view<> view;
-                TEST_NULL_ARG_CALL(view.size());
-                TEST_NULL_ARG_CALL(view.data());
+                TEST_INVALID_ARG_CALL(view.size());
+                TEST_INVALID_ARG_CALL(view.data());
             }
             runtime.dispose();
         }

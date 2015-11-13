@@ -47,20 +47,40 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             jsrt::value value;
             VARIANT v;
-            TEST_NO_CONTEXT_CALL(value.type());
+            {
+				jsrt::context::scope scope(context);
+				value = jsrt::number::create(10);
+            }
+            value.type();
             TEST_NO_CONTEXT_CALL(value.to_variant(&v));
             TEST_NO_CONTEXT_CALL(jsrt::value::from_variant(&v));
             TEST_NO_CONTEXT_CALL(jsrt::boolean::create(true));
             TEST_NO_CONTEXT_CALL(jsrt::boolean::true_value());
             TEST_NO_CONTEXT_CALL(jsrt::boolean::false_value());
-            TEST_NO_CONTEXT_CALL(((jsrt::boolean)value).data());
-            TEST_NO_CONTEXT_CALL(jsrt::number::create(1.0));
-            TEST_NO_CONTEXT_CALL(((jsrt::number)value).as_double());
-            TEST_NO_CONTEXT_CALL(((jsrt::number)value).as_int());
-            TEST_NO_CONTEXT_CALL(jsrt::string::create(L"foo"));
-            TEST_NO_CONTEXT_CALL(((jsrt::string)value).data());
-            TEST_NO_CONTEXT_CALL(((jsrt::string)value).length());
-            runtime.dispose();
+			{
+				jsrt::context::scope scope(context);
+				value = jsrt::boolean::true_value();
+			}
+			((jsrt::boolean)value).data();
+			TEST_NO_CONTEXT_CALL(jsrt::number::create(1.0));
+			{
+				jsrt::context::scope scope(context);
+				value = jsrt::number::create(10.0);
+			}
+			((jsrt::number)value).as_double();
+			{
+				jsrt::context::scope scope(context);
+				value = jsrt::number::create(10);
+			}
+			((jsrt::number)value).as_int();
+			TEST_NO_CONTEXT_CALL(jsrt::string::create(L"foo"));
+			{
+				jsrt::context::scope scope(context);
+				value = jsrt::string::create(L"foo");
+			}
+			((jsrt::string)value).data();
+			((jsrt::string)value).length();
+			runtime.dispose();
         }
 
         MY_TEST_METHOD(invalid_handle, "Test calls with an invalid handle.")
@@ -71,16 +91,16 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::value value;
                 VARIANT v;
-                TEST_NULL_ARG_CALL(value.type());
-                TEST_NULL_ARG_CALL(value.to_variant(&v));
+                TEST_INVALID_ARG_CALL(value.type());
+                TEST_INVALID_ARG_CALL(value.to_variant(&v));
                 jsrt::boolean boolean;
-                TEST_NULL_ARG_CALL(boolean.data());
+                TEST_INVALID_ARG_CALL(boolean.data());
                 jsrt::number number;
-                TEST_NULL_ARG_CALL(number.as_int());
-                TEST_NULL_ARG_CALL(number.as_double());
+                TEST_INVALID_ARG_CALL(number.as_int());
+                TEST_INVALID_ARG_CALL(number.as_double());
                 jsrt::string string;
-                TEST_NULL_ARG_CALL(string.data());
-                TEST_NULL_ARG_CALL(string.length());
+                TEST_INVALID_ARG_CALL(string.data());
+                TEST_INVALID_ARG_CALL(string.length());
             }
             runtime.dispose();
         }

@@ -36,11 +36,11 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::compile_error error;
-                TEST_NULL_ARG_CALL(error.message());
-                TEST_NULL_ARG_CALL(error.line());
-                TEST_NULL_ARG_CALL(error.column());
-                TEST_NULL_ARG_CALL(error.length());
-                TEST_NULL_ARG_CALL(error.source());
+                TEST_INVALID_ARG_CALL(error.message());
+                TEST_INVALID_ARG_CALL(error.line());
+                TEST_INVALID_ARG_CALL(error.column());
+                TEST_INVALID_ARG_CALL(error.length());
+                TEST_INVALID_ARG_CALL(error.source());
             }
             runtime.dispose();
         }
@@ -99,8 +99,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::compile_error error;
-                TEST_NULL_ARG_CALL(error.message());
+                TEST_NULL_ARG_CALL(jsrt::function<void>::create(nullptr));
             }
             runtime.dispose();
         }

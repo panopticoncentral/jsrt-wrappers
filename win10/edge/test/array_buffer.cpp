@@ -35,8 +35,12 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             jsrt::array_buffer array;
             TEST_NO_CONTEXT_CALL(jsrt::array_buffer::create(0));
-            TEST_NO_CONTEXT_CALL(array.data());
-            TEST_NO_CONTEXT_CALL(array.size());
+            {
+				jsrt::context::scope scope(context);
+				array = jsrt::array_buffer::create(0);
+            }
+            array.data();
+            array.size();
             runtime.dispose();
         }
 
@@ -47,8 +51,8 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::array_buffer array;
-                TEST_NULL_ARG_CALL(array.size());
-                TEST_NULL_ARG_CALL(array.data());
+                TEST_INVALID_ARG_CALL(array.size());
+                TEST_INVALID_ARG_CALL(array.data());
             }
             runtime.dispose();
         }

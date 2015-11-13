@@ -37,7 +37,11 @@ namespace jsrtwrapperstest
             jsrt::object object;
             TEST_NO_CONTEXT_CALL(jsrt::object::create());
             TEST_NO_CONTEXT_CALL(jsrt::object::create(nullptr));
-            TEST_NO_CONTEXT_CALL(object.is_external());
+            {
+				jsrt::context::scope scope(context);
+				object = jsrt::object::create();
+            }
+            object.is_external();
             TEST_NO_CONTEXT_CALL(object.is_extension_allowed());
             TEST_NO_CONTEXT_CALL(object.prevent_extension());
             TEST_NO_CONTEXT_CALL(object.prototype());
@@ -61,8 +65,12 @@ namespace jsrtwrapperstest
 
             jsrt::external_object external_object;
             TEST_NO_CONTEXT_CALL(jsrt::external_object::create());
-            TEST_NO_CONTEXT_CALL(external_object.data());
-            TEST_NO_CONTEXT_CALL(external_object.set_data(nullptr));
+			{
+				jsrt::context::scope scope(context);
+				external_object = jsrt::external_object::create();
+			}
+			external_object.data();
+            external_object.set_data(nullptr);
             runtime.dispose();
         }
 
@@ -73,50 +81,50 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::object object;
-                TEST_NULL_ARG_CALL(object.is_external());
-                TEST_NULL_ARG_CALL(object.is_extension_allowed());
-                TEST_NULL_ARG_CALL(object.prevent_extension());
-                TEST_NULL_ARG_CALL(object.prototype());
-                TEST_NULL_ARG_CALL(object.set_prototype(object));
-                TEST_NULL_ARG_CALL(object.has_property(jsrt::property_id()));
-                TEST_NULL_ARG_CALL(object.set_property(jsrt::property_id(), jsrt::value()));
-                TEST_NULL_ARG_CALL(object.get_property(jsrt::property_id()));
-                TEST_NULL_ARG_CALL(object.delete_property(jsrt::property_id()));
-                TEST_NULL_ARG_CALL(object.get_own_property_descriptor(jsrt::property_id()));
-                TEST_NULL_ARG_CALL(object.get_own_property_names());
-                TEST_NULL_ARG_CALL(object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
-                TEST_NULL_ARG_CALL(object.has_index(0));
-                TEST_NULL_ARG_CALL(object.has_index(jsrt::string()));
-                TEST_NULL_ARG_CALL(object.set_index(0, jsrt::value()));
-                TEST_NULL_ARG_CALL(object.set_index(jsrt::string(), jsrt::value()));
-                TEST_NULL_ARG_CALL(object.get_index(0));
-                TEST_NULL_ARG_CALL(object.get_index(jsrt::string()));
-                TEST_NULL_ARG_CALL(object.delete_index(0));
-                TEST_NULL_ARG_CALL(object.delete_index(jsrt::string()));
-                TEST_NULL_ARG_CALL(object.to_inspectable());
+                TEST_INVALID_ARG_CALL(object.is_external());
+                TEST_INVALID_ARG_CALL(object.is_extension_allowed());
+                TEST_INVALID_ARG_CALL(object.prevent_extension());
+                TEST_INVALID_ARG_CALL(object.prototype());
+                TEST_INVALID_ARG_CALL(object.set_prototype(object));
+                TEST_INVALID_ARG_CALL(object.has_property(jsrt::property_id()));
+                TEST_INVALID_ARG_CALL(object.set_property(jsrt::property_id(), jsrt::value()));
+                TEST_INVALID_ARG_CALL(object.get_property(jsrt::property_id()));
+                TEST_INVALID_ARG_CALL(object.delete_property(jsrt::property_id()));
+                TEST_INVALID_ARG_CALL(object.get_own_property_descriptor(jsrt::property_id()));
+                TEST_INVALID_ARG_CALL(object.get_own_property_names());
+                TEST_INVALID_ARG_CALL(object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
+                TEST_INVALID_ARG_CALL(object.has_index(0));
+                TEST_INVALID_ARG_CALL(object.has_index(jsrt::string()));
+                TEST_INVALID_ARG_CALL(object.set_index(0, jsrt::value()));
+                TEST_INVALID_ARG_CALL(object.set_index(jsrt::string(), jsrt::value()));
+                TEST_INVALID_ARG_CALL(object.get_index(0));
+                TEST_INVALID_ARG_CALL(object.get_index(jsrt::string()));
+                TEST_INVALID_ARG_CALL(object.delete_index(0));
+                TEST_INVALID_ARG_CALL(object.delete_index(jsrt::string()));
+                TEST_INVALID_ARG_CALL(object.to_inspectable());
 
                 jsrt::external_object external_object;
-                TEST_NULL_ARG_CALL(external_object.data());
-                TEST_NULL_ARG_CALL(external_object.set_data(nullptr));
+                TEST_INVALID_ARG_CALL(external_object.data());
+                TEST_INVALID_ARG_CALL(external_object.set_data(nullptr));
 
                 jsrt::object valid_object = jsrt::object::create();
-                TEST_NULL_ARG_CALL(valid_object.set_prototype(jsrt::object()));
+                TEST_INVALID_ARG_CALL(valid_object.set_prototype(jsrt::object()));
                 TEST_INVALID_ARG_CALL(valid_object.has_property(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.set_property(jsrt::property_id(), jsrt::value()));
-                TEST_NULL_ARG_CALL(valid_object.set_property(jsrt::property_id::create(L"foo"), jsrt::value()));
-                TEST_NULL_ARG_CALL(valid_object.set_property(jsrt::property_id::create(jsrt::symbol::create(L"foo")), jsrt::value()));
+                TEST_INVALID_ARG_CALL(valid_object.set_property(jsrt::property_id::create(L"foo"), jsrt::value()));
+                TEST_INVALID_ARG_CALL(valid_object.set_property(jsrt::property_id::create(jsrt::symbol::create(L"foo")), jsrt::value()));
                 TEST_INVALID_ARG_CALL(valid_object.get_property(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.delete_property(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.get_own_property_descriptor(jsrt::property_id()));
                 TEST_INVALID_ARG_CALL(valid_object.define_property(jsrt::property_id(), jsrt::property_descriptor<double>()));
-                TEST_NULL_ARG_CALL(valid_object.define_property(jsrt::property_id::create(L"foo"), jsrt::property_descriptor<double>()));
-                TEST_NULL_ARG_CALL(valid_object.define_property(jsrt::property_id::create(jsrt::symbol::create(L"foo")), jsrt::property_descriptor<double>()));
-                TEST_NULL_ARG_CALL(valid_object.has_index(jsrt::string()));
-                TEST_NULL_ARG_CALL(valid_object.set_index(0, jsrt::value()));
-                TEST_NULL_ARG_CALL(valid_object.set_index(jsrt::string(), jsrt::value()));
-                TEST_NULL_ARG_CALL(valid_object.set_index(jsrt::string::create(L"0"), jsrt::value()));
-                TEST_NULL_ARG_CALL(valid_object.get_index(jsrt::string()));
-                TEST_NULL_ARG_CALL(valid_object.delete_index(jsrt::string()));
+                TEST_INVALID_ARG_CALL(valid_object.define_property(jsrt::property_id::create(L"foo"), jsrt::property_descriptor<double>()));
+                TEST_INVALID_ARG_CALL(valid_object.define_property(jsrt::property_id::create(jsrt::symbol::create(L"foo")), jsrt::property_descriptor<double>()));
+                TEST_INVALID_ARG_CALL(valid_object.has_index(jsrt::string()));
+                TEST_INVALID_ARG_CALL(valid_object.set_index(0, jsrt::value()));
+                TEST_INVALID_ARG_CALL(valid_object.set_index(jsrt::string(), jsrt::value()));
+                TEST_INVALID_ARG_CALL(valid_object.set_index(jsrt::string::create(L"0"), jsrt::value()));
+                TEST_INVALID_ARG_CALL(valid_object.get_index(jsrt::string()));
+                TEST_INVALID_ARG_CALL(valid_object.delete_index(jsrt::string()));
             }
             runtime.dispose();
         }

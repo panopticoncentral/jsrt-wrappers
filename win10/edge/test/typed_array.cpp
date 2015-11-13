@@ -35,10 +35,14 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             jsrt::typed_array<short> array;
             TEST_NO_CONTEXT_CALL(jsrt::typed_array<short>::create(0));
-            TEST_NO_CONTEXT_CALL(array.data());
-            TEST_NO_CONTEXT_CALL(array.data_size());
-            TEST_NO_CONTEXT_CALL(array.element_size());
-            TEST_NO_CONTEXT_CALL(array.type());
+            {
+				jsrt::context::scope scope(context);
+				array = jsrt::typed_array<short>::create(0);
+            }
+            array.data();
+            array.data_size();
+            array.element_size();
+            array.type();
             runtime.dispose();
         }
 
@@ -49,10 +53,10 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::typed_array<int> array;
-                TEST_NULL_ARG_CALL(array.data_size());
-                TEST_NULL_ARG_CALL(array.element_size());
-                TEST_NULL_ARG_CALL(array.data());
-                TEST_NULL_ARG_CALL(array.type());
+                TEST_INVALID_ARG_CALL(array.data_size());
+                TEST_INVALID_ARG_CALL(array.element_size());
+                TEST_INVALID_ARG_CALL(array.data());
+                TEST_INVALID_ARG_CALL(array.type());
             }
             runtime.dispose();
         }

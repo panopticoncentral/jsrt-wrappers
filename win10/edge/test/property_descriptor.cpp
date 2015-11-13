@@ -69,24 +69,24 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::property_descriptor<bool> property_descriptor;
-                TEST_NULL_ARG_CALL(property_descriptor.writable());
-                TEST_NULL_ARG_CALL(property_descriptor.set_writable(true));
-                TEST_NULL_ARG_CALL(property_descriptor.enumerable());
-                TEST_NULL_ARG_CALL(property_descriptor.set_enumerable(true));
-                TEST_NULL_ARG_CALL(property_descriptor.configurable());
-                TEST_NULL_ARG_CALL(property_descriptor.set_configurable(true));
-                TEST_NULL_ARG_CALL(property_descriptor.value());
-                TEST_NULL_ARG_CALL(property_descriptor.set_value(true));
-                TEST_NULL_ARG_CALL(property_descriptor.getter());
-                TEST_NULL_ARG_CALL(property_descriptor.set_getter(jsrt::function<bool>()));
-                TEST_NULL_ARG_CALL(property_descriptor.setter());
-                TEST_NULL_ARG_CALL(property_descriptor.set_setter(jsrt::function<void, bool>()));
+                TEST_INVALID_ARG_CALL(property_descriptor.writable());
+                TEST_INVALID_ARG_CALL(property_descriptor.set_writable(true));
+                TEST_INVALID_ARG_CALL(property_descriptor.enumerable());
+                TEST_INVALID_ARG_CALL(property_descriptor.set_enumerable(true));
+                TEST_INVALID_ARG_CALL(property_descriptor.configurable());
+                TEST_INVALID_ARG_CALL(property_descriptor.set_configurable(true));
+                TEST_INVALID_ARG_CALL(property_descriptor.value());
+                TEST_INVALID_ARG_CALL(property_descriptor.set_value(true));
+                TEST_INVALID_ARG_CALL(property_descriptor.getter());
+                TEST_INVALID_ARG_CALL(property_descriptor.set_getter(jsrt::function<bool>()));
+                TEST_INVALID_ARG_CALL(property_descriptor.setter());
+                TEST_INVALID_ARG_CALL(property_descriptor.set_setter(jsrt::function<void, bool>()));
 
                 jsrt::property_descriptor<bool> valid_descriptor = jsrt::property_descriptor<bool>::create();
-                TEST_NULL_ARG_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>(), jsrt::function<void, bool>()));
-                TEST_NULL_ARG_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>::create(b), jsrt::function<void, bool>()));
-                TEST_NULL_ARG_CALL(property_descriptor.set_getter(jsrt::function<bool>()));
-                TEST_NULL_ARG_CALL(property_descriptor.set_setter(jsrt::function<void, bool>()));
+                TEST_INVALID_ARG_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>(), jsrt::function<void, bool>()));
+                TEST_INVALID_ARG_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>::create(b), jsrt::function<void, bool>()));
+                TEST_INVALID_ARG_CALL(property_descriptor.set_getter(jsrt::function<bool>()));
+                TEST_INVALID_ARG_CALL(property_descriptor.set_setter(jsrt::function<void, bool>()));
             }
             runtime.dispose();
         }

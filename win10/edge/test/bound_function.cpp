@@ -29,7 +29,293 @@ namespace jsrtwrapperstest
             Assert::IsFalse(handle.is_valid());
         }
 
-        MY_TEST_METHOD(no_context, "Test calls with no context.")
+		static double callback8(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7, double p8)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+			Assert::AreEqual(p6, false);
+			Assert::AreEqual(p7, (std::wstring)L"baz");
+			Assert::AreEqual(p8, 8.0);
+
+			return 8;
+		}
+
+		static double callback7(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+			Assert::AreEqual(p6, false);
+			Assert::AreEqual(p7, (std::wstring)L"baz");
+
+			return 7;
+		}
+
+		static double callback6(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+			Assert::AreEqual(p6, false);
+
+			return 6;
+		}
+
+		static double callback5(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+
+			return 5;
+		}
+
+		static double callback4(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+
+			return 4;
+		}
+
+		static double callback3(const jsrt::call_info &info, std::wstring p1, double p2, bool p3)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+
+			return 3;
+		}
+
+		static double callback2(const jsrt::call_info &info, std::wstring p1, double p2)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+
+			return 2;
+		}
+
+		static double callback1(const jsrt::call_info &info, std::wstring p1)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+
+			return 1;
+		}
+
+		static double callback0(const jsrt::call_info &info)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			return 0;
+		}
+
+		static void callback8v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7, double p8)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+			Assert::AreEqual(p6, false);
+			Assert::AreEqual(p7, (std::wstring)L"baz");
+			Assert::AreEqual(p8, 8.0);
+		}
+
+		static void callback7v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+			Assert::AreEqual(p6, false);
+			Assert::AreEqual(p7, (std::wstring)L"baz");
+		}
+
+		static void callback6v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+			Assert::AreEqual(p6, false);
+		}
+
+		static void callback5v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p5, 5.0);
+		}
+
+		static void callback4v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+			Assert::AreEqual(p4, (std::wstring)L"bar");
+		}
+
+		static void callback3v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+			Assert::AreEqual(p3, true);
+		}
+
+		static void callback2v(const jsrt::call_info &info, std::wstring p1, double p2)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p2, 2.0);
+		}
+
+		static void callback1v(const jsrt::call_info &info, std::wstring p1)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+
+			Assert::AreEqual(p1, (std::wstring)L"foo");
+		}
+
+		static void callback0v(const jsrt::call_info &info)
+		{
+			Assert::AreEqual(info.callee().type(), JsFunction);
+			Assert::AreEqual(info.this_value().type(), JsObject);
+			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
+			void *data = ((jsrt::external_object)info.this_value()).data();
+			Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
+			Assert::IsFalse(info.is_construct_call());
+		}
+
+		MY_TEST_METHOD(no_context, "Test calls with no context.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
@@ -63,59 +349,59 @@ namespace jsrtwrapperstest
             jsrt::bound_function<jsrt::object, jsrt::object> f0c;
             jsrt::object this_value;
 
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), callback8)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), callback8)));
             TEST_NO_CONTEXT_CALL((f8(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(jsrt::object(), callback7)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), callback7)));
             TEST_NO_CONTEXT_CALL((f7(L"foo", 2, true, L"bar", 5, false, L"baz")));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool>::create(jsrt::object(), callback6)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double, bool>::create(L"foo", jsrt::object(), callback6)));
             TEST_NO_CONTEXT_CALL((f6(L"foo", 2, true, L"bar", 5, false)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), callback5)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), callback5)));
             TEST_NO_CONTEXT_CALL((f5(L"foo", 2, true, L"bar", 5)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring>::create(jsrt::object(), callback4)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), callback4)));
             TEST_NO_CONTEXT_CALL((f4(L"foo", 2, true, L"bar")));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool>::create(jsrt::object(), callback3)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double, bool>::create(L"foo", jsrt::object(), callback3)));
             TEST_NO_CONTEXT_CALL((f3(L"foo", 2, true)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double>::create(jsrt::object(), callback2)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring, double>::create(L"foo", jsrt::object(), callback2)));
             TEST_NO_CONTEXT_CALL((f2(L"foo", 2)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring>::create(jsrt::object(), callback1)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double, std::wstring>::create(L"foo", jsrt::object(), callback1)));
             TEST_NO_CONTEXT_CALL((f1(L"foo")));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double>::create(jsrt::object(), callback0)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, double>::create(L"foo", jsrt::object(), callback0)));
             TEST_NO_CONTEXT_CALL((f0()));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), callback8v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), callback8v)));
             TEST_NO_CONTEXT_CALL((f8v(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(jsrt::object(), callback7v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), callback7v)));
             TEST_NO_CONTEXT_CALL((f7v(L"foo", 2, true, L"bar", 5, false, L"baz")));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool>::create(jsrt::object(), callback6v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double, bool>::create(L"foo", jsrt::object(), callback6v)));
             TEST_NO_CONTEXT_CALL((f6v(L"foo", 2, true, L"bar", 5, false)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double>::create(jsrt::object(), callback5v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring, double>::create(L"foo", jsrt::object(), callback5v)));
             TEST_NO_CONTEXT_CALL((f5v(L"foo", 2, true, L"bar", 5)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring>::create(jsrt::object(), callback4v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool, std::wstring>::create(L"foo", jsrt::object(), callback4v)));
             TEST_NO_CONTEXT_CALL((f4v(L"foo", 2, true, L"bar")));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool>::create(jsrt::object(), callback3v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double, bool>::create(L"foo", jsrt::object(), callback3v)));
             TEST_NO_CONTEXT_CALL((f3v(L"foo", 2, true)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double>::create(jsrt::object(), callback2v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring, double>::create(L"foo", jsrt::object(), callback2v)));
             TEST_NO_CONTEXT_CALL((f2v(L"foo", 2)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring>::create(jsrt::object(), callback1v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void, std::wstring>::create(L"foo", jsrt::object(), callback1v)));
             TEST_NO_CONTEXT_CALL((f1v(L"foo")));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void>::create(jsrt::object(), nullptr)));
-            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void>::create(L"foo", jsrt::object(), nullptr)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void>::create(jsrt::object(), callback0v)));
+            TEST_NO_CONTEXT_CALL((jsrt::bound_function<jsrt::object, void>::create(L"foo", jsrt::object(), callback0v)));
             TEST_NO_CONTEXT_CALL((f0v()));
             TEST_NO_CONTEXT_CALL((f8c.construct(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
             TEST_NO_CONTEXT_CALL((f7c.construct(L"foo", 2, true, L"bar", 5, false, L"baz")));
@@ -163,321 +449,35 @@ namespace jsrtwrapperstest
                 jsrt::bound_function<jsrt::object, jsrt::object, std::wstring, double> f2c;
                 jsrt::bound_function<jsrt::object, jsrt::object, std::wstring> f1c;
                 jsrt::bound_function<jsrt::object, jsrt::object> f0c;
-                TEST_NULL_ARG_CALL((f8(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
-                TEST_NULL_ARG_CALL((f7(L"foo", 2, true, L"bar", 5, false, L"baz")));
-                TEST_NULL_ARG_CALL((f6(L"foo", 2, true, L"bar", 5, false)));
-                TEST_NULL_ARG_CALL((f5(L"foo", 2, true, L"bar", 5)));
-                TEST_NULL_ARG_CALL((f4(L"foo", 2, true, L"bar")));
-                TEST_NULL_ARG_CALL((f3(L"foo", 2, true)));
-                TEST_NULL_ARG_CALL((f2(L"foo", 2)));
-                TEST_NULL_ARG_CALL((f1(L"foo")));
-                TEST_NULL_ARG_CALL((f0()));
-                TEST_NULL_ARG_CALL((f8v(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
-                TEST_NULL_ARG_CALL((f7v(L"foo", 2, true, L"bar", 5, false, L"baz")));
-                TEST_NULL_ARG_CALL((f6v(L"foo", 2, true, L"bar", 5, false)));
-                TEST_NULL_ARG_CALL((f5v(L"foo", 2, true, L"bar", 5)));
-                TEST_NULL_ARG_CALL((f4v(L"foo", 2, true, L"bar")));
-                TEST_NULL_ARG_CALL((f3v(L"foo", 2, true)));
-                TEST_NULL_ARG_CALL((f2v(L"foo", 2)));
-                TEST_NULL_ARG_CALL((f1v(L"foo")));
-                TEST_NULL_ARG_CALL((f0v()));
-                TEST_NULL_ARG_CALL((f8c.construct(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
-                TEST_NULL_ARG_CALL((f7c.construct(L"foo", 2, true, L"bar", 5, false, L"baz")));
-                TEST_NULL_ARG_CALL((f6c.construct(L"foo", 2, true, L"bar", 5, false)));
-                TEST_NULL_ARG_CALL((f5c.construct(L"foo", 2, true, L"bar", 5)));
-                TEST_NULL_ARG_CALL((f4c.construct(L"foo", 2, true, L"bar")));
-                TEST_NULL_ARG_CALL((f3c.construct(L"foo", 2, true)));
-                TEST_NULL_ARG_CALL((f2c.construct(L"foo", 2)));
-                TEST_NULL_ARG_CALL((f1c.construct(L"foo")));
-                TEST_NULL_ARG_CALL((f0c.construct()));
+                TEST_INVALID_ARG_CALL((f8(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
+                TEST_INVALID_ARG_CALL((f7(L"foo", 2, true, L"bar", 5, false, L"baz")));
+                TEST_INVALID_ARG_CALL((f6(L"foo", 2, true, L"bar", 5, false)));
+                TEST_INVALID_ARG_CALL((f5(L"foo", 2, true, L"bar", 5)));
+                TEST_INVALID_ARG_CALL((f4(L"foo", 2, true, L"bar")));
+                TEST_INVALID_ARG_CALL((f3(L"foo", 2, true)));
+                TEST_INVALID_ARG_CALL((f2(L"foo", 2)));
+                TEST_INVALID_ARG_CALL((f1(L"foo")));
+                TEST_INVALID_ARG_CALL((f0()));
+                TEST_INVALID_ARG_CALL((f8v(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
+                TEST_INVALID_ARG_CALL((f7v(L"foo", 2, true, L"bar", 5, false, L"baz")));
+                TEST_INVALID_ARG_CALL((f6v(L"foo", 2, true, L"bar", 5, false)));
+                TEST_INVALID_ARG_CALL((f5v(L"foo", 2, true, L"bar", 5)));
+                TEST_INVALID_ARG_CALL((f4v(L"foo", 2, true, L"bar")));
+                TEST_INVALID_ARG_CALL((f3v(L"foo", 2, true)));
+                TEST_INVALID_ARG_CALL((f2v(L"foo", 2)));
+                TEST_INVALID_ARG_CALL((f1v(L"foo")));
+                TEST_INVALID_ARG_CALL((f0v()));
+                TEST_INVALID_ARG_CALL((f8c.construct(L"foo", 2, true, L"bar", 5, false, L"baz", 8)));
+                TEST_INVALID_ARG_CALL((f7c.construct(L"foo", 2, true, L"bar", 5, false, L"baz")));
+                TEST_INVALID_ARG_CALL((f6c.construct(L"foo", 2, true, L"bar", 5, false)));
+                TEST_INVALID_ARG_CALL((f5c.construct(L"foo", 2, true, L"bar", 5)));
+                TEST_INVALID_ARG_CALL((f4c.construct(L"foo", 2, true, L"bar")));
+                TEST_INVALID_ARG_CALL((f3c.construct(L"foo", 2, true)));
+                TEST_INVALID_ARG_CALL((f2c.construct(L"foo", 2)));
+                TEST_INVALID_ARG_CALL((f1c.construct(L"foo")));
+                TEST_INVALID_ARG_CALL((f0c.construct()));
             }
             runtime.dispose();
-        }
-
-        static double callback8(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7, double p8)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-            Assert::AreEqual(p6, false);
-            Assert::AreEqual(p7, (std::wstring)L"baz");
-            Assert::AreEqual(p8, 8.0);
-
-            return 8;
-        }
-
-        static double callback7(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-            Assert::AreEqual(p6, false);
-            Assert::AreEqual(p7, (std::wstring)L"baz");
-
-            return 7;
-        }
-
-        static double callback6(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-            Assert::AreEqual(p6, false);
-
-            return 6;
-        }
-
-        static double callback5(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-
-            return 5;
-        }
-
-        static double callback4(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-
-            return 4;
-        }
-
-        static double callback3(const jsrt::call_info &info, std::wstring p1, double p2, bool p3)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-
-            return 3;
-        }
-
-        static double callback2(const jsrt::call_info &info, std::wstring p1, double p2)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-
-            return 2;
-        }
-
-        static double callback1(const jsrt::call_info &info, std::wstring p1)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-
-            return 1;
-        }
-
-        static double callback0(const jsrt::call_info &info)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            return 0;
-        }
-
-        static void callback8v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7, double p8)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-            Assert::AreEqual(p6, false);
-            Assert::AreEqual(p7, (std::wstring)L"baz");
-            Assert::AreEqual(p8, 8.0);
-        }
-
-        static void callback7v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-            Assert::AreEqual(p6, false);
-            Assert::AreEqual(p7, (std::wstring)L"baz");
-        }
-
-        static void callback6v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-            Assert::AreEqual(p6, false);
-        }
-
-        static void callback5v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-            Assert::AreEqual(p5, 5.0);
-        }
-
-        static void callback4v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
-        }
-
-        static void callback3v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-            Assert::AreEqual(p3, true);
-        }
-
-        static void callback2v(const jsrt::call_info &info, std::wstring p1, double p2)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-            Assert::AreEqual(p2, 2.0);
-        }
-
-        static void callback1v(const jsrt::call_info &info, std::wstring p1)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
-
-            Assert::AreEqual(p1, (std::wstring)L"foo");
-        }
-
-        static void callback0v(const jsrt::call_info &info)
-        {
-            Assert::AreEqual(info.callee().type(), JsFunction);
-            Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)(__int64)0xdeadbeef);
-            Assert::IsFalse(info.is_construct_call());
         }
 
         MY_TEST_METHOD(strongly_typed, "Test strongly typed functions.")

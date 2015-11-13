@@ -137,7 +137,7 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::error error = jsrt::error::create_syntax_error(L"");
                 Assert::IsFalse(jsrt::context::has_exception());
-                TEST_NULL_ARG_CALL(jsrt::context::set_exception(jsrt::value()));
+                TEST_INVALID_ARG_CALL(jsrt::context::set_exception(jsrt::value()));
                 jsrt::context::set_exception(error);
                 Assert::IsTrue(jsrt::context::has_exception());
                 jsrt::value value = jsrt::context::get_and_clear_exception();
