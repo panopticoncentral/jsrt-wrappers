@@ -57,7 +57,7 @@ namespace jsrtwrapperstest
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             size_t usage = runtime.memory_usage();
-            Assert::AreNotEqual(usage, (size_t)0);
+            Assert::AreNotEqual(usage, static_cast<size_t>(0));
             runtime.dispose();
         }
 
@@ -67,13 +67,13 @@ namespace jsrtwrapperstest
 
             jsrt::runtime runtime = jsrt::runtime::create();
             size_t limit = runtime.memory_limit();
-            Assert::AreEqual(limit, (size_t) -1);
+            Assert::AreEqual(limit, static_cast<size_t>(-1));
             runtime.set_memory_limit(onegb);
             limit = runtime.memory_limit();
             Assert::AreEqual(limit, onegb);
-            runtime.set_memory_limit((size_t) -1);
+            runtime.set_memory_limit(static_cast<size_t>(-1));
             limit = runtime.memory_limit();
-            Assert::AreEqual(limit, (size_t) -1);
+            Assert::AreEqual(limit, static_cast<size_t>(-1));
             runtime.dispose();
         }
 
@@ -81,7 +81,7 @@ namespace jsrtwrapperstest
 
         static bool CALLBACK allocation_callback(void *callbackState, JsMemoryEventType allocationEvent, size_t allocationSize)
         {
-            Assert::AreEqual(callbackState, (void *) 0xdeadbeef);
+            Assert::AreEqual(callbackState, reinterpret_cast<void *>(0xdeadbeef));
             callback_count++;
             return true;
         }
@@ -90,19 +90,19 @@ namespace jsrtwrapperstest
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             callback_count = 0;
-            runtime.set_memory_allocation_callback((void *) 0xdeadbeef, allocation_callback);
+            runtime.set_memory_allocation_callback(reinterpret_cast<void *>(0xdeadbeef), allocation_callback);
             {
                 jsrt::context context = runtime.create_context();
                 jsrt::context::scope scope(context);
             }
             runtime.set_memory_allocation_callback(nullptr, nullptr);
-            Assert::AreNotEqual(runtime::callback_count, 0);
+            Assert::AreNotEqual(callback_count, 0);
             runtime.dispose();
         }
 
         static void CALLBACK collect_callback(void *callbackState)
         {
-            Assert::AreEqual(callbackState, (void *) 0xdeadbeef);
+            Assert::AreEqual(callbackState, reinterpret_cast<void *>(0xdeadbeef));
             callback_count++;
         }
 
@@ -110,14 +110,14 @@ namespace jsrtwrapperstest
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             callback_count = 0;
-            runtime.set_before_collect_callback((void *) 0xdeadbeef, collect_callback);
+            runtime.set_before_collect_callback(reinterpret_cast<void *>(0xdeadbeef), collect_callback);
             {
                 jsrt::context context = runtime.create_context();
                 jsrt::context::scope scope(context);
                 runtime.collect_garbage();
             }
             runtime.set_before_collect_callback(nullptr, nullptr);
-            Assert::AreNotEqual(runtime::callback_count, 0);
+            Assert::AreNotEqual(callback_count, 0);
             runtime.dispose();
         }
 
@@ -199,22 +199,13 @@ namespace jsrtwrapperstest
             // JsRuntimeAttributeEnableIdleProcessing is tested with contexts
             // JsRuntimeAttributeDisableEval is tested in disable_eval
             jsrt::runtime runtime = jsrt::runtime::create(
-                (JsRuntimeAttributes) (
-                JsRuntimeAttributeDisableBackgroundWork |
-                JsRuntimeAttributeDisableNativeCodeGeneration));
+                static_cast<JsRuntimeAttributes>(JsRuntimeAttributeDisableBackgroundWork | JsRuntimeAttributeDisableNativeCodeGeneration));
             runtime.dispose();
 
             runtime = jsrt::runtime::create(JsRuntimeAttributeNone);
             runtime.dispose();
 
-            try
-            {
-                jsrt::runtime::create((JsRuntimeAttributes)0xFFFFFFFF);
-                Assert::Fail();
-            }
-            catch (jsrt::invalid_argument_exception)
-            {
-            }
+			TEST_INVALID_ARG_CALL(jsrt::runtime::create(static_cast<JsRuntimeAttributes>(0xFFFFFFFF)));
         }
 
         static bool CALLBACK service_callback(JsBackgroundWorkItemCallback callback, void *callbackState)
@@ -233,7 +224,7 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 runtime.collect_garbage();
             }
-            Assert::AreNotEqual(runtime::callback_count, 0);
+            Assert::AreNotEqual(callback_count, 0);
             runtime.dispose();
         }
     };

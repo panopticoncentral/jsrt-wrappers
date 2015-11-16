@@ -32,8 +32,6 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(no_context, "Test calls with no context.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
-            jsrt::error error;
             TEST_NO_CONTEXT_CALL(jsrt::error::create(L"foo"));
             runtime.dispose();
         }
@@ -57,7 +55,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::error::create(L"foo");
-                jsrt::error error = (jsrt::error)value;
+                static_cast<jsrt::error>(value);
             }
             runtime.dispose();
         }
@@ -69,12 +67,12 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::error::create(L"foo");
-                jsrt::error error = (jsrt::error)value;
-                Assert::AreEqual(error.name(), (std::wstring)L"Error");
-                Assert::AreEqual(error.message(), (std::wstring)L"foo");
+                jsrt::error error = static_cast<jsrt::error>(value);
+                Assert::AreEqual(error.name(), static_cast<std::wstring>(L"Error"));
+                Assert::AreEqual(error.message(), static_cast<std::wstring>(L"foo"));
 
                 error = jsrt::error::create(L"%s %d", L"foo", 20);
-                Assert::AreEqual(error.message(), (std::wstring)L"foo 20");
+                Assert::AreEqual(error.message(), static_cast<std::wstring>(L"foo 20"));
             }
             runtime.dispose();
         }
@@ -88,19 +86,19 @@ namespace jsrtwrapperstest
                 jsrt::error error;
 
                 error = jsrt::error::create_range_error(L"");
-                Assert::AreEqual(error.name(), (std::wstring)L"RangeError");
+                Assert::AreEqual(error.name(), static_cast<std::wstring>(L"RangeError"));
 
                 error = jsrt::error::create_reference_error(L"");
-                Assert::AreEqual(error.name(), (std::wstring)L"ReferenceError");
+                Assert::AreEqual(error.name(), static_cast<std::wstring>(L"ReferenceError"));
 
                 error = jsrt::error::create_syntax_error(L"");
-                Assert::AreEqual(error.name(), (std::wstring)L"SyntaxError");
+                Assert::AreEqual(error.name(), static_cast<std::wstring>(L"SyntaxError"));
 
                 error = jsrt::error::create_type_error(L"");
-                Assert::AreEqual(error.name(), (std::wstring)L"TypeError");
+                Assert::AreEqual(error.name(), static_cast<std::wstring>(L"TypeError"));
 
                 error = jsrt::error::create_uri_error(L"");
-                Assert::AreEqual(error.name(), (std::wstring)L"URIError");
+                Assert::AreEqual(error.name(), static_cast<std::wstring>(L"URIError"));
             }
             runtime.dispose();
         }

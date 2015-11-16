@@ -33,7 +33,7 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(context_handle, "Test a pinned context handle.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::pinned<jsrt::context> context = runtime.create_context();
+            jsrt::pinned<jsrt::context> context = static_cast<jsrt::pinned<jsrt::context>>(runtime.create_context());
             Assert::IsTrue(context->is_valid());
             context.release();
             Assert::IsFalse(context->is_valid());
@@ -45,14 +45,14 @@ namespace jsrtwrapperstest
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
             {
-                jsrt::pinned<jsrt::context> pinned_context = context;
-                Assert::AreEqual(context.add_reference(), (unsigned int) 2);
+                jsrt::pinned<jsrt::context> pinned_context = static_cast<jsrt::pinned<jsrt::context>>(context);
+                Assert::AreEqual(context.add_reference(), 2u);
                 jsrt::pinned<jsrt::context> another_pinned_context = pinned_context;
                 jsrt::pinned<jsrt::context> yet_another_pinned_context = std::move(pinned_context);
                 Assert::IsTrue(yet_another_pinned_context->is_valid());
-                Assert::AreEqual(context.release(), (unsigned int) 2);
+                Assert::AreEqual(context.release(), 2u);
             }
-            Assert::AreEqual(context.add_reference(), (unsigned int) 1);
+            Assert::AreEqual(context.add_reference(), 1u);
             context.release();
             runtime.dispose();
         }

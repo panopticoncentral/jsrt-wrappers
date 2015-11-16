@@ -61,25 +61,25 @@ namespace jsrtwrapperstest
 				jsrt::context::scope scope(context);
 				value = jsrt::boolean::true_value();
 			}
-			((jsrt::boolean)value).data();
+			static_cast<jsrt::boolean>(value).data();
 			TEST_NO_CONTEXT_CALL(jsrt::number::create(1.0));
 			{
 				jsrt::context::scope scope(context);
 				value = jsrt::number::create(10.0);
 			}
-			((jsrt::number)value).as_double();
+			static_cast<jsrt::number>(value).as_double();
 			{
 				jsrt::context::scope scope(context);
 				value = jsrt::number::create(10);
 			}
-			((jsrt::number)value).as_int();
+			static_cast<jsrt::number>(value).as_int();
 			TEST_NO_CONTEXT_CALL(jsrt::string::create(L"foo"));
 			{
 				jsrt::context::scope scope(context);
 				value = jsrt::string::create(L"foo");
 			}
-			((jsrt::string)value).data();
-			((jsrt::string)value).length();
+			static_cast<jsrt::string>(value).data();
+			static_cast<jsrt::string>(value).length();
 			runtime.dispose();
         }
 
@@ -152,11 +152,11 @@ namespace jsrtwrapperstest
                 v.vt = VT_I4;
                 v.intVal = 42;
                 jsrt::value value = jsrt::value::from_variant(&v);
-                Assert::AreEqual((int) value.type(), (int) JsNumber);
-                Assert::AreEqual(((jsrt::number) value).as_int(), 42);
+                Assert::AreEqual(static_cast<int>(value.type()), static_cast<int>(JsNumber));
+                Assert::AreEqual(static_cast<jsrt::number>(value).as_int(), 42);
                 value = jsrt::number::create(32);
                 value.to_variant(&v);
-                Assert::AreEqual((int) v.vt, (int) VT_I4);
+                Assert::AreEqual(static_cast<int>(v.vt), static_cast<int>(VT_I4));
                 Assert::AreEqual(v.intVal, 32);
             }
             runtime.dispose();
@@ -220,7 +220,7 @@ namespace jsrtwrapperstest
                 jsrt::value value = jsrt::string::create(L"foo");
                 jsrt::string string = jsrt::string::convert(value);
                 Assert::AreEqual(value.type(), JsString);
-                Assert::AreEqual(string.data(), (std::wstring) L"foo");
+                Assert::AreEqual(string.data(), static_cast<std::wstring>(L"foo"));
                 Assert::AreEqual(string.length(), 3);
             }
             runtime.dispose();

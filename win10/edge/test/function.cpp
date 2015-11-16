@@ -34,23 +34,23 @@ namespace jsrtwrapperstest
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
 
-			Assert::AreEqual(arguments.size(), (size_t)2);
+			Assert::AreEqual(arguments.size(), static_cast<size_t>(2));
 			Assert::AreEqual(arguments[0].type(), JsNumber);
-			Assert::AreEqual(((jsrt::number)arguments[0]).as_int(), 1);
+			Assert::AreEqual(static_cast<jsrt::number>(arguments[0]).as_int(), 1);
 			Assert::AreEqual(arguments[1].type(), JsNumber);
-			Assert::AreEqual(((jsrt::number)arguments[1]).as_int(), 2);
+			Assert::AreEqual(static_cast<jsrt::number>(arguments[1]).as_int(), 2);
 
-			if (((jsrt::object)info.this_value()).is_external())
+			if (static_cast<jsrt::object>(info.this_value()).is_external())
 			{
-				void *data = ((jsrt::external_object)info.this_value()).data();
-				Assert::AreEqual(data, (void *)0xdeadbeef);
+				void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+				Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 				Assert::IsFalse(info.is_construct_call());
 				return jsrt::number::create(2);
 			}
 			else
 			{
 				Assert::IsTrue(info.is_construct_call());
-				return jsrt::external_object::create((void *)0xdeadc0de);
+				return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadc0de));
 			}
 		}
 
@@ -58,18 +58,18 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 			Assert::AreEqual(p6, false);
-			Assert::AreEqual(p7, (std::wstring)L"baz");
+			Assert::AreEqual(p7, static_cast<std::wstring>(L"baz"));
 			Assert::AreEqual(p8, 8.0);
 
 			return 8;
@@ -79,18 +79,18 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 			Assert::AreEqual(p6, false);
-			Assert::AreEqual(p7, (std::wstring)L"baz");
+			Assert::AreEqual(p7, static_cast<std::wstring>(L"baz"));
 
 			return 7;
 		}
@@ -99,15 +99,15 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 			Assert::AreEqual(p6, false);
 
@@ -118,15 +118,15 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 
 			return 5;
@@ -136,15 +136,15 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 
 			return 4;
 		}
@@ -153,12 +153,12 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
 
@@ -169,12 +169,12 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 
 			return 2;
@@ -184,12 +184,12 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 
 			return 1;
 		}
@@ -198,9 +198,9 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
 			return 0;
@@ -210,18 +210,18 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 			Assert::AreEqual(p6, false);
-			Assert::AreEqual(p7, (std::wstring)L"baz");
+			Assert::AreEqual(p7, static_cast<std::wstring>(L"baz"));
 			Assert::AreEqual(p8, 8.0);
 		}
 
@@ -229,33 +229,33 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 			Assert::AreEqual(p6, false);
-			Assert::AreEqual(p7, (std::wstring)L"baz");
+			Assert::AreEqual(p7, static_cast<std::wstring>(L"baz"));
 		}
 
 		static void callback6v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6)
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 			Assert::AreEqual(p6, false);
 		}
@@ -264,15 +264,15 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 			Assert::AreEqual(p5, 5.0);
 		}
 
@@ -280,27 +280,27 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
-			Assert::AreEqual(p4, (std::wstring)L"bar");
+			Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 		}
 
 		static void callback3v(const jsrt::call_info &info, std::wstring p1, double p2, bool p3)
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 			Assert::AreEqual(p3, true);
 		}
@@ -309,12 +309,12 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 			Assert::AreEqual(p2, 2.0);
 		}
 
@@ -322,28 +322,27 @@ namespace jsrtwrapperstest
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 
-			Assert::AreEqual(p1, (std::wstring)L"foo");
+			Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 		}
 
 		static void callback0v(const jsrt::call_info &info)
 		{
 			Assert::AreEqual(info.callee().type(), JsFunction);
 			Assert::AreEqual(info.this_value().type(), JsObject);
-			Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-			void *data = ((jsrt::external_object)info.this_value()).data();
-			Assert::AreEqual(data, (void *)0xdeadbeef);
+			Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+			void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+			Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
 			Assert::IsFalse(info.is_construct_call());
 		}
 		
 		MY_TEST_METHOD(no_context, "Test calls with no context.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
 
             jsrt::function_base base_function;
             jsrt::function<double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double> f8;
@@ -537,14 +536,14 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::function_base func = jsrt::function_base::create(base_callback);
-                jsrt::value result = func(jsrt::external_object::create((void *)0xdeadbeef), { jsrt::number::create(1), jsrt::number::create(2) });
+                jsrt::value result = func(jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef)), { jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsNumber);
-                Assert::AreEqual(((jsrt::number)result).as_int(), 2);
+                Assert::AreEqual(static_cast<jsrt::number>(result).as_int(), 2);
 
                 result = func.construct({ jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsObject);
-                Assert::IsTrue(((jsrt::object)result).is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadc0de);
+                Assert::IsTrue(static_cast<jsrt::object>(result).is_external());
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadc0de));
             }
             runtime.dispose();
         }
@@ -556,14 +555,14 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::function_base func = jsrt::function_base::create(L"foo", base_callback);
-                jsrt::value result = func(jsrt::external_object::create((void *)0xdeadbeef), { jsrt::number::create(1), jsrt::number::create(2) });
+                jsrt::value result = func(jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef)), { jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsNumber);
-                Assert::AreEqual(((jsrt::number)result).as_int(), 2);
+                Assert::AreEqual(static_cast<jsrt::number>(result).as_int(), 2);
 
                 result = func.construct({ jsrt::number::create(1), jsrt::number::create(2) });
                 Assert::AreEqual(result.type(), JsObject);
-                Assert::IsTrue(((jsrt::object)result).is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadc0de);
+                Assert::IsTrue(static_cast<jsrt::object>(result).is_external());
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadc0de));
             }
             runtime.dispose();
         }
@@ -574,7 +573,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::object this_value = jsrt::external_object::create((void *)0xdeadbeef);
+                jsrt::object this_value = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f8 = jsrt::function<double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(callback8);
                 double result = f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
@@ -648,7 +647,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::object this_value = jsrt::external_object::create((void *)0xdeadbeef);
+                jsrt::object this_value = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f8 = jsrt::function<double, std::wstring, double, bool, std::wstring, double, bool, std::wstring, double>::create(L"foo", callback8);
                 double result = f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
@@ -722,7 +721,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::object this_value = jsrt::external_object::create((void *)0xdeadbeef);
+                jsrt::object this_value = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f8 = jsrt::function_base::create(callback8);
                 double result = f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
@@ -796,7 +795,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::object this_value = jsrt::external_object::create((void *)0xdeadbeef);
+                jsrt::object this_value = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f8 = jsrt::function_base::create(L"foo", callback8);
                 double result = f8(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", 8);
@@ -868,14 +867,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             if (p2.has_value())
             {
@@ -887,7 +886,7 @@ namespace jsrtwrapperstest
             }
             if (p4.has_value())
             {
-                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+                Assert::AreEqual(p4.value(), static_cast<std::wstring>(L"bar"));
             }
             if (p5.has_value())
             {
@@ -899,7 +898,7 @@ namespace jsrtwrapperstest
             }
             if (p7.has_value())
             {
-                Assert::AreEqual(p7.value(), (std::wstring)L"baz");
+                Assert::AreEqual(p7.value(), static_cast<std::wstring>(L"baz"));
             }
             for (auto &v : p8)
             {
@@ -911,14 +910,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             if (p2.has_value())
             {
@@ -930,7 +929,7 @@ namespace jsrtwrapperstest
             }
             if (p4.has_value())
             {
-                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+                Assert::AreEqual(p4.value(), static_cast<std::wstring>(L"bar"));
             }
             if (p5.has_value())
             {
@@ -942,7 +941,7 @@ namespace jsrtwrapperstest
             }
             for (auto &v : p7)
             {
-                Assert::AreEqual(v, (std::wstring)L"baz");
+                Assert::AreEqual(v, static_cast<std::wstring>(L"baz"));
             }
         }
 
@@ -950,14 +949,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             if (p2.has_value())
             {
@@ -969,7 +968,7 @@ namespace jsrtwrapperstest
             }
             if (p4.has_value())
             {
-                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+                Assert::AreEqual(p4.value(), static_cast<std::wstring>(L"bar"));
             }
             if (p5.has_value())
             {
@@ -977,7 +976,7 @@ namespace jsrtwrapperstest
             }
             for (auto &v : p6)
             {
-                Assert::AreEqual((bool)v, false);
+                Assert::AreEqual(static_cast<bool>(v), false);
             }
         }
 
@@ -985,14 +984,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             if (p2.has_value())
             {
@@ -1004,7 +1003,7 @@ namespace jsrtwrapperstest
             }
             if (p4.has_value())
             {
-                Assert::AreEqual(p4.value(), (std::wstring)L"bar");
+                Assert::AreEqual(p4.value(), static_cast<std::wstring>(L"bar"));
             }
             for (auto &v : p5)
             {
@@ -1016,14 +1015,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             if (p2.has_value())
             {
@@ -1035,7 +1034,7 @@ namespace jsrtwrapperstest
             }
             for (auto &v : p4)
             {
-                Assert::AreEqual(v, (std::wstring)L"bar");
+                Assert::AreEqual(v, static_cast<std::wstring>(L"bar"));
             }
         }
 
@@ -1043,14 +1042,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             if (p2.has_value())
             {
@@ -1058,7 +1057,7 @@ namespace jsrtwrapperstest
             }
             for (auto &v : p3)
             {
-                Assert::AreEqual((bool)v, true);
+                Assert::AreEqual(static_cast<bool>(v), true);
             }
         }
 
@@ -1066,14 +1065,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             if (p1.has_value())
             {
-                Assert::AreEqual(p1.value(), (std::wstring)L"foo");
+                Assert::AreEqual(p1.value(), static_cast<std::wstring>(L"foo"));
             }
             for (auto &v : p2)
             {
@@ -1085,14 +1084,14 @@ namespace jsrtwrapperstest
         {
             Assert::AreEqual(info.callee().type(), JsFunction);
             Assert::AreEqual(info.this_value().type(), JsObject);
-            Assert::IsTrue(((jsrt::object)info.this_value()).is_external());
-            void *data = ((jsrt::external_object)info.this_value()).data();
-            Assert::AreEqual(data, (void *)0xdeadbeef);
+            Assert::IsTrue(static_cast<jsrt::object>(info.this_value()).is_external());
+            void *data = static_cast<jsrt::external_object>(info.this_value()).data();
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
             Assert::IsFalse(info.is_construct_call());
 
             for (auto &v : p1)
             {
-                Assert::AreEqual(v, (std::wstring)L"foo");
+                Assert::AreEqual(v, static_cast<std::wstring>(L"foo"));
             }
         }
 
@@ -1102,7 +1101,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::object this_value = jsrt::external_object::create((void *)0xdeadbeef);
+                jsrt::object this_value = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f8o = jsrt::function<void, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, jsrt::optional<double>, jsrt::optional<bool>, jsrt::optional<std::wstring>, std::vector<double>>::create(callback8o);
                 f8o(this_value, L"foo", 2, true, L"bar", 5, false, L"baz", { 8 });
@@ -1145,16 +1144,16 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
             Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
+            Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
             Assert::AreEqual(p5, 5.0);
             Assert::AreEqual(p6, false);
-            Assert::AreEqual(p7, (std::wstring)L"baz");
+            Assert::AreEqual(p7, static_cast<std::wstring>(L"baz"));
             Assert::AreEqual(p8, 8.0);
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback7c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6, std::wstring p7)
@@ -1163,15 +1162,15 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
             Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
+            Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
             Assert::AreEqual(p5, 5.0);
             Assert::AreEqual(p6, false);
-            Assert::AreEqual(p7, (std::wstring)L"baz");
+            Assert::AreEqual(p7, static_cast<std::wstring>(L"baz"));
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback6c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5, bool p6)
@@ -1180,14 +1179,14 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
             Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
+            Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
             Assert::AreEqual(p5, 5.0);
             Assert::AreEqual(p6, false);
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback5c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4, double p5)
@@ -1196,13 +1195,13 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
             Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
+            Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
             Assert::AreEqual(p5, 5.0);
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback4c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3, std::wstring p4)
@@ -1211,12 +1210,12 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
             Assert::AreEqual(p3, true);
-            Assert::AreEqual(p4, (std::wstring)L"bar");
+            Assert::AreEqual(p4, static_cast<std::wstring>(L"bar"));
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback3c(const jsrt::call_info &info, std::wstring p1, double p2, bool p3)
@@ -1225,11 +1224,11 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
             Assert::AreEqual(p3, true);
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback2c(const jsrt::call_info &info, std::wstring p1, double p2)
@@ -1238,10 +1237,10 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
             Assert::AreEqual(p2, 2.0);
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback1c(const jsrt::call_info &info, std::wstring p1)
@@ -1250,9 +1249,9 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            Assert::AreEqual(p1, (std::wstring)L"foo");
+            Assert::AreEqual(p1, static_cast<std::wstring>(L"foo"));
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         static jsrt::object callback0c(const jsrt::call_info &info)
@@ -1261,7 +1260,7 @@ namespace jsrtwrapperstest
             Assert::AreEqual(info.this_value().type(), JsObject);
             Assert::IsTrue(info.is_construct_call());
 
-            return jsrt::external_object::create((void *)0xdeadbeef);
+            return jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
         }
 
         MY_TEST_METHOD(strongly_typed_constructors, "Test strongly typed constructor functions.")
@@ -1274,55 +1273,55 @@ namespace jsrtwrapperstest
                 jsrt::object result = f8.construct(L"foo", 2, true, L"bar", 5, false, L"baz", 8);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f7 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(callback7c);
                 result = f7.construct(L"foo", 2, true, L"bar", 5, false, L"baz");
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f6 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring, double, bool>::create(callback6c);
                 result = f6.construct(L"foo", 2, true, L"bar", 5, false);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f5 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring, double>::create(callback5c);
                 result = f5.construct(L"foo", 2, true, L"bar", 5);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f4 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring>::create(callback4c);
                 result = f4.construct(L"foo", 2, true, L"bar");
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f3 = jsrt::function<jsrt::object, std::wstring, double, bool>::create(callback3c);
                 result = f3.construct(L"foo", 2, true);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f2 = jsrt::function<jsrt::object, std::wstring, double>::create(callback2c);
                 result = f2.construct(L"foo", 2);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f1 = jsrt::function<jsrt::object, std::wstring>::create(callback1c);
                 result = f1.construct(L"foo");
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f0 = jsrt::function<jsrt::object>::create(callback0c);
                 result = f0.construct();
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
             }
             runtime.dispose();
         }
@@ -1337,55 +1336,55 @@ namespace jsrtwrapperstest
                 jsrt::object result = f8.construct(L"foo", 2, true, L"bar", 5, false, L"baz", 8);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f7 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring, double, bool, std::wstring>::create(L"foo", callback7c);
                 result = f7.construct(L"foo", 2, true, L"bar", 5, false, L"baz");
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f6 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring, double, bool>::create(L"foo", callback6c);
                 result = f6.construct(L"foo", 2, true, L"bar", 5, false);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f5 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring, double>::create(L"foo", callback5c);
                 result = f5.construct(L"foo", 2, true, L"bar", 5);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f4 = jsrt::function<jsrt::object, std::wstring, double, bool, std::wstring>::create(L"foo", callback4c);
                 result = f4.construct(L"foo", 2, true, L"bar");
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f3 = jsrt::function<jsrt::object, std::wstring, double, bool>::create(L"foo", callback3c);
                 result = f3.construct(L"foo", 2, true);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f2 = jsrt::function<jsrt::object, std::wstring, double>::create(L"foo", callback2c);
                 result = f2.construct(L"foo", 2);
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f1 = jsrt::function<jsrt::object, std::wstring>::create(L"foo", callback1c);
                 result = f1.construct(L"foo");
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
 
                 auto f0 = jsrt::function<jsrt::object>::create(L"foo", callback0c);
                 result = f0.construct();
                 Assert::IsTrue(result.is_valid());
                 Assert::IsTrue(result.is_external());
-                Assert::AreEqual(((jsrt::external_object)result).data(), (void *)0xdeadbeef);
+                Assert::AreEqual(static_cast<jsrt::external_object>(result).data(), reinterpret_cast<void *>(0xdeadbeef));
             }
             runtime.dispose();
         }
@@ -1427,7 +1426,7 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::object this_value = jsrt::external_object::create((void *)0xdeadbeef);
+                jsrt::object this_value = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadbeef));
 
                 auto t = jsrt::function<void>::create(callback_throws);
                 bool threw = false;

@@ -37,7 +37,7 @@ namespace jsrt
         _handle = JS_INVALID_RUNTIME_HANDLE;
     }
 
-    size_t runtime::memory_usage()
+    size_t runtime::memory_usage() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -50,7 +50,7 @@ namespace jsrt
         return memoryUsage;
     }
 
-    size_t runtime::memory_limit()
+    size_t runtime::memory_limit() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -63,7 +63,7 @@ namespace jsrt
         return memoryLimit;
     }
 
-    void runtime::set_memory_limit(size_t memory_limit)
+    void runtime::set_memory_limit(size_t memory_limit) const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -74,7 +74,7 @@ namespace jsrt
         runtime::translate_error_code(JsSetRuntimeMemoryLimit(_handle, memory_limit));
     }
 
-    void runtime::collect_garbage()
+    void runtime::collect_garbage() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -85,7 +85,7 @@ namespace jsrt
         runtime::translate_error_code(JsCollectGarbage(_handle));
     }
 
-    void runtime::set_memory_allocation_callback(void *callbackState, JsMemoryAllocationCallback allocationCallback)
+    void runtime::set_memory_allocation_callback(void *callbackState, JsMemoryAllocationCallback allocationCallback) const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -96,7 +96,7 @@ namespace jsrt
         runtime::translate_error_code(JsSetRuntimeMemoryAllocationCallback(_handle, callbackState, allocationCallback));
     }
 
-    void runtime::set_before_collect_callback(void *callbackState, JsBeforeCollectCallback beforeCollectCallback)
+    void runtime::set_before_collect_callback(void *callbackState, JsBeforeCollectCallback beforeCollectCallback) const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -107,7 +107,7 @@ namespace jsrt
         runtime::translate_error_code(JsSetRuntimeBeforeCollectCallback(_handle, callbackState, beforeCollectCallback));
     }
 
-    void runtime::disable_execution()
+    void runtime::disable_execution() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -118,7 +118,7 @@ namespace jsrt
         runtime::translate_error_code(JsDisableRuntimeExecution(_handle));
     }
 
-    void runtime::enable_execution()
+    void runtime::enable_execution() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -129,7 +129,7 @@ namespace jsrt
         runtime::translate_error_code(JsEnableRuntimeExecution(_handle));
     }
 
-    bool runtime::is_execution_disabled()
+    bool runtime::is_execution_disabled() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -233,7 +233,7 @@ namespace jsrt
         }
     }
 
-    context runtime::create_context()
+    context runtime::create_context() const
     {
         // TODO: Throws an access violation in this case, which shouldn't happen
         if (!is_valid())
@@ -248,7 +248,7 @@ namespace jsrt
         return context(newContext);
     }
 
-    void reference::set_before_collect_callback(void *callback_state, JsObjectBeforeCollectCallback beforeCollectCallback)
+    void reference::set_before_collect_callback(void *callback_state, JsObjectBeforeCollectCallback beforeCollectCallback) const
     {
         runtime::translate_error_code(JsSetObjectBeforeCollectCallback(_ref, callback_state, beforeCollectCallback));
     }
@@ -322,12 +322,12 @@ namespace jsrt
 
     void CALLBACK context::promise_thunk(JsValueRef task, void *callbackState)
     {
-        (*((std::function<void(jsrt::function<void>)> *)callbackState))(jsrt::function<void>(task));
+        (*static_cast<std::function<void(jsrt::function<void>)> *>(callbackState))(jsrt::function<void>(task));
     }
 
     void CALLBACK context::uwp_thunk(JsProjectionCallback jsCallback, JsProjectionCallbackContext jsContext, void *callbackState)
     {
-        (*((std::function<void(std::function<void()>)> *)callbackState))(std::bind(jsCallback, jsContext));
+        (*static_cast<std::function<void(std::function<void()>)> *>(callbackState))(std::bind(jsCallback, jsContext));
     }
 
     value context::undefined()
@@ -351,7 +351,7 @@ namespace jsrt
         return object(globalObject);
     }
 
-    symbol property_id::symbol()
+    symbol property_id::symbol() const
     {
         JsValueRef result;
         runtime::translate_error_code(JsGetSymbolFromPropertyId(_ref, &result));
@@ -365,14 +365,7 @@ namespace jsrt
         return property_id(propertyId);
     }
 
-    template<>
-    static JsErrorCode value::to_native(JsValueRef value, symbol *result)
-    {
-        *result = symbol(value);
-        return JsNoError;
-    }
-
-    boolean boolean::convert(value value)
+	boolean boolean::convert(value value)
     {
         JsValueRef booleanValue;
         runtime::translate_error_code(JsConvertValueToBoolean(value.handle(), &booleanValue));
@@ -393,7 +386,7 @@ namespace jsrt
         return string(stringValue);
     }
 
-    std::vector<symbol> object::get_own_property_symbols()
+    std::vector<symbol> object::get_own_property_symbols() const
     {
         std::vector<symbol> symbolsVector;
 
@@ -410,8 +403,8 @@ namespace jsrt
         return symbolsVector;
     }
 
-    std::vector<std::wstring> object::get_own_property_names()
-    {
+	std::vector<std::wstring> object::get_own_property_names() const
+	{
         std::vector<std::wstring> namesVector;
 
         JsValueRef names;

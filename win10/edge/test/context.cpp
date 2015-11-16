@@ -53,7 +53,6 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(no_context, "Test calls with no context.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
             Profiler profiler;
             TEST_NO_CONTEXT_CALL(jsrt::context::start_profiling(&profiler));
             TEST_NO_CONTEXT_CALL(jsrt::context::stop_profiling(S_OK));
@@ -153,10 +152,10 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse(L"1 + 2");
+                jsrt::function<double> func1 = static_cast<jsrt::function<double>>(jsrt::context::parse(L"1 + 2"));
                 Assert::AreEqual(func1(jsrt::context::undefined()), 3.0);
                 jsrt::context::run(L"function foo() { return 1 + 2; }");
-                Assert::AreEqual(((jsrt::number)jsrt::context::evaluate(L"foo()")).as_int(), 3);
+                Assert::AreEqual(static_cast<jsrt::number>(jsrt::context::evaluate(L"foo()")).as_int(), 3);
             }
             runtime.dispose();
         }
@@ -173,7 +172,7 @@ namespace jsrtwrapperstest
                 byte *buffer1 = new byte[func1_size];
                 jsrt::context::serialize(script1, buffer1, func1_size);
                 TEST_NULL_ARG_CALL(jsrt::context::parse_serialized(script1, nullptr));
-                jsrt::function<double> func1 = (jsrt::function<double>)jsrt::context::parse_serialized(script1, buffer1);
+                jsrt::function<double> func1 = static_cast<jsrt::function<double>>(jsrt::context::parse_serialized(script1, buffer1));
                 Assert::AreEqual(func1(jsrt::context::undefined()), 3.0);
 
                 const std::wstring script2 = L"function foo() { return 1 + 2; }";
@@ -188,7 +187,7 @@ namespace jsrtwrapperstest
                 byte *buffer3 = new byte[func3_size];
                 jsrt::context::serialize(script3, buffer3, func3_size);
                 TEST_NULL_ARG_CALL(jsrt::context::evaluate_serialized(script3, nullptr));
-                Assert::AreEqual(((jsrt::number)jsrt::context::evaluate_serialized(script3, buffer3)).as_int(), 3);
+                Assert::AreEqual(static_cast<jsrt::number>(jsrt::context::evaluate_serialized(script3, buffer3)).as_int(), 3);
 
                 delete[] buffer1;
                 delete[] buffer2;
@@ -294,7 +293,7 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(uwp_callbacks, "Test UWP projection callbacks.")
         {
             DWORD threadId;
-            HANDLE thread = CreateThread(NULL, 0, &uwp_thread, NULL, 0, &threadId);
+            HANDLE thread = CreateThread(nullptr, 0, &uwp_thread, nullptr, 0, &threadId);
             WaitForSingleObject(thread, INFINITE);
             CloseHandle(thread);
         }

@@ -136,7 +136,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::object::create();
-                jsrt::object object = (jsrt::object)value;
+                jsrt::object object = static_cast<jsrt::object>(value);
                 Assert::IsFalse(object.is_external());
             }
             runtime.dispose();
@@ -165,8 +165,8 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::object object = jsrt::object::create();
-                jsrt::object prototype = object.prototype();
-                prototype = jsrt::object::create();
+                object.prototype();
+				jsrt::object prototype = jsrt::object::create();
                 object.set_prototype(prototype);
                 Assert::AreEqual(prototype.handle(), object.prototype().handle());
                 object.prevent_extension();
@@ -192,7 +192,7 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(object.get_property<int>(jsrt::property_id::create(L"foo")), 10);
                 Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(L"bar")), 20.0);
                 Assert::AreEqual(object.get_property<bool>(jsrt::property_id::create(L"baz")), true);
-                Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(L"x")), (std::wstring)L"foo");
+                Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(L"x")), static_cast<std::wstring>(L"foo"));
                 Assert::AreEqual(object.get_property(jsrt::property_id::create(L"y")).handle(), object.handle());
 
                 Assert::AreEqual(object.get_property(jsrt::property_id::create(L"z")).handle(), jsrt::context::undefined().handle());
@@ -232,7 +232,7 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(object.get_property<int>(jsrt::property_id::create(foo)), 10);
                 Assert::AreEqual(object.get_property<double>(jsrt::property_id::create(bar)), 20.0);
                 Assert::AreEqual(object.get_property<bool>(jsrt::property_id::create(baz)), true);
-                Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(x)), (std::wstring)L"foo");
+                Assert::AreEqual(object.get_property<std::wstring>(jsrt::property_id::create(x)), static_cast<std::wstring>(L"foo"));
                 Assert::AreEqual(object.get_property(jsrt::property_id::create(y)).handle(), object.handle());
 
                 Assert::AreEqual(object.get_property(jsrt::property_id::create(z)).handle(), jsrt::context::undefined().handle());
@@ -284,7 +284,7 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::object object = jsrt::object::create();
 
-                Assert::AreEqual(object.get_own_property_names().size(), (size_t)0);
+                Assert::AreEqual(object.get_own_property_names().size(), static_cast<size_t>(0));
                 object.set_property<double>(jsrt::property_id::create(L"a"), 10);
                 jsrt::property_descriptor<double> desc = jsrt::property_descriptor<double>::create();
                 desc.set_enumerable(false);
@@ -293,9 +293,9 @@ namespace jsrtwrapperstest
                 object.set_property<double>(jsrt::property_id::create(jsrt::symbol::create(L"foo")), 10);
 
                 std::vector<std::wstring> properties = object.get_own_property_names();
-                Assert::AreEqual(properties.size(), (size_t)2);
-                Assert::AreEqual(properties[0], (std::wstring)L"a");
-                Assert::AreEqual(properties[1], (std::wstring)L"b");
+                Assert::AreEqual(properties.size(), static_cast<size_t>(2));
+                Assert::AreEqual(properties[0], static_cast<std::wstring>(L"a"));
+                Assert::AreEqual(properties[1], static_cast<std::wstring>(L"b"));
             }
             runtime.dispose();
         }
@@ -311,7 +311,7 @@ namespace jsrtwrapperstest
                 jsrt::symbol a = jsrt::symbol::create(L"a");
                 jsrt::symbol b = jsrt::symbol::create(L"b");
 
-                Assert::AreEqual(object.get_own_property_symbols().size(), (size_t)0);
+                Assert::AreEqual(object.get_own_property_symbols().size(), static_cast<size_t>(0));
                 object.set_property<double>(jsrt::property_id::create(a), 10);
                 jsrt::property_descriptor<double> desc = jsrt::property_descriptor<double>::create();
                 desc.set_enumerable(false);
@@ -320,7 +320,7 @@ namespace jsrtwrapperstest
                 object.set_property<double>(jsrt::property_id::create(L"foo"), 10);
 
                 std::vector<jsrt::symbol> properties = object.get_own_property_symbols();
-                Assert::AreEqual(properties.size(), (size_t)2);
+                Assert::AreEqual(properties.size(), static_cast<size_t>(2));
                 Assert::IsTrue(properties[0].strict_equals(a));
                 Assert::IsTrue(properties[1].strict_equals(b));
             }
@@ -346,7 +346,7 @@ namespace jsrtwrapperstest
                 Assert::AreEqual(object.get_index<double>(jsrt::string::create(L"0")), 10.0);
                 Assert::AreEqual(object.get_index<double>(1), 20.0);
                 Assert::AreEqual(object.get_index<bool>(jsrt::string::create(L"3")), true);
-                Assert::AreEqual(object.get_index<std::wstring>(4), (std::wstring)L"foo");
+                Assert::AreEqual(object.get_index<std::wstring>(4), static_cast<std::wstring>(L"foo"));
                 Assert::AreEqual(object.get_index(jsrt::string::create(L"5")).handle(), object.handle());
 
                 Assert::AreEqual(object.get_index(6).handle(), jsrt::context::undefined().handle());
@@ -384,7 +384,7 @@ namespace jsrtwrapperstest
 
         static void CALLBACK finalize(void *data)
         {
-            Assert::AreEqual(data, (void *) 0xdeadbeef);
+            Assert::AreEqual(data, reinterpret_cast<void *>(0xdeadbeef));
         }
 
         MY_TEST_METHOD(external, "Test external objects.")
@@ -394,13 +394,13 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::external_object::create();
-                jsrt::external_object object = (jsrt::external_object)value;
+                jsrt::external_object object = static_cast<jsrt::external_object>(value);
                 Assert::IsTrue(object.is_external());
-                Assert::AreEqual(object.data(), (void *)nullptr);
-                object = jsrt::external_object::create((void *) 0xdeadc0de, finalize);
-                Assert::AreEqual(object.data(), (void *) 0xdeadc0de);
-                object.set_data((void *) 0xdeadbeef);
-                Assert::AreEqual(object.data(), (void *) 0xdeadbeef);
+                Assert::AreEqual(object.data(), static_cast<void *>(nullptr));
+                object = jsrt::external_object::create(reinterpret_cast<void *>(0xdeadc0de), finalize);
+                Assert::AreEqual(object.data(), reinterpret_cast<void *>(0xdeadc0de));
+                object.set_data(reinterpret_cast<void *>(0xdeadbeef));
+                Assert::AreEqual(object.data(), reinterpret_cast<void *>(0xdeadbeef));
                 object = jsrt::external_object();
                 runtime.collect_garbage();
             }
@@ -415,9 +415,9 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::context::project_uwp_namespace(L"Windows");
                 auto uri = jsrt::context::evaluate(L"new Windows.Foundation.Uri('http://microsoft.com');");
-                IInspectable *uri_ptr = ((jsrt::object)uri).to_inspectable();
+                IInspectable *uri_ptr = static_cast<jsrt::object>(uri).to_inspectable();
                 Assert::IsNotNull(uri_ptr);
-                auto uri_copy = jsrt::object::create(uri_ptr);
+                jsrt::object::create(uri_ptr);
             }
             runtime.dispose();
         }

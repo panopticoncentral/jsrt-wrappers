@@ -68,17 +68,17 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::typed_array<short>::create(5);
-                jsrt::typed_array<short> array = (jsrt::typed_array<short>)value;
+                static_cast<jsrt::typed_array<short>>(value);
 
                 jsrt::array_buffer buffer = jsrt::array_buffer::create(8);
-                array = jsrt::typed_array<short>::create(buffer, 2, 3);
+				jsrt::typed_array<short> array = jsrt::typed_array<short>::create(buffer, 2, 3);
 
-                jsrt::typed_array<int> int_array = jsrt::typed_array<int>::create(array);
+                jsrt::typed_array<int>::create(array);
 
                 jsrt::array<int> base_array = jsrt::array<int>::create(5);
-                int_array = jsrt::typed_array<int>::create(base_array);
+                jsrt::typed_array<int>::create(base_array);
 
-                int_array = jsrt::typed_array<int>::create({ 1, 2, 3, 4 });
+                jsrt::typed_array<int>::create({ 1, 2, 3, 4 });
             }
             runtime.dispose();
         }
@@ -90,15 +90,15 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
 
-                auto int8 = jsrt::typed_array<char>::create(1);
-                auto uint8 = jsrt::typed_array<unsigned char>::create(1);
-                auto uint8clamped = jsrt::typed_array<unsigned char, true>::create(1);
-                auto int16 = jsrt::typed_array<short>::create(1);
-                auto uint16 = jsrt::typed_array<unsigned short>::create(1);
-                auto int32 = jsrt::typed_array<int>::create(1);
-                auto uint32 = jsrt::typed_array<unsigned int>::create(1);
-                auto single = jsrt::typed_array<float>::create(1);
-                auto dbl = jsrt::typed_array<double>::create(1);
+                jsrt::typed_array<char>::create(1);
+                jsrt::typed_array<unsigned char>::create(1);
+                jsrt::typed_array<unsigned char, true>::create(1);
+                jsrt::typed_array<short>::create(1);
+                jsrt::typed_array<unsigned short>::create(1);
+                jsrt::typed_array<int>::create(1);
+                jsrt::typed_array<unsigned int>::create(1);
+                jsrt::typed_array<float>::create(1);
+                jsrt::typed_array<double>::create(1);
             }
             runtime.dispose();
         }
@@ -129,14 +129,14 @@ namespace jsrtwrapperstest
                 jsrt::typed_array<double> darray = jsrt::typed_array<double>::create(buffer, 0, 2);
                 darray[0] = 10;
                 darray[1] = 20;
-                Assert::AreEqual((double)darray[0], 10.0);
-                Assert::AreEqual((double)darray[1], 20.0);
+                Assert::AreEqual(static_cast<double>(darray[0]), 10.0);
+                Assert::AreEqual(static_cast<double>(darray[1]), 20.0);
 
                 jsrt::typed_array<int> iarray = jsrt::typed_array<int>::create(buffer, 0, 2);
                 iarray[0] = 30;
                 iarray[1] = 40;
-                Assert::AreEqual((int)iarray[0], 30);
-                Assert::AreEqual((int)iarray[1], 40);
+                Assert::AreEqual(static_cast<int>(iarray[0]), 30);
+                Assert::AreEqual(static_cast<int>(iarray[1]), 40);
             }
             runtime.dispose();
         }

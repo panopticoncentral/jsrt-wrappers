@@ -37,7 +37,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::property_id id = jsrt::property_id::create(L"foo");
-                Assert::AreEqual(id.name(), (std::wstring) L"foo");
+                Assert::AreEqual(id.name(), static_cast<std::wstring>(L"foo"));
                 TEST_FAILED_CALL(id.symbol(), property_not_symbol_exception);
             }
             runtime.dispose();

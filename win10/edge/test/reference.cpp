@@ -41,8 +41,8 @@ namespace jsrtwrapperstest
         {
             jsrt::runtime runtime = jsrt::runtime::create();
             jsrt::context context = runtime.create_context();
-            Assert::AreEqual(context.add_reference(), (unsigned int) 1);
-            Assert::AreEqual(context.release(), (unsigned int) 0);
+            Assert::AreEqual(context.add_reference(), static_cast<unsigned int>(1));
+            Assert::AreEqual(context.release(), static_cast<unsigned int>(0));
             runtime.dispose();
         }
 
@@ -59,7 +59,7 @@ namespace jsrtwrapperstest
 
         static void CALLBACK collect_callback(JsRef ref, void *callbackState)
         {
-            Assert::AreEqual(callbackState, (void *)0xdeadbeef);
+            Assert::AreEqual(callbackState, reinterpret_cast<void *>(0xdeadbeef));
             TEST_FAILED_CALL(jsrt::error::create(L"test"), in_object_before_collect_callback_exception);
             callback_count++;
         }
@@ -72,7 +72,7 @@ namespace jsrtwrapperstest
                 jsrt::context context = runtime.create_context();
                 jsrt::context::scope scope(context);
                 jsrt::object object = jsrt::object::create();
-                object.set_before_collect_callback((void *)0xdeadbeef, collect_callback);
+                object.set_before_collect_callback(reinterpret_cast<void *>(0xdeadbeef), collect_callback);
                 object = jsrt::object();
                 runtime.collect_garbage();
             }

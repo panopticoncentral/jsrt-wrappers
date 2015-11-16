@@ -33,19 +33,19 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::pinned<jsrt::object> pinned_obj = jsrt::object::create();
+                jsrt::pinned<jsrt::object> pinned_obj = static_cast<jsrt::pinned<jsrt::object>>(jsrt::object::create());
 
                 jsrt::object obj = jsrt::object::create();
                 obj.set_property(jsrt::property_id::create(L"boolProperty"), true);
-                bool bool_value = obj.get_property<bool>(jsrt::property_id::create(L"boolProperty"));
+                obj.get_property<bool>(jsrt::property_id::create(L"boolProperty"));
                 obj.set_property(jsrt::property_id::create(L"stringProperty"), L"foo");
 
                 jsrt::array<double> darray = jsrt::array<double>::create(1);
                 darray[0] = 10;
                 darray[1] = 20;
 
-                auto f = (jsrt::function<double, double, double>)jsrt::context::evaluate(L"function f(a, b) { return a + b; }; f;");
-                double a = f(jsrt::context::undefined(), 1, 2);
+                auto f = static_cast<jsrt::function<double, double, double>>(jsrt::context::evaluate(L"function f(a, b) { return a + b; }; f;"));
+                f(jsrt::context::undefined(), 1, 2);
 
                 auto nf = jsrt::function<double, double, double>::create(add);
                 jsrt::context::global().set_property(jsrt::property_id::create(L"add"), nf);
@@ -53,8 +53,8 @@ namespace jsrtwrapperstest
 
                 auto bf = jsrt::bound_function<jsrt::value, double, double, double>(
                     jsrt::context::undefined(),
-                    (jsrt::function<double, double, double>)jsrt::context::evaluate(L"function f(a, b) { return a + b; }; f;"));
-                double ba = bf(1, 2);
+                    static_cast<jsrt::function<double, double, double>>(jsrt::context::evaluate(L"function f(a, b) { return a + b; }; f;")));
+                bf(1, 2);
             }
             runtime.dispose();
         }

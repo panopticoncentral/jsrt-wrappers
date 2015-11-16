@@ -70,8 +70,7 @@ namespace jsrt
     {
         friend class context;
 
-    private:
-        JsRuntimeHandle _handle;
+	    JsRuntimeHandle _handle;
 
         explicit runtime(JsRuntimeHandle runtime) :
             _handle(runtime)
@@ -90,7 +89,7 @@ namespace jsrt
         /// <summary>
         ///     The underlying runtime handle this class wraps.
         /// </summary>
-        JsRuntimeHandle handle()
+        JsRuntimeHandle handle() const
         {
             return _handle;
         }
@@ -98,7 +97,7 @@ namespace jsrt
         /// <summary>
         ///     Whether the handle is valid.
         /// </summary>
-        bool is_valid()
+        bool is_valid() const
         {
             return _handle != JS_INVALID_RUNTIME_HANDLE;
         }
@@ -121,7 +120,7 @@ namespace jsrt
         ///     on another thread.
         /// </remarks>
         /// <returns>The runtime's current memory usage, in bytes.</returns>
-        size_t memory_usage();
+        size_t memory_usage() const;
 
         /// <summary>
         ///     Gets the current memory limit for a runtime.
@@ -133,7 +132,7 @@ namespace jsrt
         /// <returns>
         ///     The runtime's current memory limit, in bytes, or -1 if no limit has been set.
         /// </returns>
-        size_t memory_limit();
+        size_t memory_limit() const;
 
         /// <summary>
         ///     Sets the current memory limit for a runtime.
@@ -154,12 +153,12 @@ namespace jsrt
         /// <param name="memory_limit">
         ///     The new runtime memory limit, in bytes, or -1 for no memory limit.
         /// </param>
-        void set_memory_limit(size_t memory_limit);
+        void set_memory_limit(size_t memory_limit) const;
 
         /// <summary>
         ///     Performs a full garbage collection.
         /// </summary>
-        void collect_garbage();
+        void collect_garbage() const;
 
         /// <summary>
         ///     Sets a memory allocation callback for specified runtime
@@ -187,7 +186,7 @@ namespace jsrt
         /// <param name="allocationCallback">
         ///     Memory allocation callback to be called for memory allocation events.
         /// </param>
-        void set_memory_allocation_callback(void *callback_state, JsMemoryAllocationCallback allocationCallback);
+        void set_memory_allocation_callback(void *callback_state, JsMemoryAllocationCallback allocationCallback) const;
 
         /// <summary>
         ///     Sets a callback function that is called by the runtime before garbage collection.
@@ -206,7 +205,7 @@ namespace jsrt
         ///     User provided state that will be passed back to the callback.
         /// </param>
         /// <param name="beforeCollectCallback">The callback function being set.</param>
-        void set_before_collect_callback(void *callback_state, JsBeforeCollectCallback beforeCollectCallback);
+        void set_before_collect_callback(void *callback_state, JsBeforeCollectCallback beforeCollectCallback) const;
 
         /// <summary>
         ///     Suspends script execution and terminates any running scripts in a runtime.
@@ -225,7 +224,7 @@ namespace jsrt
         ///     Suspending execution in a runtime that is already suspended is a no-op.
         ///     </para>
         /// </remarks>
-        void disable_execution();
+        void disable_execution() const;
 
         /// <summary>
         ///     Enables script execution in a runtime.
@@ -234,13 +233,13 @@ namespace jsrt
         ///     Enabling script execution in a runtime that already has script execution enabled is a 
         ///     no-op. 
         /// </remarks>
-        void enable_execution();
+        void enable_execution() const;
 
         /// <summary>
         ///     Returns a value that indicates whether script execution is disabled in the runtime.
         /// </summary>
         /// <returns>If execution is disabled, <c>true</c>, <c>false</c> otherwise.</returns>
-        bool is_execution_disabled();
+        bool is_execution_disabled() const;
 
         /// <summary>
         ///     Creates a script context for running scripts.
@@ -250,7 +249,7 @@ namespace jsrt
         ///     contexts.
         /// </remarks>
         /// <returns>The created script context.</returns>
-        context create_context();
+        context create_context() const;
 
         /// <summary>
         ///     Translates a Chakra error code into a wrapper exception.
@@ -308,7 +307,7 @@ namespace jsrt
         /// <summary>
         ///     Whether the handle is valid.
         /// </summary>
-        bool is_valid()
+        bool is_valid() const
         {
             return _ref != JS_INVALID_REFERENCE;
         }
@@ -322,7 +321,7 @@ namespace jsrt
         ///     refers to will not be freed until <c>release</c> is called.
         /// </remarks>
         /// <returns>The object's new reference count.</returns>
-        unsigned int add_reference()
+        unsigned int add_reference() const
         {
             unsigned int count;
             runtime::translate_error_code(JsAddRef(_ref, &count));
@@ -336,7 +335,7 @@ namespace jsrt
         ///     Removes a reference to a handle that was created by <c>add_reference</c>.
         /// </remarks>
         /// <returns>The object's new reference count (can pass in null).</returns>
-        unsigned int release()
+        unsigned int release() const
         {
             unsigned int count;
             runtime::translate_error_code(JsRelease(_ref, &count));
@@ -361,14 +360,14 @@ namespace jsrt
         ///     User provided state that will be passed back to the callback.
         /// </param>
         /// <param name="beforeCollectCallback">The callback function being set.</param>
-        void set_before_collect_callback(void *callback_state, JsObjectBeforeCollectCallback beforeCollectCallback);
+        void set_before_collect_callback(void *callback_state, JsObjectBeforeCollectCallback beforeCollectCallback) const;
 
-        bool operator ==(const reference &other)
+        bool operator ==(const reference &other) const
         {
             return this->handle() == other.handle();
         }
 
-        bool operator !=(const reference &other)
+        bool operator !=(const reference &other) const
         {
             return this->handle() != other.handle();
         }
@@ -385,7 +384,6 @@ namespace jsrt
     template<class T>
     class pinned
     {
-    private:
         T _reference;
 
     public:
@@ -401,7 +399,7 @@ namespace jsrt
         ///     Constructs a pinned reference from a reference.
         /// </summary>
         /// <param name="reference">The reference to pin.</param>
-        pinned(T reference) :
+        explicit pinned(T reference) :
             _reference(reference)
         {
             if (_reference.is_valid())
@@ -448,7 +446,7 @@ namespace jsrt
 
         T* operator->() const
         {
-            return (T *)&_reference;
+            return const_cast<T *>(&_reference);
         }
 
         T operator*() const
@@ -503,7 +501,6 @@ namespace jsrt
     {
         friend class runtime;
 
-    private:
         explicit context(JsContextRef context) :
             reference(context)
         {
@@ -530,7 +527,6 @@ namespace jsrt
         /// </remarks>
         class scope
         {
-        private:
             JsContextRef previousContext;
 
             // Disallow some operators to keep the scope on the stack, where it belongs.
@@ -559,7 +555,7 @@ namespace jsrt
         /// <summary>
         ///     Gets the runtime that the context belongs to.
         /// </summary>
-        runtime parent()
+        runtime parent() const
         {
             JsRuntimeHandle runtimeHandle;
             runtime::translate_error_code(JsGetRuntime(_ref, &runtimeHandle));
@@ -946,7 +942,6 @@ namespace jsrt
     /// </remarks>
     class property_id : public reference
     {
-    private:
         explicit property_id(JsPropertyIdRef propertyId) :
             reference(propertyId)
         {
@@ -970,7 +965,7 @@ namespace jsrt
         ///     </para>
         /// </remarks>
         /// <returns>The symbol associated with the property ID.</returns>
-        symbol symbol();
+        symbol symbol() const;
 
         /// <summary>
         ///     Gets the name associated with the property ID.
@@ -981,7 +976,7 @@ namespace jsrt
         ///     </para>
         /// </remarks>
         /// <returns>The name associated with the property ID.</returns>
-        const std::wstring name()
+        std::wstring name() const
         {
             const wchar_t *result;
             runtime::translate_error_code(JsGetPropertyNameFromId(_ref, &result));
@@ -1070,7 +1065,6 @@ namespace jsrt
     template<class T>
     class optional
     {
-    private:
         bool _hasValue;
         T _value;
 
@@ -1106,14 +1100,15 @@ namespace jsrt
         ///     Constructs an optional string value from a buffer.
         /// </summary>
         optional(typename optional_string_type<T>::type value) :
-            optional((std::wstring)value)
+			_hasValue(true),
+            _value(static_cast<std::wstring>(value))
         {
         }
 
         /// <summary>
         ///     Returns whether the optional value has a value in it.
         /// </summary>
-        bool has_value()
+        bool has_value() const
         {
             return _hasValue;
         }
@@ -1136,7 +1131,56 @@ namespace jsrt
         }
     };
 
-    /// <summary>
+	/// <summary>
+	///		A class to marshal values to/from native.
+	/// </summary>
+	class marshal
+	{
+	public:
+		template<class T>
+		static JsErrorCode to_native(JsValueRef value, T *result);
+
+		template<class T>
+		static JsErrorCode to_native(JsValueRef value, optional<T> *result);
+
+		template<class T>
+		static JsErrorCode from_native(T value, JsValueRef *result);
+
+		template<class T>
+		static JsErrorCode from_native(optional<T> value, JsValueRef *result);
+	};
+
+	template<>
+	JsErrorCode marshal::to_native(JsValueRef value, symbol *result);
+
+	template<>
+	JsErrorCode marshal::to_native<int>(JsValueRef value, int *result);
+
+	template<>
+	JsErrorCode marshal::to_native<double>(JsValueRef value, double *result);
+
+	template<>
+	JsErrorCode marshal::to_native<bool>(JsValueRef value, bool *result);
+
+	template<>
+	JsErrorCode marshal::to_native<std::wstring>(JsValueRef value, std::wstring *result);
+
+	template<>
+	JsErrorCode marshal::from_native(double value, JsValueRef *result);
+
+	template<>
+	JsErrorCode marshal::from_native(int value, JsValueRef *result);
+
+	template<>
+	JsErrorCode marshal::from_native(bool value, JsValueRef *result);
+
+	template<>
+	JsErrorCode marshal::from_native(std::wstring value, JsValueRef *result);
+
+	template<>
+	JsErrorCode marshal::from_native(const wchar_t *value, JsValueRef *result);
+
+	/// <summary>
     ///     A reference to a JavaScript value.
     /// </summary>
     class value : public reference
@@ -1151,133 +1195,6 @@ namespace jsrt
         friend class array_element;
 
     protected:
-        template<class T>
-        static JsErrorCode to_native(JsValueRef value, T *result)
-        {
-            *result = T(object(value));
-            return JsNoError;
-        }
-
-        template<class T>
-        static JsErrorCode to_native(JsValueRef value, optional<T> *result)
-        {
-            T innerValue;
-            JsErrorCode error = to_native(value, &innerValue);
-
-            if (error != JsNoError)
-            {
-                return error;
-            }
-
-            *result = optional<T>(innerValue);
-            return JsNoError;
-        }
-
-        template<>
-        static JsErrorCode to_native(JsValueRef value, symbol *result);
-
-        template<>
-        static JsErrorCode to_native<int>(JsValueRef value, int *result)
-        {
-            return JsNumberToInt(value, result);
-        }
-
-        template<>
-        static JsErrorCode to_native<double>(JsValueRef value, double *result)
-        {
-            return JsNumberToDouble(value, result);
-        }
-
-        template<>
-        static JsErrorCode to_native<bool>(JsValueRef value, bool *result)
-        {
-            return JsBooleanToBool(value, result);
-        }
-
-        template<>
-        static JsErrorCode to_native<std::wstring>(JsValueRef value, std::wstring *result)
-        {
-            JsValueType type;
-            JsErrorCode error = JsGetValueType(value, &type);
-            if (error != JsNoError)
-            {
-                return error;
-            }
-
-            if (type == JsNull)
-            {
-                *result = std::wstring();
-            }
-            else
-            {
-                const wchar_t *resultptr = nullptr;
-                size_t length;
-                error = JsStringToPointer(value, &resultptr, &length);
-                if (error == JsNoError)
-                {
-                    *result = std::wstring(resultptr, length);
-                }
-            }
-            return error;
-        }
-
-        template<class T>
-        static JsErrorCode from_native(T value, JsValueRef *result)
-        {
-            *result = value.handle();
-            return JsNoError;
-        }
-
-        template<class T>
-        static JsErrorCode from_native(optional<T> value, JsValueRef *result)
-        {
-            if (!value.has_value())
-            {
-                // shouldn't get here
-                return JsErrorInvalidArgument;
-            }
-
-            return from_native(value.value(), result);
-        }
-
-        template<>
-        static JsErrorCode from_native(double value, JsValueRef *result)
-        {
-            return JsDoubleToNumber(value, result);
-        }
-
-        template<>
-        static JsErrorCode from_native(int value, JsValueRef *result)
-        {
-            return JsIntToNumber(value, result);
-        }
-
-        template<>
-        static JsErrorCode from_native(bool value, JsValueRef *result)
-        {
-            return JsBoolToBoolean(value, result);
-        }
-
-        template<>
-        static JsErrorCode from_native(std::wstring value, JsValueRef *result)
-        {
-            if (value.empty())
-            {
-                return JsGetNullValue(result);
-            }
-            return JsPointerToString(value.c_str(), value.length(), result);
-        }
-
-        template<>
-        static JsErrorCode from_native(const wchar_t *value, JsValueRef *result)
-        {
-            if (value == nullptr)
-            {
-                return JsGetNullValue(result);
-            }
-            return JsPointerToString(value, wcslen(value), result);
-        }
-
         explicit value(JsValueRef ref) :
             reference(ref)
         {
@@ -1321,7 +1238,7 @@ namespace jsrt
         /// <param name="variant">
         ///     A pointer to a <c>VARIANT</c> struct that will be initialized as a projection.
         /// </param>
-        void to_variant(VARIANT *variant)
+        void to_variant(VARIANT *variant) const
         {
             runtime::translate_error_code(JsValueToVariant(_ref, variant));
         }
@@ -1339,7 +1256,7 @@ namespace jsrt
         /// </remarks>
         /// <param name="other>The object to compare.</param>
         /// <returns>Whether the values are equal.</returns>
-        bool equals(value other)
+        bool equals(value other) const
         {
             bool isEqual;
             runtime::translate_error_code(JsEquals(handle(), other.handle(), &isEqual));
@@ -1359,7 +1276,7 @@ namespace jsrt
         /// </remarks>
         /// <param name="other>The object to compare.</param>
         /// <returns>Whether the values are equal.</returns>
-        bool strict_equals(value other)
+        bool strict_equals(value other) const
         {
             bool isEqual;
             runtime::translate_error_code(JsStrictEquals(handle(), other.handle(), &isEqual));
@@ -1388,14 +1305,13 @@ namespace jsrt
         }
     };
 
-    /// <summary>
+	/// <summary>
     ///     A reference to a JavaScript Boolean value.
     /// </summary>
     class boolean : public value
     {
         friend class value;
 
-    private:
         explicit boolean(JsValueRef ref) :
             value(ref)
         {
@@ -1428,10 +1344,10 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The converted value.</returns>
-        bool data()
+        bool data() const
         {
             bool result;
-            runtime::translate_error_code(to_native(_ref, &result));
+            runtime::translate_error_code(marshal::to_native(_ref, &result));
             return result;
         }
 
@@ -1474,7 +1390,7 @@ namespace jsrt
         static boolean create(bool value)
         {
             JsValueRef result;
-            runtime::translate_error_code(from_native(value, &result));
+            runtime::translate_error_code(marshal::from_native(value, &result));
             return boolean(result);
         }
 
@@ -1496,7 +1412,6 @@ namespace jsrt
     {
         friend class value;
 
-    private:
         explicit number(JsValueRef ref) :
             value(ref)
         {
@@ -1529,10 +1444,10 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The <c>int</c> value.</returns>
-        int as_int()
+        int as_int() const
         {
             int result;
-            runtime::translate_error_code(to_native(_ref, &result));
+            runtime::translate_error_code(marshal::to_native(_ref, &result));
             return result;
         }
 
@@ -1543,10 +1458,10 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The <c>double</c> value.</returns>
-        double as_double()
+        double as_double() const
         {
             double result;
-            runtime::translate_error_code(to_native(_ref, &result));
+            runtime::translate_error_code(marshal::to_native(_ref, &result));
             return result;
         }
 
@@ -1561,7 +1476,7 @@ namespace jsrt
         static number create(double value)
         {
             JsValueRef result;
-            runtime::translate_error_code(from_native(value, &result));
+            runtime::translate_error_code(marshal::from_native(value, &result));
             return number(result);
         }
 
@@ -1576,7 +1491,7 @@ namespace jsrt
         static number create(int value)
         {
             JsValueRef result;
-            runtime::translate_error_code(from_native(value, &result));
+            runtime::translate_error_code(marshal::from_native(value, &result));
             return number(result);
         }
 
@@ -1598,7 +1513,6 @@ namespace jsrt
     {
         friend class value;
 
-    private:
         explicit string(JsValueRef ref) :
             value(ref)
         {
@@ -1631,7 +1545,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The length of the string.</returns>
-        int length()
+        int length() const
         {
             int length;
             runtime::translate_error_code(JsGetStringLength(_ref, &length));
@@ -1641,10 +1555,10 @@ namespace jsrt
         /// <summary>
         ///     Returns the underlying string value.
         /// </summary>
-        std::wstring data()
+        std::wstring data() const
         {
             std::wstring result;
-            runtime::translate_error_code(to_native(_ref, &result));
+            runtime::translate_error_code(marshal::to_native(_ref, &result));
             return result;
         }
 
@@ -1659,7 +1573,7 @@ namespace jsrt
         static string create(std::wstring value)
         {
             JsValueRef result;
-            runtime::translate_error_code(from_native(value, &result));
+            runtime::translate_error_code(marshal::from_native(value, &result));
             return string(result);
         }
 
@@ -1679,10 +1593,9 @@ namespace jsrt
     /// </summary>
     class symbol : public value
     {
-        friend class value;
+        friend class marshal;
         friend class property_id;
 
-    private:
         explicit symbol(JsValueRef symbol) :
             value(symbol)
         {
@@ -1729,7 +1642,6 @@ namespace jsrt
     template<>
     struct typed_array_type<char, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeInt8;
         static const std::wstring type_name;
         static const int size = 1;
@@ -1738,7 +1650,6 @@ namespace jsrt
     template<>
     struct typed_array_type<unsigned char, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeUint8;
         static const std::wstring type_name;
         static const int size = 1;
@@ -1747,7 +1658,6 @@ namespace jsrt
     template<>
     struct typed_array_type<unsigned char, true>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeUint8Clamped;
         static const int size = 1;
     };
@@ -1755,7 +1665,6 @@ namespace jsrt
     template<>
     struct typed_array_type<short, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeInt16;
         static const std::wstring type_name;
         static const int size = 2;
@@ -1764,7 +1673,6 @@ namespace jsrt
     template<>
     struct typed_array_type<unsigned short, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeUint16;
         static const std::wstring type_name;
         static const int size = 2;
@@ -1773,7 +1681,6 @@ namespace jsrt
     template<>
     struct typed_array_type<int, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeInt32;
         static const std::wstring type_name;
         static const int size = 4;
@@ -1782,7 +1689,6 @@ namespace jsrt
     template<>
     struct typed_array_type<unsigned int, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeUint32;
         static const std::wstring type_name;
         static const int size = 4;
@@ -1791,7 +1697,6 @@ namespace jsrt
     template<>
     struct typed_array_type<float, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeFloat32;
         static const std::wstring type_name;
         static const int size = 4;
@@ -1800,7 +1705,6 @@ namespace jsrt
     template<>
     struct typed_array_type<double, false>
     {
-    public:
         static const JsTypedArrayType type = JsArrayTypeFloat64;
         static const std::wstring type_name;
         static const int size = 8;
@@ -1813,7 +1717,7 @@ namespace jsrt
     {
         friend class function_base;
         friend class context;
-        friend class value;
+        friend class marshal;
 
     protected:
         explicit object(JsValueRef ref) :
@@ -1877,7 +1781,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The object's prototype.</returns>
-        object prototype()
+        object prototype() const
         {
             JsValueRef prototype;
             runtime::translate_error_code(JsGetPrototype(handle(), &prototype));
@@ -1891,7 +1795,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The object's new prototype.</returns>
-        void set_prototype(object prototype)
+        void set_prototype(object prototype) const
         {
             runtime::translate_error_code(JsSetPrototype(handle(), prototype.handle()));
         }
@@ -1902,7 +1806,7 @@ namespace jsrt
         /// <remarks>
         ///     Requires an active script context.
         /// </remarks>
-        void prevent_extension()
+        void prevent_extension() const
         {
             runtime::translate_error_code(JsPreventExtension(handle()));
         }
@@ -1922,7 +1826,7 @@ namespace jsrt
             runtime::translate_error_code(JsGetProperty(handle(), name.handle(), &value));
 
             T returnValue;
-            runtime::translate_error_code(to_native(value, &returnValue));
+            runtime::translate_error_code(marshal::to_native(value, &returnValue));
 
             return returnValue;
         }
@@ -1951,7 +1855,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>An array of property names.</returns>
-        std::vector<std::wstring> get_own_property_names();
+        std::vector<std::wstring> get_own_property_names() const;
 
         /// <summary>
         ///     Gets the list of all symbol properties on the object.
@@ -1960,7 +1864,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>An array of property symbols.</returns>
-        std::vector<symbol> get_own_property_symbols();
+        std::vector<symbol> get_own_property_symbols() const;
 
         /// <summary>
         ///     Puts an object's property.
@@ -1975,7 +1879,7 @@ namespace jsrt
         void set_property(property_id name, T value, bool use_strict_rules = true)
         {
             JsValueRef valueReference;
-            runtime::translate_error_code(from_native(value, &valueReference));
+            runtime::translate_error_code(marshal::from_native(value, &valueReference));
 
             runtime::translate_error_code(JsSetProperty(handle(), name.handle(), valueReference, use_strict_rules));
         }
@@ -1988,7 +1892,7 @@ namespace jsrt
         /// </remarks>
         /// <param name="name">The ID of the property.</param>
         /// <returns>Whether the object (or a prototype) has the property.</returns>
-        bool has_property(property_id name)
+        bool has_property(property_id name) const
         {
             bool hasProperty;
             runtime::translate_error_code(JsHasProperty(handle(), name.handle(), &hasProperty));
@@ -2011,7 +1915,7 @@ namespace jsrt
             runtime::translate_error_code(JsDeleteProperty(handle(), name.handle(), use_strict_rules, &value));
 
             T returnValue;
-            runtime::translate_error_code(to_native(value, &returnValue));
+            runtime::translate_error_code(marshal::to_native(value, &returnValue));
 
             return returnValue;
         }
@@ -2049,7 +1953,7 @@ namespace jsrt
             runtime::translate_error_code(JsGetIndexedProperty(handle(), index.handle(), &value));
 
             T returnValue;
-            runtime::translate_error_code(to_native(value, &returnValue));
+            runtime::translate_error_code(marshal::to_native(value, &returnValue));
 
             return returnValue;
         }
@@ -2072,7 +1976,7 @@ namespace jsrt
             runtime::translate_error_code(JsGetIndexedProperty(handle(), indexValue, &value));
 
             T returnValue;
-            runtime::translate_error_code(to_native(value, &returnValue));
+            runtime::translate_error_code(marshal::to_native(value, &returnValue));
 
             return returnValue;
         }
@@ -2089,7 +1993,7 @@ namespace jsrt
         void set_index(value index, T value)
         {
             JsValueRef valueReference;
-            runtime::translate_error_code(from_native(value, &valueReference));
+            runtime::translate_error_code(marshal::from_native(value, &valueReference));
 
             runtime::translate_error_code(JsSetIndexedProperty(handle(), index.handle(), valueReference));
         }
@@ -2109,7 +2013,7 @@ namespace jsrt
             runtime::translate_error_code(JsIntToNumber(index, &indexValue));
 
             JsValueRef valueReference;
-            runtime::translate_error_code(from_native(value, &valueReference));
+            runtime::translate_error_code(marshal::from_native(value, &valueReference));
 
             runtime::translate_error_code(JsSetIndexedProperty(handle(), indexValue, valueReference));
         }
@@ -2122,7 +2026,7 @@ namespace jsrt
         /// </remarks>
         /// <param name="index">The index to test.</param>
         /// <returns>Whether the object has an value at the specified index.</returns>
-        bool has_index(value index)
+        bool has_index(value index) const
         {
             bool hasProperty;
             runtime::translate_error_code(JsHasIndexedProperty(handle(), index.handle(), &hasProperty));
@@ -2137,7 +2041,7 @@ namespace jsrt
         /// </remarks>
         /// <param name="index">The index to test.</param>
         /// <returns>Whether the object has an value at the specified index.</returns>
-        bool has_index(int index)
+        bool has_index(int index) const
         {
             JsValueRef indexValue;
             runtime::translate_error_code(JsIntToNumber(index, &indexValue));
@@ -2154,7 +2058,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <param name="index">The index to delete.</param>
-        void delete_index(value index)
+        void delete_index(value index) const
         {
             runtime::translate_error_code(JsDeleteIndexedProperty(handle(), index.handle()));
         }
@@ -2166,7 +2070,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <param name="index">The index to delete.</param>
-        void delete_index(int index)
+        void delete_index(int index) const
         {
             JsValueRef indexValue;
             runtime::translate_error_code(JsIntToNumber(index, &indexValue));
@@ -2182,7 +2086,7 @@ namespace jsrt
         /// <returns>
         ///     Whether the object has its indexed properties in external data.
         /// </returns>
-        bool has_external_indexes()
+        bool has_external_indexes() const
         {
             bool value;
             runtime::translate_error_code(JsHasIndexedPropertiesExternalData(handle(), &value));
@@ -2198,7 +2102,7 @@ namespace jsrt
         /// <returns>
         ///     The object's indexed properties external data.
         /// </returns>
-        void *external_indexes_data()
+        void *external_indexes_data() const
         {
             void *data;
             unsigned int size;
@@ -2216,7 +2120,7 @@ namespace jsrt
         /// <returns>
         ///     The object's indexed properties external data size in elements.
         /// </returns>
-        unsigned int external_indexes_size()
+        unsigned int external_indexes_size() const
         {
             void *data;
             unsigned int size;
@@ -2234,7 +2138,7 @@ namespace jsrt
         /// <returns>
         ///     The object's indexed properties external data type.
         /// </returns>
-        JsTypedArrayType external_indexes_type()
+        JsTypedArrayType external_indexes_type() const
         {
             void *data;
             unsigned int size;
@@ -2272,7 +2176,7 @@ namespace jsrt
         template<class T, bool clamped>
         void set_external_indexes(typed_array<T, clamped> array)
         {
-            runtime::translate_error_code(JsSetIndexedPropertiesToExternalData(handle(), (void *)array.data(), array.type(), array.data_size() / array.element_size()));
+            runtime::translate_error_code(JsSetIndexedPropertiesToExternalData(handle(), static_cast<void *>(array.data()), array.type(), array.data_size() / array.element_size()));
         }
 
         /// <summary>
@@ -2289,7 +2193,7 @@ namespace jsrt
         /// <returns>
         ///     The <c>IInspectable</c> value of the object.
         /// </returns>
-        IInspectable *to_inspectable()
+        IInspectable *to_inspectable() const
         {
             IInspectable *inspectable;
             runtime::translate_error_code(JsObjectToInspectable(_ref, &inspectable));
@@ -2341,7 +2245,6 @@ namespace jsrt
     {
         friend class value;
 
-    private:
         explicit external_object(JsValueRef ref) :
             object(ref)
         {
@@ -2377,7 +2280,7 @@ namespace jsrt
         ///     The external data stored in the object. Can be null if no external data is stored
         ///     in the object.
         /// </returns>
-        void *data()
+        void *data() const
         {
             void *data;
             runtime::translate_error_code(JsGetExternalData(handle(), &data));
@@ -2394,7 +2297,7 @@ namespace jsrt
         ///     The external data to be stored in the object. Can be null if no external data is 
         ///     to be stored in the object.
         /// </param>
-        void set_data(void *data)
+        void set_data(void *data) const
         {
             runtime::translate_error_code(JsSetExternalData(handle(), data));
         }
@@ -2432,7 +2335,6 @@ namespace jsrt
     template<class T>
     class array_element
     {
-    private:
         value _array;
         value _index;
 
@@ -2460,7 +2362,7 @@ namespace jsrt
         array_element operator=(T value)
         {
             JsValueRef valueReference;
-            runtime::translate_error_code(value::from_native<T>(value, &valueReference));
+            runtime::translate_error_code(marshal::from_native<T>(value, &valueReference));
             runtime::translate_error_code(JsSetIndexedProperty(_array.handle(), _index.handle(), valueReference));
             return *this;
         }
@@ -2471,7 +2373,7 @@ namespace jsrt
             runtime::translate_error_code(JsGetIndexedProperty(_array.handle(), _index.handle(), &valueReference));
 
             T value;
-            runtime::translate_error_code(value::to_native(valueReference, &value));
+            runtime::translate_error_code(marshal::to_native(valueReference, &value));
 
             return value;
         }
@@ -2486,7 +2388,6 @@ namespace jsrt
         friend class object;
         friend class value;
 
-    private:
         explicit array(JsValueRef ref) :
             object(ref)
         {
@@ -2524,7 +2425,7 @@ namespace jsrt
         ///     Requires an active script context.
         /// </remarks>
         /// <returns>The size of the array.</returns>
-        int size()
+        int size() const
         {
             JsPropertyIdRef lengthName;
             JsValueRef lengthValue;
@@ -2562,9 +2463,9 @@ namespace jsrt
         /// <returns>The new array object.</returns>
         static array<T> create(std::initializer_list<T> values)
         {
-            array<T> array = create((unsigned int)values.size());
+            array<T> array = create(static_cast<unsigned int>(values.size()));
             int index = 0;
-            for (auto iter = values.begin(); iter != values.end(); iter++)
+            for (auto iter = values.begin(); iter != values.end(); ++iter)
             {
                 array[index++] = *iter;
             }
@@ -2578,7 +2479,6 @@ namespace jsrt
     /// </summary>
     class array_buffer : public object
     {
-    private:
         explicit array_buffer(JsValueRef ref) :
             object(ref)
         {
@@ -2620,7 +2520,7 @@ namespace jsrt
         /// <returns>
         ///     The data stored in the ArrayBuffer.
         /// </returns>
-        unsigned char *data()
+        unsigned char *data() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2637,7 +2537,7 @@ namespace jsrt
         /// <returns>
         ///     The size of the data stored in the ArrayBuffer in bytes.
         /// </returns>
-        unsigned int size()
+        unsigned int size() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2667,7 +2567,6 @@ namespace jsrt
     template<endedness byte_order = endedness::little_endian>
     class data_view : public object
     {
-    private:
         explicit data_view(JsValueRef ref) :
             object(ref)
         {
@@ -2709,7 +2608,7 @@ namespace jsrt
         /// <returns>
         ///     The data stored in the DataView.
         /// </returns>
-        unsigned char *data()
+        unsigned char *data() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2726,7 +2625,7 @@ namespace jsrt
         /// <returns>
         ///     The size of the data stored in the DataView in bytes.
         /// </returns>
-        unsigned int size()
+        unsigned int size() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2744,14 +2643,12 @@ namespace jsrt
         {
             if (typed_array_type<T, false>::size > 1)
             {
-                auto accessor = get_property<function<T, int, bool>>(jsrt::property_id::create((std::wstring)L"get" + typed_array_type<T, false>::type_name));
+                auto accessor = get_property<function<T, int, bool>>(jsrt::property_id::create(static_cast<std::wstring>(L"get") + typed_array_type<T, false>::type_name));
                 return accessor(jsrt::value(handle()), offset, byte_order == endedness::little_endian);
             }
-            else
-            {
-                auto accessor = get_property<function<T, int>>(jsrt::property_id::create((std::wstring)L"get" + typed_array_type<T, false>::type_name));
-                return accessor(jsrt::value(handle()), offset);
-            }
+
+            auto accessor = get_property<function<T, int>>(jsrt::property_id::create(static_cast<std::wstring>(L"get") + typed_array_type<T, false>::type_name));
+            return accessor(jsrt::value(handle()), offset);
         }
 
         /// <summary>
@@ -2764,12 +2661,12 @@ namespace jsrt
         {
             if (typed_array_type<T, false>::size > 1)
             {
-                auto accessor = get_property<function<void, int, T, bool>>(jsrt::property_id::create((std::wstring)L"set" + typed_array_type<T, false>::type_name));
+                auto accessor = get_property<function<void, int, T, bool>>(jsrt::property_id::create(static_cast<std::wstring>(L"set") + typed_array_type<T, false>::type_name));
                 accessor(jsrt::value(handle()), offset, value, byte_order == endedness::little_endian);
             }
             else
             {
-                auto accessor = get_property<function<void, int, T>>(jsrt::property_id::create((std::wstring)L"set" + typed_array_type<T, false>::type_name));
+                auto accessor = get_property<function<void, int, T>>(jsrt::property_id::create(static_cast<std::wstring>(L"set") + typed_array_type<T, false>::type_name));
                 accessor(jsrt::value(handle()), offset, value);
             }
         }
@@ -2829,7 +2726,6 @@ namespace jsrt
     template<class T, bool clamped>
     class typed_array : public object
     {
-    private:
         explicit typed_array(JsValueRef ref) :
             object(ref)
         {
@@ -2876,7 +2772,7 @@ namespace jsrt
         /// <returns>
         ///     The data stored in the TypedArray.
         /// </returns>
-        unsigned char *data()
+        unsigned char *data() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2895,7 +2791,7 @@ namespace jsrt
         /// <returns>
         ///     The size of the data stored in the TypedArray in bytes.
         /// </returns>
-        unsigned int data_size()
+        unsigned int data_size() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2914,7 +2810,7 @@ namespace jsrt
         /// <returns>
         ///     The type of the data stored in the TypedArray.
         /// </returns>
-        JsTypedArrayType type()
+        JsTypedArrayType type() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2933,7 +2829,7 @@ namespace jsrt
         /// <returns>
         ///     The element size in bytesof the data stored in the TypedArray.
         /// </returns>
-        int element_size()
+        int element_size() const
         {
             unsigned char *data;
             unsigned int size;
@@ -2954,10 +2850,10 @@ namespace jsrt
         static typed_array create(unsigned int length)
         {
             JsValueRef array;
-			array_buffer base = array_buffer::create(typed_array_type<T, clamped>::size * length);
-			runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base.handle(), 0, length, &array));
-			// TODO: This is broken in Windows 10 TH2, incorrectly returns JsInvalidArgument
-			//runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, JS_INVALID_REFERENCE, 0, length, &array));
+            array_buffer base = array_buffer::create(typed_array_type<T, clamped>::size * length);
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base.handle(), 0, length, &array));
+            // TODO: This is broken in Windows 10 TH2, incorrectly returns JsInvalidArgument
+            //runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, JS_INVALID_REFERENCE, 0, length, &array));
             return typed_array(array);
         }
 
@@ -3033,11 +2929,11 @@ namespace jsrt
         /// </remarks>
         /// <param name="buffer">The <c>array</c> to copy from.</param>
         /// <returns>The new TypedArray object.</returns>
-        template<class T>
-        static typed_array create(array<T> base_array)
+        template<class U>
+        static typed_array create(array<U> base_array)
         {
             JsValueRef array;
-            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<T, clamped>::type, base_array.handle(), 0, 0, &array));
+            runtime::translate_error_code(JsCreateTypedArray(typed_array_type<U, clamped>::type, base_array.handle(), 0, 0, &array));
             return typed_array(array);
         }
 
@@ -3053,10 +2949,10 @@ namespace jsrt
         {
             auto buffer = array_buffer::create(sizeof(T) * values.size());
             auto view = data_view<>::create(buffer);
-            int index = 0;
-            for (auto iter = values.begin(); iter != values.end(); iter++)
+	        auto index = 0;
+            for (auto iter = values.begin(); iter != values.end(); ++iter)
             {
-                view.set<T>(sizeof(T) * index++, *iter);
+                view.template set<T>(sizeof(T) * index++, *iter);
             }
 
             return create(buffer);
@@ -3071,7 +2967,6 @@ namespace jsrt
     {
         friend class value;
 
-    private:
         static JsValueRef format_message(std::wstring message, va_list argptr)
         {
             wchar_t buffer[2048];
@@ -3118,7 +3013,7 @@ namespace jsrt
 
             if (name.has_value() && name.value().type() == JsString)
             {
-                return ((string)name.value()).data();
+                return static_cast<string>(name.value()).data();
             }
 
             return L"";
@@ -3133,7 +3028,7 @@ namespace jsrt
 
             if (message.has_value() && message.value().type() == JsString)
             {
-                return ((string)message.value()).data();
+                return static_cast<string>(message.value()).data();
             }
 
             return L"";
@@ -3259,7 +3154,6 @@ namespace jsrt
     /// </summary>
     class call_info
     {
-    private:
         value _callee;
         value _this_value;
         bool _is_construct_call;
@@ -3318,7 +3212,6 @@ namespace jsrt
         friend class context;
         friend class value;
 
-    private:
         template<class T>
         static bool is_rest(T value)
         {
@@ -3339,7 +3232,8 @@ namespace jsrt
                 context::set_exception(error::create(L"Incorrect number of arguments."));
                 return false;
             }
-            else if (to_native(arguments[position], &result) != JsNoError)
+            
+			if (marshal::to_native(arguments[position], &result) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return false;
@@ -3358,7 +3252,7 @@ namespace jsrt
             else
             {
                 T nativeValue;
-                if (to_native(arguments[position], &nativeValue) != JsNoError)
+                if (marshal::to_native(arguments[position], &nativeValue) != JsNoError)
                 {
                     context::set_exception(error::create_type_error(L"Could not convert value."));
                     result = missing();
@@ -3384,7 +3278,7 @@ namespace jsrt
                 {
                     T value;
 
-                    if (to_native(v, &value) != JsNoError)
+                    if (marshal::to_native(v, &value) != JsNoError)
                     {
                         context::set_exception(error::create_type_error(L"Could not convert value."));
                         succeeded = true;
@@ -3418,7 +3312,7 @@ namespace jsrt
         template<class T>
         static void fill_rest(T argument, unsigned start, std::vector<JsValueRef> &arguments)
         {
-            runtime::translate_error_code(from_native(argument, &arguments[start]));
+            runtime::translate_error_code(marshal::from_native(argument, &arguments[start]));
         }
 
         template<class T>
@@ -3427,7 +3321,7 @@ namespace jsrt
             std::transform(rest.begin(), rest.end(), arguments.begin() + start, [&](T v)
             {
                 JsValueRef value;
-                runtime::translate_error_code(from_native(v, &value));
+                runtime::translate_error_code(marshal::from_native(v, &value));
                 return value;
             });
         }
@@ -3630,25 +3524,25 @@ namespace jsrt
                 fill_rest(p8, 8, arguments);
                 // fall through
             case 8:
-                runtime::translate_error_code(from_native(p7, &arguments[7]));
+                runtime::translate_error_code(marshal::from_native(p7, &arguments[7]));
                 // fall through
             case 7:
-                runtime::translate_error_code(from_native(p6, &arguments[6]));
+                runtime::translate_error_code(marshal::from_native(p6, &arguments[6]));
                 // fall through
             case 6:
-                runtime::translate_error_code(from_native(p5, &arguments[5]));
+                runtime::translate_error_code(marshal::from_native(p5, &arguments[5]));
                 // fall through
             case 5:
-                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                runtime::translate_error_code(marshal::from_native(p4, &arguments[4]));
                 // fall through
             case 4:
-                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                runtime::translate_error_code(marshal::from_native(p3, &arguments[3]));
                 // fall through
             case 3:
-                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                runtime::translate_error_code(marshal::from_native(p2, &arguments[2]));
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3687,22 +3581,22 @@ namespace jsrt
                 fill_rest(p7, 7, arguments);
                 // fall through
             case 7:
-                runtime::translate_error_code(from_native(p6, &arguments[6]));
+                runtime::translate_error_code(marshal::from_native(p6, &arguments[6]));
                 // fall through
             case 6:
-                runtime::translate_error_code(from_native(p5, &arguments[5]));
+                runtime::translate_error_code(marshal::from_native(p5, &arguments[5]));
                 // fall through
             case 5:
-                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                runtime::translate_error_code(marshal::from_native(p4, &arguments[4]));
                 // fall through
             case 4:
-                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                runtime::translate_error_code(marshal::from_native(p3, &arguments[3]));
                 // fall through
             case 3:
-                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                runtime::translate_error_code(marshal::from_native(p2, &arguments[2]));
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3740,19 +3634,19 @@ namespace jsrt
                 fill_rest(p6, 6, arguments);
                 // fall through
             case 6:
-                runtime::translate_error_code(from_native(p5, &arguments[5]));
+                runtime::translate_error_code(marshal::from_native(p5, &arguments[5]));
                 // fall through
             case 5:
-                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                runtime::translate_error_code(marshal::from_native(p4, &arguments[4]));
                 // fall through
             case 4:
-                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                runtime::translate_error_code(marshal::from_native(p3, &arguments[3]));
                 // fall through
             case 3:
-                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                runtime::translate_error_code(marshal::from_native(p2, &arguments[2]));
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3789,16 +3683,16 @@ namespace jsrt
                 fill_rest(p5, 5, arguments);
                 // fall through
             case 5:
-                runtime::translate_error_code(from_native(p4, &arguments[4]));
+                runtime::translate_error_code(marshal::from_native(p4, &arguments[4]));
                 // fall through
             case 4:
-                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                runtime::translate_error_code(marshal::from_native(p3, &arguments[3]));
                 // fall through
             case 3:
-                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                runtime::translate_error_code(marshal::from_native(p2, &arguments[2]));
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3834,13 +3728,13 @@ namespace jsrt
                 fill_rest(p4, 4, arguments);
                 // fall through
             case 4:
-                runtime::translate_error_code(from_native(p3, &arguments[3]));
+                runtime::translate_error_code(marshal::from_native(p3, &arguments[3]));
                 // fall through
             case 3:
-                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                runtime::translate_error_code(marshal::from_native(p2, &arguments[2]));
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3875,10 +3769,10 @@ namespace jsrt
                 fill_rest(p3, 3, arguments);
                 // fall through
             case 3:
-                runtime::translate_error_code(from_native(p2, &arguments[2]));
+                runtime::translate_error_code(marshal::from_native(p2, &arguments[2]));
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3912,7 +3806,7 @@ namespace jsrt
                 fill_rest(p2, 2, arguments);
                 // fall through
             case 2:
-                runtime::translate_error_code(from_native(p1, &arguments[1]));
+                runtime::translate_error_code(marshal::from_native(p1, &arguments[1]));
                 // fall through
             case 1:
                 // Nothing to do
@@ -3983,21 +3877,14 @@ namespace jsrt
         }
 
         template <class R>
-        R call_function(std::vector<JsValueRef> &arguments)
+        R call_function(std::vector<JsValueRef> arguments)
         {
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), (unsigned short)arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), static_cast<unsigned short>(arguments.size()), &resultValue));
 
             R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
+            runtime::translate_error_code(marshal::to_native(resultValue, &result));
             return result;
-        }
-
-        template <>
-        void call_function(std::vector<JsValueRef> &arguments)
-        {
-            JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), (unsigned short)arguments.size(), &resultValue));
         }
 
         explicit function_base(JsValueRef ref) :
@@ -4025,8 +3912,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            value result = value();
+            Signature callback = static_cast<Signature>(callback_state);
+            value result;
             try
             {
                 result = callback(info, argument_vector);
@@ -4038,7 +3925,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -4076,12 +3963,12 @@ namespace jsrt
         /// <param name="this_value">The value of <c>this</c> for the call.</param>
         /// <param name="arguments">Arguments to the call.</param>
         /// <returns>The result of the call.</returns>
-        value operator()(value this_value, std::initializer_list<value> arguments)
+        value operator()(value this_value, std::initializer_list<value> arguments) const
         {
             std::vector<JsValueRef> call_arguments = pack_arguments(this_value, arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsCallFunction(handle(), (JsValueRef *)call_arguments.data(), (unsigned short)call_arguments.size(), &resultValue));
+            runtime::translate_error_code(JsCallFunction(handle(), static_cast<JsValueRef *>(call_arguments.data()), static_cast<unsigned short>(call_arguments.size()), &resultValue));
             return value(resultValue);
         }
 
@@ -4093,12 +3980,12 @@ namespace jsrt
         /// </remarks>
         /// <param name="arguments">Arguments to the constructor call.</param>
         /// <returns>The result of the constructor call.</returns>
-        value construct(std::initializer_list<value> arguments)
+        value construct(std::initializer_list<value> arguments) const
         {
             std::vector<JsValueRef> call_arguments = pack_arguments(context::undefined(), arguments);
 
             JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), (JsValueRef *)call_arguments.data(), (unsigned short)call_arguments.size(), &resultValue));
+            runtime::translate_error_code(JsConstructObject(handle(), static_cast<JsValueRef *>(call_arguments.data()), static_cast<unsigned short>(call_arguments.size()), &resultValue));
             return value(resultValue);
         }
 
@@ -4113,11 +4000,11 @@ namespace jsrt
         static function_base create(Signature signature)
         {
             JsValueRef ref;
-			if (signature == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, signature, &ref));
+            if (signature == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, signature, &ref));
             return function_base(ref);
         }
 
@@ -4133,12 +4020,12 @@ namespace jsrt
         static function_base create(std::wstring name, Signature signature)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (signature == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
+            if (signature == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
             runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, signature, &ref));
             return function_base(ref);
         }
@@ -4173,7 +4060,14 @@ namespace jsrt
         }
     };
 
-    /// <summary>
+	template <>
+	inline void function_base::call_function(std::vector<JsValueRef> arguments)
+	{
+		JsValueRef resultValue;
+		runtime::translate_error_code(JsCallFunction(handle(), arguments.data(), static_cast<unsigned short>(arguments.size()), &resultValue));
+	}
+
+	/// <summary>
     ///     A reference to a JavaScript function that creates an object.
     /// </summary>
     template<class R>
@@ -4200,10 +4094,10 @@ namespace jsrt
         R construct_object(std::vector<JsValueRef> &arguments)
         {
             JsValueRef resultValue;
-            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), (unsigned short)arguments.size(), &resultValue));
+            runtime::translate_error_code(JsConstructObject(handle(), arguments.data(), static_cast<unsigned short>(arguments.size()), &resultValue));
 
             R result;
-            runtime::translate_error_code(to_native(resultValue, &result));
+            runtime::translate_error_code(marshal::to_native(resultValue, &result));
             return result;
         }
 
@@ -4211,7 +4105,7 @@ namespace jsrt
         /// <summary>
         ///     The object that will be the prototype of objects created by this function.
         /// </summary>
-        typename object constructor_prototype()
+	    object constructor_prototype()
         {
             return get_property<object>(property_id::create(L"prototype"));
         }
@@ -4220,7 +4114,7 @@ namespace jsrt
         ///     Sets the object that will be the prototype of objects created by this function.
         /// </summary>
         /// <param name="prototype">The prototype object.</param>
-        void set_constructor_prototype(typename object prototype)
+        void set_constructor_prototype(object prototype)
         {
             return set_property<object>(property_id::create(L"prototype"), prototype);
         }
@@ -4361,8 +4255,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
@@ -4374,7 +4268,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -4397,24 +4291,24 @@ namespace jsrt
         static function<R, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2, P3, P4, P5, P6, P7, P8> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4467,7 +4361,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2, p3, p4, p5, p6, p7, p8);
@@ -4490,24 +4384,24 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5, P6, P7, P8> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2, P3, P4, P5, P6, P7, P8> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4555,8 +4449,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2, p3, p4, p5, p6, p7);
@@ -4568,7 +4462,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -4591,24 +4485,24 @@ namespace jsrt
         static function<R, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2, P3, P4, P5, P6, P7> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4660,7 +4554,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2, p3, p4, p5, p6, p7);
@@ -4683,24 +4577,24 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5, P6, P7> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2, P3, P4, P5, P6, P7> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4747,8 +4641,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2, p3, p4, p5, p6);
@@ -4760,7 +4654,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -4783,24 +4677,24 @@ namespace jsrt
         static function<R, P1, P2, P3, P4, P5, P6> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2, P3, P4, P5, P6> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4851,7 +4745,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2, p3, p4, p5, p6);
@@ -4874,24 +4768,24 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5, P6> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2, P3, P4, P5, P6> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -4937,8 +4831,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2, p3, p4, p5);
@@ -4950,7 +4844,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -4973,24 +4867,24 @@ namespace jsrt
         static function<R, P1, P2, P3, P4, P5> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2, P3, P4, P5> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5040,7 +4934,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2, p3, p4, p5);
@@ -5063,24 +4957,24 @@ namespace jsrt
         static function<void, P1, P2, P3, P4, P5> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2, P3, P4, P5> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5125,8 +5019,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2, p3, p4);
@@ -5138,7 +5032,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -5161,24 +5055,24 @@ namespace jsrt
         static function<R, P1, P2, P3, P4> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2, P3, P4> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5227,7 +5121,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2, p3, p4);
@@ -5250,24 +5144,24 @@ namespace jsrt
         static function<void, P1, P2, P3, P4> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2, P3, P4> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5311,8 +5205,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2, p3);
@@ -5324,7 +5218,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -5347,24 +5241,24 @@ namespace jsrt
         static function<R, P1, P2, P3> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2, P3> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5412,7 +5306,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2, p3);
@@ -5435,24 +5329,24 @@ namespace jsrt
         static function<void, P1, P2, P3> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2, P3> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5495,8 +5389,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1, p2);
@@ -5508,7 +5402,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -5531,24 +5425,24 @@ namespace jsrt
         static function<R, P1, P2> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1, P2> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5595,7 +5489,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1, p2);
@@ -5618,24 +5512,24 @@ namespace jsrt
         static function<void, P1, P2> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1, P2> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5677,8 +5571,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info, p1);
@@ -5690,7 +5584,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -5713,24 +5607,24 @@ namespace jsrt
         static function<R, P1> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R, P1> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5776,7 +5670,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info, p1);
@@ -5799,24 +5693,24 @@ namespace jsrt
         static function<void, P1> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<void, P1> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5857,8 +5751,8 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
-            R result = R();
+            Signature callback = static_cast<Signature>(callback_state);
+            R result;
             try
             {
                 result = callback(info);
@@ -5870,7 +5764,7 @@ namespace jsrt
             }
 
             JsValueRef resultValue;
-            if (from_native(result, &resultValue) != JsNoError)
+            if (marshal::from_native(result, &resultValue) != JsNoError)
             {
                 context::set_exception(error::create_type_error(L"Could not convert value."));
                 return JS_INVALID_REFERENCE;
@@ -5893,24 +5787,24 @@ namespace jsrt
         static function<R> create(Signature function)
         {
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
 
         static function<R> create(std::wstring name, Signature function)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
+            if (function == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -5956,7 +5850,7 @@ namespace jsrt
                 return JS_INVALID_REFERENCE;
             }
 
-            Signature callback = (Signature)callback_state;
+            Signature callback = static_cast<Signature>(callback_state);
             try
             {
                 callback(info);
@@ -5979,10 +5873,10 @@ namespace jsrt
         static function<void> create(Signature function_signature)
         {
             JsValueRef ref;
-			if (function_signature == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
+            if (function_signature == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
             runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
             return decltype(create(nullptr))(ref);
         }
@@ -5990,13 +5884,13 @@ namespace jsrt
         static function<void> create(std::wstring name, Signature function_signature)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
-			if (function_signature == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
+            if (function_signature == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
             return decltype(create(nullptr))(ref);
         }
     };
@@ -6010,8 +5904,7 @@ namespace jsrt
     {
         friend class value;
 
-    private:
-        TThis _this_value;
+	    TThis _this_value;
 
         explicit bound_function<TThis, R, Parameters...>(TThis this_value, JsValueRef ref) :
             function<R, Parameters...>(ref),
@@ -6068,11 +5961,11 @@ namespace jsrt
         static bound_function<TThis, R, Parameters...> create(TThis this_value, Signature function_signature)
         {
             JsValueRef ref;
-			if (function_signature == nullptr)
-			{
-				runtime::translate_error_code(JsErrorNullArgument);
-			}
-			runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
+            if (function_signature == nullptr)
+            {
+                runtime::translate_error_code(JsErrorNullArgument);
+            }
+            runtime::translate_error_code(JsCreateFunction(thunk, function_signature, &ref));
             return decltype(create(TThis(), nullptr))(this_value, ref);
         }
 
@@ -6091,7 +5984,7 @@ namespace jsrt
         static bound_function<TThis, R, Parameters...> create(std::wstring name, TThis this_value, Signature function_signature)
         {
             JsValueRef nameRef;
-            runtime::translate_error_code(value::from_native(name, &nameRef));
+            runtime::translate_error_code(marshal::from_native(name, &nameRef));
             JsValueRef ref;
             runtime::translate_error_code(JsCreateNamedFunction(nameRef, thunk, function_signature, &ref));
 
@@ -6107,7 +6000,6 @@ namespace jsrt
     {
         friend class value;
 
-    private:
         explicit property_descriptor(JsValueRef ref) :
             object(ref)
         {
@@ -6235,7 +6127,7 @@ namespace jsrt
         /// <returns>The new property descriptor.</returns>
         static property_descriptor<T> create()
         {
-            return (property_descriptor<T>)object::create();
+            return static_cast<property_descriptor<T>>(object::create());
         }
 
         /// <summary>
@@ -6246,7 +6138,7 @@ namespace jsrt
         /// <returns>The new property descriptor.</returns>
         static property_descriptor<T> create(function<T> getter, function<void, T> setter)
         {
-            property_descriptor<T> desc = (property_descriptor<T>)object::create();
+            property_descriptor<T> desc = static_cast<property_descriptor<T>>(object::create());
             desc.set_getter(getter);
             desc.set_setter(setter);
             return desc;
@@ -6376,7 +6268,6 @@ namespace jsrt
 
     class script_exception : public exception
     {
-    private:
         value _error;
 
     public:
@@ -6406,7 +6297,6 @@ namespace jsrt
         friend class runtime;
         friend class value;
 
-    private:
         explicit compile_error(JsValueRef ref) :
             error(ref)
         {
@@ -6475,7 +6365,6 @@ namespace jsrt
 
     class script_compile_exception : public exception
     {
-    private:
         compile_error _error;
 
     public:
@@ -6496,4 +6385,135 @@ namespace jsrt
             return _error;
         }
     };
+
+	template<class T>
+	inline JsErrorCode marshal::to_native(JsValueRef value, T *result)
+	{
+		*result = T(object(value));
+		return JsNoError;
+	}
+
+	template<class T>
+	inline JsErrorCode marshal::to_native(JsValueRef value, optional<T> *result)
+	{
+		T innerValue;
+		JsErrorCode error = to_native(value, &innerValue);
+
+		if (error != JsNoError)
+		{
+			return error;
+		}
+
+		*result = optional<T>(innerValue);
+		return JsNoError;
+	}
+
+	template<>
+	inline JsErrorCode marshal::to_native(JsValueRef value, symbol *result)
+	{
+		*result = symbol(value);
+		return JsNoError;
+	}
+
+	template<>
+	inline JsErrorCode marshal::to_native<int>(JsValueRef value, int *result)
+	{
+		return JsNumberToInt(value, result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::to_native<double>(JsValueRef value, double *result)
+	{
+		return JsNumberToDouble(value, result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::to_native<bool>(JsValueRef value, bool *result)
+	{
+		return JsBooleanToBool(value, result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::to_native<std::wstring>(JsValueRef value, std::wstring *result)
+	{
+		JsValueType type;
+		JsErrorCode error = JsGetValueType(value, &type);
+		if (error != JsNoError)
+		{
+			return error;
+		}
+
+		if (type == JsNull)
+		{
+			*result = std::wstring();
+		}
+		else
+		{
+			const wchar_t *resultptr = nullptr;
+			size_t length;
+			error = JsStringToPointer(value, &resultptr, &length);
+			if (error == JsNoError)
+			{
+				*result = std::wstring(resultptr, length);
+			}
+		}
+		return error;
+	}
+
+	template<class T>
+	inline JsErrorCode marshal::from_native(T value, JsValueRef *result)
+	{
+		*result = value.handle();
+		return JsNoError;
+	}
+
+	template<class T>
+	inline JsErrorCode marshal::from_native(optional<T> value, JsValueRef *result)
+	{
+		if (!value.has_value())
+		{
+			// shouldn't get here
+			return JsErrorInvalidArgument;
+		}
+
+		return from_native(value.value(), result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::from_native(double value, JsValueRef *result)
+	{
+		return JsDoubleToNumber(value, result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::from_native(int value, JsValueRef *result)
+	{
+		return JsIntToNumber(value, result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::from_native(bool value, JsValueRef *result)
+	{
+		return JsBoolToBoolean(value, result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::from_native(std::wstring value, JsValueRef *result)
+	{
+		if (value.empty())
+		{
+			return JsGetNullValue(result);
+		}
+		return JsPointerToString(value.c_str(), value.length(), result);
+	}
+
+	template<>
+	inline JsErrorCode marshal::from_native(const wchar_t *value, JsValueRef *result)
+	{
+		if (value == nullptr)
+		{
+			return JsGetNullValue(result);
+		}
+		return JsPointerToString(value, wcslen(value), result);
+	}
 }

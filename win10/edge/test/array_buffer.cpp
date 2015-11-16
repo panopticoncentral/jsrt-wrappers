@@ -64,7 +64,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::array_buffer::create(0);
-                jsrt::array_buffer array = (jsrt::array_buffer)value;
+                static_cast<jsrt::array_buffer>(value);
             }
             runtime.dispose();
         }

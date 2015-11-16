@@ -30,23 +30,23 @@ public:
     }
 
     // IUnknown
-    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObj)
+    HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObj) override
     {
         if (riid == IID_IUnknown)
         {
-            *ppvObj = (IUnknown *) this;
+            *ppvObj = static_cast<IUnknown *>(this);
         }
         else if (riid == IID_IActiveScriptProfilerCallback)
         {
-            *ppvObj = (IActiveScriptProfilerCallback *) this;
+            *ppvObj = static_cast<IActiveScriptProfilerCallback *>(this);
         }
         else if (riid == IID_IActiveScriptProfilerCallback2)
         {
-            *ppvObj = (IActiveScriptProfilerCallback2 *) this;
+            *ppvObj = static_cast<IActiveScriptProfilerCallback2 *>(this);
         }
         else
         {
-            *ppvObj = NULL;
+            *ppvObj = nullptr;
             return E_NOINTERFACE;
         }
 
@@ -55,12 +55,12 @@ public:
         return NOERROR;
     }
 
-    ULONG STDMETHODCALLTYPE AddRef(void)
+    ULONG STDMETHODCALLTYPE AddRef(void) override
     {
         return InterlockedIncrement(&m_refCount);
     }
 
-    ULONG STDMETHODCALLTYPE Release(void)
+    ULONG STDMETHODCALLTYPE Release(void) override
     {
         long lw;
 
@@ -73,14 +73,14 @@ public:
     }
 
     // IActiveScriptProfilerCallback
-    HRESULT STDMETHODCALLTYPE Initialize(DWORD dwContext) { return S_OK; }
-    HRESULT STDMETHODCALLTYPE Shutdown(HRESULT hrReason) { return S_OK; }
-    HRESULT STDMETHODCALLTYPE ScriptCompiled(PROFILER_TOKEN scriptId, PROFILER_SCRIPT_TYPE type, IUnknown *pIDebugDocumentContext) { return S_OK; }
-    HRESULT STDMETHODCALLTYPE FunctionCompiled(PROFILER_TOKEN functionId, PROFILER_TOKEN scriptId, const wchar_t *pwszFunctionName, const wchar_t *pwszFunctionNameHint, IUnknown *pIDebugDocumentContext) { return S_OK; }
-    HRESULT STDMETHODCALLTYPE OnFunctionEnter(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId) { return S_OK; }
-    HRESULT STDMETHODCALLTYPE OnFunctionExit(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId) { return S_OK; }
+    HRESULT STDMETHODCALLTYPE Initialize(DWORD dwContext) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE Shutdown(HRESULT hrReason) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE ScriptCompiled(PROFILER_TOKEN scriptId, PROFILER_SCRIPT_TYPE type, IUnknown *pIDebugDocumentContext) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE FunctionCompiled(PROFILER_TOKEN functionId, PROFILER_TOKEN scriptId, const wchar_t *pwszFunctionName, const wchar_t *pwszFunctionNameHint, IUnknown *pIDebugDocumentContext) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnFunctionEnter(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnFunctionExit(PROFILER_TOKEN scriptId, PROFILER_TOKEN functionId) override { return S_OK; }
 
     // IActiveScriptProfilerCallback2
-    HRESULT STDMETHODCALLTYPE OnFunctionEnterByName(const wchar_t *pwszFunctionName, PROFILER_SCRIPT_TYPE type) { return S_OK; }
-    HRESULT STDMETHODCALLTYPE OnFunctionExitByName(const wchar_t *pwszFunctionName, PROFILER_SCRIPT_TYPE type) { return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnFunctionEnterByName(const wchar_t *pwszFunctionName, PROFILER_SCRIPT_TYPE type) override { return S_OK; }
+    HRESULT STDMETHODCALLTYPE OnFunctionExitByName(const wchar_t *pwszFunctionName, PROFILER_SCRIPT_TYPE type) override { return S_OK; }
 };

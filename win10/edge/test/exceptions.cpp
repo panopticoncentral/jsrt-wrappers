@@ -107,7 +107,6 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(no_current_context, "Test no_current_context_exception.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
             TEST_NO_CONTEXT_CALL(jsrt::object::create());
             runtime.dispose();
         }
@@ -137,7 +136,7 @@ namespace jsrtwrapperstest
 
         static DWORD WINAPI thread_proc(LPVOID param)
         {
-            jsrt::runtime *runtime = (jsrt::runtime *)param;
+            jsrt::runtime *runtime = static_cast<jsrt::runtime *>(param);
             TEST_FAILED_CALL(runtime->collect_garbage(), wrong_thread_exception);
             return 0;
         }
@@ -283,7 +282,7 @@ namespace jsrtwrapperstest
 
         static DWORD WINAPI thread_proc2(LPVOID param)
         {
-            jsrt::runtime *runtime = (jsrt::runtime *)param;
+            jsrt::runtime *runtime = static_cast<jsrt::runtime *>(param);
             SetEvent(ready_event);
             WaitForSingleObject(running_event, INFINITE);
             runtime->disable_execution();
@@ -300,7 +299,7 @@ namespace jsrtwrapperstest
                 ready_event = CreateEvent(nullptr, true, false, nullptr);
                 jsrt::context::global().set_property(jsrt::property_id::create(L"signal"),
                     jsrt::function<void>::create(signal));
-                HANDLE thread = CreateThread(nullptr, 0, thread_proc2, &runtime, 0, nullptr);
+                CreateThread(nullptr, 0, thread_proc2, &runtime, 0, nullptr);
                 WaitForSingleObject(ready_event, INFINITE);
                 TEST_FAILED_CALL(jsrt::context::run(L"while (true) { signal(); }"), script_terminated_exception);
                 CloseHandle(ready_event);
@@ -359,11 +358,11 @@ namespace jsrtwrapperstest
                 {
                     jsrt::compile_error error = e.error();
                     Assert::IsTrue(error.is_valid());
-                    Assert::AreEqual(error.message(), (std::wstring)L"Syntax error");
+                    Assert::AreEqual(error.message(), static_cast<std::wstring>(L"Syntax error"));
                     Assert::AreEqual(error.line(), 0.0);
                     Assert::AreEqual(error.column(), 2.0);
                     Assert::AreEqual(error.length(), 0.0);
-                    Assert::AreEqual(error.source(), (std::wstring)L"1+");
+                    Assert::AreEqual(error.source(), static_cast<std::wstring>(L"1+"));
                 }
             }
             runtime.dispose();

@@ -32,20 +32,7 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(no_context, "Test calls with no context.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
-            jsrt::symbol symbol;
             TEST_NO_CONTEXT_CALL(jsrt::symbol::create(L"foo"));
-            runtime.dispose();
-        }
-
-        MY_TEST_METHOD(invalid_handle, "Test calls with an invalid handle.")
-        {
-            jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
-            {
-                jsrt::context::scope scope(context);
-                jsrt::symbol symbol;
-            }
             runtime.dispose();
         }
 
@@ -55,9 +42,8 @@ namespace jsrtwrapperstest
             jsrt::context context = runtime.create_context();
             {
                 jsrt::context::scope scope(context);
-                jsrt::symbol symbol;
-                symbol = jsrt::symbol::create(L"foo");
-                symbol = jsrt::symbol::create(std::wstring());
+                jsrt::symbol::create(L"foo");
+                jsrt::symbol::create(std::wstring());
             }
             runtime.dispose();
         }

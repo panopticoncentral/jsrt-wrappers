@@ -40,7 +40,7 @@ namespace jsrtwrapperstest
 				array = jsrt::array<>::create(1);
             }
             TEST_NO_CONTEXT_CALL(array.size());
-            TEST_NO_CONTEXT_CALL((jsrt::value)array[0]);
+            TEST_NO_CONTEXT_CALL(static_cast<jsrt::value>(array[0]));
             TEST_NO_CONTEXT_CALL(array[0] = jsrt::value());
             runtime.dispose();
         }
@@ -53,7 +53,7 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::array<> array;
                 TEST_INVALID_ARG_CALL(array.size());
-                TEST_INVALID_ARG_CALL((jsrt::value)array[0]);
+                TEST_INVALID_ARG_CALL(static_cast<jsrt::value>(array[0]));
                 TEST_INVALID_ARG_CALL(array[0] = jsrt::value());
             }
             runtime.dispose();
@@ -66,11 +66,11 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::array<>::create(0);
-                jsrt::array<> array = (jsrt::array<>)value;
+                static_cast<jsrt::array<>>(value);
 
                 jsrt::array<double> array2 = jsrt::array<double>::create({ 1, 2, 3, 4 });
-                Assert::AreEqual((double)array2[0], 1.0);
-                Assert::AreEqual((double)array2[3], 4.0);
+                Assert::AreEqual(static_cast<double>(array2[0]), 1.0);
+                Assert::AreEqual(static_cast<double>(array2[3]), 4.0);
             }
             runtime.dispose();
         }
@@ -84,20 +84,20 @@ namespace jsrtwrapperstest
                 jsrt::array<double> darray = jsrt::array<double>::create(1);
                 darray[0] = 10;
                 darray[1] = 20;
-                Assert::AreEqual((double)darray[0], 10.0);
-                Assert::AreEqual((double)darray[1], 20.0);
+                Assert::AreEqual(static_cast<double>(darray[0]), 10.0);
+                Assert::AreEqual(static_cast<double>(darray[1]), 20.0);
 
                 jsrt::array<bool> barray = jsrt::array<bool>::create(1);
                 barray[0] = true;
                 barray[1] = true;
-                Assert::IsTrue((bool) barray[0]);
-                Assert::IsTrue((bool) barray[1]);
+                Assert::IsTrue(static_cast<bool>(barray[0]));
+                Assert::IsTrue(static_cast<bool>(barray[1]));
 
                 jsrt::array<std::wstring> sarray = jsrt::array<std::wstring>::create(1);
                 sarray[0] = L"foo";
                 sarray[1] = L"bar";
-                Assert::AreEqual((std::wstring) sarray[0], (std::wstring)L"foo");
-                Assert::AreEqual((std::wstring) sarray[1], (std::wstring)L"bar");
+                Assert::AreEqual(static_cast<std::wstring>(sarray[0]), static_cast<std::wstring>(L"foo"));
+                Assert::AreEqual(static_cast<std::wstring>(sarray[1]), static_cast<std::wstring>(L"bar"));
 
                 Assert::AreEqual(sarray.size(), 2);
             }

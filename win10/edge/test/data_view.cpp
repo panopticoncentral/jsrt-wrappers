@@ -74,7 +74,7 @@ namespace jsrtwrapperstest
                 jsrt::context::scope scope(context);
                 jsrt::array_buffer buffer = jsrt::array_buffer::create(0);
                 jsrt::value value = jsrt::data_view<>::create(buffer, 0, 0);
-                jsrt::data_view<> view = (jsrt::data_view<>)value;
+                static_cast<jsrt::data_view<>>(value);
             }
             runtime.dispose();
         }

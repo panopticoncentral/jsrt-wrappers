@@ -13,7 +13,6 @@
 // limitations under the License.
 
 #include "stdafx.h"
-#include <vector>
 #include "CppUnitTest.h"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
@@ -33,7 +32,6 @@ namespace jsrtwrapperstest
         MY_TEST_METHOD(no_context, "Test calls with no context.")
         {
             jsrt::runtime runtime = jsrt::runtime::create();
-            jsrt::context context = runtime.create_context();
             jsrt::property_descriptor<bool> property_descriptor;
             TEST_NO_CONTEXT_CALL(jsrt::property_descriptor<bool>::create());
             TEST_NO_CONTEXT_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>(), jsrt::function<void, bool>()));
@@ -82,7 +80,7 @@ namespace jsrtwrapperstest
                 TEST_INVALID_ARG_CALL(property_descriptor.setter());
                 TEST_INVALID_ARG_CALL(property_descriptor.set_setter(jsrt::function<void, bool>()));
 
-                jsrt::property_descriptor<bool> valid_descriptor = jsrt::property_descriptor<bool>::create();
+                jsrt::property_descriptor<bool>::create();
                 TEST_INVALID_ARG_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>(), jsrt::function<void, bool>()));
                 TEST_INVALID_ARG_CALL(jsrt::property_descriptor<bool>::create(jsrt::function<bool>::create(b), jsrt::function<void, bool>()));
                 TEST_INVALID_ARG_CALL(property_descriptor.set_getter(jsrt::function<bool>()));
@@ -98,7 +96,7 @@ namespace jsrtwrapperstest
             {
                 jsrt::context::scope scope(context);
                 jsrt::value value = jsrt::property_descriptor<bool>::create();
-                jsrt::property_descriptor<bool> property_descriptor = (jsrt::property_descriptor<bool>)value;
+                jsrt::property_descriptor<bool> property_descriptor = static_cast<jsrt::property_descriptor<bool>>(value);
                 Assert::IsTrue(property_descriptor.is_valid());
                 property_descriptor = jsrt::property_descriptor<bool>::create(jsrt::function<bool>::create(b), jsrt::function<void, bool>::create(set_b));
                 Assert::IsTrue(property_descriptor.is_valid());
